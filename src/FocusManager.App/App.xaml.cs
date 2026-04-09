@@ -4,7 +4,7 @@ namespace FocusManager.App;
 
 public partial class App : Application
 {
-    private Window? _mainWindow;
+    public static Window? WindowInstance { get; private set; }
 
     public App()
     {
@@ -13,7 +13,7 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        _mainWindow = new MainWindow();
-        _mainWindow.Activate();
+        WindowInstance = new MainWindow();
+        WindowInstance.Activate();
     }
 }

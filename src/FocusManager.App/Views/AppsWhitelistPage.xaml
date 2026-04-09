@@ -7,13 +7,18 @@
     <Grid Padding="24">
         <ScrollViewer>
             <StackPanel Spacing="8">
-                <TextBlock Text="Applications Whitelist" FontSize="24" FontWeight="SemiBold" />
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="? Dashboard" Click="BackToDashboard_Click" />
+                    <TextBlock Text="Applications Whitelist" FontSize="24" FontWeight="SemiBold" />
+                </StackPanel>
+
                 <TextBlock Text="Allow only new app launches from this list." />
 
                 <TextBox x:Name="AppDisplayNameInput" Header="Display name" PlaceholderText="Visual Studio Code" />
                 <TextBox x:Name="AppPathInput" Header="Executable path" PlaceholderText="C:\Program Files\App\app.exe" />
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Browse .exe..." Click="BrowseExecutable_Click" />
                     <Button Content="Add" Click="Add_Click" />
                     <Button Content="Remove Selected" Click="Remove_Click" />
                 </StackPanel>

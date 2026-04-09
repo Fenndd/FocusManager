@@ -10,19 +10,27 @@
     <ScrollViewer>
         <StackPanel Spacing="12" Padding="24">
             <TextBlock Text="FocusManager" FontSize="28" FontWeight="SemiBold" />
-            <TextBlock Text="Study mode control panel (stub UI)." />
+            <TextBlock Text="Control study mode and manage whitelist categories." />
 
-            <ToggleSwitch
-                x:Name="StudyModeSwitch"
-                Header="Study Mode"
-                Toggled="StudyModeSwitch_Toggled" />
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <ToggleSwitch
+                    x:Name="StudyModeSwitch"
+                    Header="Study Mode"
+                    OnContent="ON"
+                    OffContent="OFF"
+                    Toggled="StudyModeSwitch_Toggled" />
+
+                <Button x:Name="RefreshButton" Content="Refresh" Click="RefreshButton_Click" />
+            </StackPanel>
 
             <TextBlock x:Name="StatusText" Text="Agent status: unknown" />
+            <TextBlock x:Name="ModeStatusText" Text="Current mode: unknown" Opacity="0.8" />
+            <TextBlock x:Name="ReadinessText" Text="Whitelist status: unknown" TextWrapping="Wrap" Opacity="0.85" />
 
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Applications" Click="OpenApps_Click" />
-                <Button Content="Folders" Click="OpenFolders_Click" />
-                <Button Content="Sites" Click="OpenSites_Click" />
+                <Button x:Name="AppsButton" Content="Applications (?)" Click="OpenApps_Click" />
+                <Button x:Name="FoldersButton" Content="Folders (?)" Click="OpenFolders_Click" />
+                <Button x:Name="SitesButton" Content="Sites (?)" Click="OpenSites_Click" />
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

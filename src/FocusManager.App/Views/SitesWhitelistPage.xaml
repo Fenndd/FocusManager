@@ -7,11 +7,16 @@
     <Grid Padding="24">
         <ScrollViewer>
             <StackPanel Spacing="8">
-                <TextBlock Text="Sites Whitelist" FontSize="24" FontWeight="SemiBold" />
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="? Dashboard" Click="BackToDashboard_Click" />
+                    <TextBlock Text="Sites Whitelist" FontSize="24" FontWeight="SemiBold" />
+                </StackPanel>
+
                 <TextBlock Text="Allow only these sites in Chrome policy (host patterns)." />
+                <TextBlock Text="Examples: wikipedia.org, *.wikipedia.org" Opacity="0.7" />
 
                 <TextBox x:Name="SiteDisplayNameInput" Header="Display name" PlaceholderText="Wikipedia" />
-                <TextBox x:Name="SiteHostInput" Header="Host pattern" PlaceholderText="*.wikipedia.org" />
+                <TextBox x:Name="SiteHostInput" Header="Host pattern or URL" PlaceholderText="*.wikipedia.org" />
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Button Content="Add" Click="Add_Click" />

@@ -41,13 +41,18 @@ public sealed partial class SitesWhitelistPage : Page
         }
     }
 
+    private void BackToDashboard_Click(object sender, RoutedEventArgs e)
+    {
+        Frame.Navigate(typeof(DashboardPage));
+    }
+
     private async void Add_Click(object sender, RoutedEventArgs e)
     {
-        var hostPattern = SiteHostInput.Text.Trim();
+        var hostPattern = NormalizeHostPattern(SiteHostInput.Text);
 
         if (string.IsNullOrWhiteSpace(hostPattern))
         {
-            StatusText.Text = "Status: host pattern is required.";
+            StatusText.Text = "Status: enter a valid host pattern (example: wikipedia.org or *.wikipedia.org).";
             return;
         }
 
@@ -111,6 +116,78 @@ public sealed partial class SitesWhitelistPage : Page
             .ToList();
 
         await _agentClient.SaveWhitelistAsync(config);
+    }
+
+    private static string NormalizeHostPattern(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        var value = input.Trim().Trim('/');
+
+        if (value.Contains(' '))
+        {
+            return string.Empty;
+        }
+
+        if (string.Equals(value, "*", StringComparison.Ordinal))
+        {
+            return "*";
+        }
+
+        if (value.StartsWith("*.", StringComparison.Ordinal))
+        {
+            var suffix = NormalizeHost(value[2..]);
+            return string.IsNullOrWhiteSpace(suffix)
+                ? string.Empty
+                : $"*.{suffix}";
+        }
+
+        return NormalizeHost(value);
+    }
+
+    private static string NormalizeHost(string value)
+    {
+        var candidate = value.Trim();
+
+        if (candidate.Contains("*", StringComparison.Ordinal))
+        {
+            return string.Empty;
+        }
+
+        if (candidate.Contains("://", StringComparison.Ordinal))
+        {
+            if (!Uri.TryCreate(candidate, UriKind.Absolute, out var absoluteUri))
+            {
+                return string.Empty;
+            }
+
+            return absoluteUri.Host.ToLowerInvariant();
+        }
+
+        if (candidate.Contains('/'))
+        {
+            candidate = candidate.Split('/')[0];
+        }
+
+        if (candidate.Contains(':'))
+        {
+            if (!Uri.TryCreate($"https://{candidate}", UriKind.Absolute, out var uriWithPort))
+            {
+                return string.Empty;
+            }
+
+            candidate = uriWithPort.Host;
+        }
+
+        if (Uri.CheckHostName(candidate) == UriHostNameType.Unknown)
+        {
+            return string.Empty;
+        }
+
+        return candidate.ToLowerInvariant();
     }
 
     private sealed class SiteListItem

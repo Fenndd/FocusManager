@@ -3,6 +3,8 @@ using FocusManager.App.Services;
 using FocusManager.Core.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace FocusManager.App.Views;
 
@@ -41,13 +43,66 @@ public sealed partial class FoldersWhitelistPage : Page
         }
     }
 
+    private void BackToDashboard_Click(object sender, RoutedEventArgs e)
+    {
+        Frame.Navigate(typeof(DashboardPage));
+    }
+
+    private async void BrowseFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var window = App.WindowInstance;
+            if (window is null)
+            {
+                StatusText.Text = "Status: app window is not available for picker.";
+                return;
+            }
+
+            var picker = new FolderPicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+
+            picker.FileTypeFilter.Add("*");
+
+            var hwnd = WindowNative.GetWindowHandle(window);
+            InitializeWithWindow.Initialize(picker, hwnd);
+
+            var folder = await picker.PickSingleFolderAsync();
+            if (folder is null)
+            {
+                return;
+            }
+
+            FolderPathInput.Text = NormalizeFolderPath(folder.Path);
+
+            if (string.IsNullOrWhiteSpace(FolderDisplayNameInput.Text))
+            {
+                FolderDisplayNameInput.Text = folder.Name;
+            }
+
+            StatusText.Text = "Status: folder selected";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Status: failed to open picker ({ex.Message})";
+        }
+    }
+
     private async void Add_Click(object sender, RoutedEventArgs e)
     {
-        var folderPath = FolderPathInput.Text.Trim();
+        var folderPath = NormalizeFolderPath(FolderPathInput.Text);
 
         if (string.IsNullOrWhiteSpace(folderPath))
         {
             StatusText.Text = "Status: folder path is required.";
+            return;
+        }
+
+        if (!Directory.Exists(folderPath))
+        {
+            StatusText.Text = "Status: folder path does not exist.";
             return;
         }
 
@@ -60,7 +115,12 @@ public sealed partial class FoldersWhitelistPage : Page
         var displayName = FolderDisplayNameInput.Text.Trim();
         if (string.IsNullOrWhiteSpace(displayName))
         {
-            displayName = folderPath;
+            displayName = Path.GetFileName(folderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                displayName = folderPath;
+            }
         }
 
         _items.Add(new FolderListItem
@@ -111,6 +171,27 @@ public sealed partial class FoldersWhitelistPage : Page
             .ToList();
 
         await _agentClient.SaveWhitelistAsync(config);
+    }
+
+    private static string NormalizeFolderPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        var cleaned = path.Trim().Trim('"');
+
+        try
+        {
+            cleaned = Path.GetFullPath(cleaned);
+        }
+        catch
+        {
+            // Keep raw value if normalization fails.
+        }
+
+        return cleaned.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
     private sealed class FolderListItem

@@ -7,13 +7,18 @@
     <Grid Padding="24">
         <ScrollViewer>
             <StackPanel Spacing="8">
-                <TextBlock Text="Folders Whitelist" FontSize="24" FontWeight="SemiBold" />
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="? Dashboard" Click="BackToDashboard_Click" />
+                    <TextBlock Text="Folders Whitelist" FontSize="24" FontWeight="SemiBold" />
+                </StackPanel>
+
                 <TextBlock Text="Allow only new Explorer folder opens from this list." />
 
                 <TextBox x:Name="FolderDisplayNameInput" Header="Display name" PlaceholderText="Study Materials" />
                 <TextBox x:Name="FolderPathInput" Header="Folder path" PlaceholderText="C:\Users\you\Documents\Study" />
 
                 <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Browse folder..." Click="BrowseFolder_Click" />
                     <Button Content="Add" Click="Add_Click" />
                     <Button Content="Remove Selected" Click="Remove_Click" />
                 </StackPanel>
