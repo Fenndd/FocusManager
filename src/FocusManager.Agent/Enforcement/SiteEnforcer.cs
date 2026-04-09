@@ -14,11 +14,16 @@ public sealed class SiteEnforcer
 
     public Task ApplyAsync(WhitelistConfig config, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Site enforcement is not implemented yet.");
+        var allowedHosts = config.AllowedSites
+            .Select(x => x.HostPattern)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+
+        return _chromePolicyRegistry.ApplyWhitelistAsync(allowedHosts, cancellationToken);
     }
 
     public Task ClearAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException("Site enforcement is not implemented yet.");
+        return _chromePolicyRegistry.ClearWhitelistAsync(cancellationToken);
     }
 }

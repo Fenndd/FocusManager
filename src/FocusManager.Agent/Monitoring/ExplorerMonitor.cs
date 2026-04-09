@@ -9,7 +9,10 @@ public sealed class ExplorerMonitor
     public ExplorerMonitor(ExplorerInterop explorerInterop)
     {
         _explorerInterop = explorerInterop;
+        _explorerInterop.FolderOpened += OnFolderOpened;
     }
+
+    public event EventHandler<FolderOpenedEventArgs>? FolderOpened;
 
     public void Start()
     {
@@ -19,5 +22,10 @@ public sealed class ExplorerMonitor
     public void Stop()
     {
         _explorerInterop.StopMonitoring();
+    }
+
+    private void OnFolderOpened(object? sender, FolderOpenedEventArgs args)
+    {
+        FolderOpened?.Invoke(this, args);
     }
 }

@@ -1,22 +1,51 @@
 using FocusManager.Core.Abstractions;
 using FocusManager.Core.Models;
+using Microsoft.Data.Sqlite;
 
 namespace FocusManager.Infrastructure.Persistence;
 
 public sealed class SqliteWhitelistStore : IWhitelistStore
 {
-    private readonly SemaphoreSlim _gate = new(1, 1);
+    private const string StudyModeKey = "study_mode_enabled";
 
-    // Temporary in-memory state to keep IPC flow testable before SQLite is implemented.
-    private WhitelistConfig _config = new();
-    private bool _isStudyModeEnabled;
+    private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly string _connectionString;
+
+    public SqliteWhitelistStore()
+    {
+        var appDataDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "FocusManager");
+
+        Directory.CreateDirectory(appDataDir);
+
+        var dbPath = Path.Combine(appDataDir, "focusmanager.db");
+        _connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = dbPath,
+            Mode = SqliteOpenMode.ReadWriteCreate
+        }.ToString();
+
+        InitializeSchema();
+    }
 
     public async Task<WhitelistConfig> LoadAsync(CancellationToken cancellationToken = default)
     {
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            return Clone(_config);
+            await using var connection = await CreateOpenConnectionAsync(cancellationToken);
+
+            var apps = await ReadAllowedAppsAsync(connection, cancellationToken);
+            var folders = await ReadAllowedFoldersAsync(connection, cancellationToken);
+            var sites = await ReadAllowedSitesAsync(connection, cancellationToken);
+
+            return new WhitelistConfig
+            {
+                AllowedApps = apps,
+                AllowedFolders = folders,
+                AllowedSites = sites
+            };
         }
         finally
         {
@@ -31,7 +60,50 @@ public sealed class SqliteWhitelistStore : IWhitelistStore
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            _config = Clone(config);
+            await using var connection = await CreateOpenConnectionAsync(cancellationToken);
+            await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
+
+            await ExecuteNonQueryAsync(connection, transaction, "DELETE FROM allowed_apps;", cancellationToken);
+            await ExecuteNonQueryAsync(connection, transaction, "DELETE FROM allowed_folders;", cancellationToken);
+            await ExecuteNonQueryAsync(connection, transaction, "DELETE FROM allowed_sites;", cancellationToken);
+
+            foreach (var app in config.AllowedApps)
+            {
+                var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = @"
+INSERT INTO allowed_apps(display_name, executable_path)
+VALUES ($display_name, $executable_path);";
+                command.Parameters.AddWithValue("$display_name", app.DisplayName);
+                command.Parameters.AddWithValue("$executable_path", app.ExecutablePath);
+                await command.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            foreach (var folder in config.AllowedFolders)
+            {
+                var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = @"
+INSERT INTO allowed_folders(display_name, folder_path)
+VALUES ($display_name, $folder_path);";
+                command.Parameters.AddWithValue("$display_name", folder.DisplayName);
+                command.Parameters.AddWithValue("$folder_path", folder.FolderPath);
+                await command.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            foreach (var site in config.AllowedSites)
+            {
+                var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = @"
+INSERT INTO allowed_sites(display_name, host_pattern)
+VALUES ($display_name, $host_pattern);";
+                command.Parameters.AddWithValue("$display_name", site.DisplayName);
+                command.Parameters.AddWithValue("$host_pattern", site.HostPattern);
+                await command.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
         }
         finally
         {
@@ -44,7 +116,19 @@ public sealed class SqliteWhitelistStore : IWhitelistStore
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            return _isStudyModeEnabled;
+            await using var connection = await CreateOpenConnectionAsync(cancellationToken);
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT value FROM settings WHERE key = $key LIMIT 1;";
+            command.Parameters.AddWithValue("$key", StudyModeKey);
+
+            var value = await command.ExecuteScalarAsync(cancellationToken);
+            if (value is null)
+            {
+                return false;
+            }
+
+            var text = Convert.ToString(value) ?? "0";
+            return text == "1" || text.Equals("true", StringComparison.OrdinalIgnoreCase);
         }
         finally
         {
@@ -57,7 +141,16 @@ public sealed class SqliteWhitelistStore : IWhitelistStore
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            _isStudyModeEnabled = enabled;
+            await using var connection = await CreateOpenConnectionAsync(cancellationToken);
+            var command = connection.CreateCommand();
+            command.CommandText = @"
+INSERT INTO settings(key, value)
+VALUES ($key, $value)
+ON CONFLICT(key) DO UPDATE SET value = excluded.value;";
+            command.Parameters.AddWithValue("$key", StudyModeKey);
+            command.Parameters.AddWithValue("$value", enabled ? "1" : "0");
+
+            await command.ExecuteNonQueryAsync(cancellationToken);
         }
         finally
         {
@@ -65,19 +158,130 @@ public sealed class SqliteWhitelistStore : IWhitelistStore
         }
     }
 
-    private static WhitelistConfig Clone(WhitelistConfig source)
+    private void InitializeSchema()
     {
-        return new WhitelistConfig
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS allowed_apps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    display_name TEXT NOT NULL,
+    executable_path TEXT NOT NULL UNIQUE COLLATE NOCASE
+);
+
+CREATE TABLE IF NOT EXISTS allowed_folders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    display_name TEXT NOT NULL,
+    folder_path TEXT NOT NULL UNIQUE COLLATE NOCASE
+);
+
+CREATE TABLE IF NOT EXISTS allowed_sites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    display_name TEXT NOT NULL,
+    host_pattern TEXT NOT NULL UNIQUE COLLATE NOCASE
+);
+
+INSERT INTO settings(key, value)
+VALUES ('study_mode_enabled', '0')
+ON CONFLICT(key) DO NOTHING;
+";
+
+        command.ExecuteNonQuery();
+    }
+
+    private async Task<SqliteConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken)
+    {
+        var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync(cancellationToken);
+        return connection;
+    }
+
+    private static async Task ExecuteNonQueryAsync(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        string sql,
+        CancellationToken cancellationToken)
+    {
+        var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = sql;
+        await command.ExecuteNonQueryAsync(cancellationToken);
+    }
+
+    private static async Task<List<AllowedApp>> ReadAllowedAppsAsync(
+        SqliteConnection connection,
+        CancellationToken cancellationToken)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT display_name, executable_path
+FROM allowed_apps
+ORDER BY id;";
+
+        var result = new List<AllowedApp>();
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
         {
-            AllowedApps = source.AllowedApps
-                .Select(x => new AllowedApp(x.DisplayName, x.ExecutablePath))
-                .ToList(),
-            AllowedFolders = source.AllowedFolders
-                .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath))
-                .ToList(),
-            AllowedSites = source.AllowedSites
-                .Select(x => new AllowedSite(x.DisplayName, x.HostPattern))
-                .ToList()
-        };
+            result.Add(new AllowedApp(
+                reader.GetString(0),
+                reader.GetString(1)));
+        }
+
+        return result;
+    }
+
+    private static async Task<List<AllowedFolder>> ReadAllowedFoldersAsync(
+        SqliteConnection connection,
+        CancellationToken cancellationToken)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT display_name, folder_path
+FROM allowed_folders
+ORDER BY id;";
+
+        var result = new List<AllowedFolder>();
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new AllowedFolder(
+                reader.GetString(0),
+                reader.GetString(1)));
+        }
+
+        return result;
+    }
+
+    private static async Task<List<AllowedSite>> ReadAllowedSitesAsync(
+        SqliteConnection connection,
+        CancellationToken cancellationToken)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT display_name, host_pattern
+FROM allowed_sites
+ORDER BY id;";
+
+        var result = new List<AllowedSite>();
+
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            result.Add(new AllowedSite(
+                reader.GetString(0),
+                reader.GetString(1)));
+        }
+
+        return result;
     }
 }
+

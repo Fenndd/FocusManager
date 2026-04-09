@@ -1,0 +1,14 @@
+# Build artifacts
+**/bin/
+**/obj/
+
+# Local CLI and package caches used in sandbox/dev
+.dotnet/
+.nuget/
+.appdata/
+
+# Logs
+*.log
+
+# IDE
+.vs/

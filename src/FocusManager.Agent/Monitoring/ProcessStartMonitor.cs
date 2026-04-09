@@ -9,7 +9,10 @@ public sealed class ProcessStartMonitor
     public ProcessStartMonitor(WmiProcessWatcher watcher)
     {
         _watcher = watcher;
+        _watcher.ProcessStarted += OnWatcherProcessStarted;
     }
+
+    public event EventHandler<ProcessStartedEventArgs>? ProcessStarted;
 
     public void Start()
     {
@@ -19,5 +22,10 @@ public sealed class ProcessStartMonitor
     public void Stop()
     {
         _watcher.Stop();
+    }
+
+    private void OnWatcherProcessStarted(object? sender, ProcessStartedEventArgs args)
+    {
+        ProcessStarted?.Invoke(this, args);
     }
 }

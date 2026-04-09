@@ -1,10 +1,13 @@
 using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
+using FocusManager.Agent.Enforcement;
+using FocusManager.Agent.Monitoring;
 using FocusManager.Agent.Tray;
 using FocusManager.Contracts;
 using FocusManager.Core.Abstractions;
 using FocusManager.Core.Models;
+using FocusManager.Infrastructure.Windows;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -17,32 +20,77 @@ public sealed class AgentHostedService : IHostedService
         PropertyNameCaseInsensitive = true
     };
 
+    private readonly object _stateLock = new();
+
     private readonly ILogger<AgentHostedService> _logger;
+    private readonly IHostApplicationLifetime _hostApplicationLifetime;
     private readonly TrayHost _trayHost;
     private readonly IWhitelistStore _whitelistStore;
+    private readonly ProcessStartMonitor _processStartMonitor;
+    private readonly ExplorerMonitor _explorerMonitor;
+    private readonly AppEnforcer _appEnforcer;
+    private readonly FolderEnforcer _folderEnforcer;
+    private readonly SiteEnforcer _siteEnforcer;
+    private readonly SessionSnapshotService _sessionSnapshotService;
 
     private CancellationTokenSource? _loopCts;
     private Task? _loopTask;
 
+    private bool _isStudyModeEnabled;
+    private HashSet<int> _snapshotProcessIds = [];
+
     public AgentHostedService(
         ILogger<AgentHostedService> logger,
+        IHostApplicationLifetime hostApplicationLifetime,
         TrayHost trayHost,
-        IWhitelistStore whitelistStore)
+        IWhitelistStore whitelistStore,
+        ProcessStartMonitor processStartMonitor,
+        ExplorerMonitor explorerMonitor,
+        AppEnforcer appEnforcer,
+        FolderEnforcer folderEnforcer,
+        SiteEnforcer siteEnforcer,
+        SessionSnapshotService sessionSnapshotService)
     {
         _logger = logger;
+        _hostApplicationLifetime = hostApplicationLifetime;
         _trayHost = trayHost;
         _whitelistStore = whitelistStore;
+        _processStartMonitor = processStartMonitor;
+        _explorerMonitor = explorerMonitor;
+        _appEnforcer = appEnforcer;
+        _folderEnforcer = folderEnforcer;
+        _siteEnforcer = siteEnforcer;
+        _sessionSnapshotService = sessionSnapshotService;
+
+        _processStartMonitor.ProcessStarted += OnProcessStarted;
+        _explorerMonitor.FolderOpened += OnFolderOpened;
+        _trayHost.StudyModeToggleRequested += OnTrayStudyModeToggleRequested;
+        _trayHost.ExitRequested += OnTrayExitRequested;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("FocusManager.Agent starting. IPC server booting on pipe {PipeName}.", IpcProtocol.PipeName);
-        _trayHost.Start();
+
+        var persistedStudyModeEnabled = await _whitelistStore.IsStudyModeEnabledAsync(cancellationToken);
+        _trayHost.Start(initialStudyModeEnabled: persistedStudyModeEnabled);
+
+        if (persistedStudyModeEnabled)
+        {
+            await EnableStudyModeAsync(cancellationToken);
+        }
+        else
+        {
+            DisableStudyModeInMemory();
+            _processStartMonitor.Stop();
+            _explorerMonitor.Stop();
+            await _siteEnforcer.ClearAsync(cancellationToken);
+        }
+
+        _trayHost.SetStudyModeState(GetStudyModeEnabled());
 
         _loopCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _loopTask = RunIpcLoopAsync(_loopCts.Token);
-
-        return Task.CompletedTask;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -50,6 +98,15 @@ public sealed class AgentHostedService : IHostedService
         _logger.LogInformation("FocusManager.Agent stopping.");
 
         _loopCts?.Cancel();
+
+        _processStartMonitor.ProcessStarted -= OnProcessStarted;
+        _explorerMonitor.FolderOpened -= OnFolderOpened;
+        _trayHost.StudyModeToggleRequested -= OnTrayStudyModeToggleRequested;
+        _trayHost.ExitRequested -= OnTrayExitRequested;
+
+        _processStartMonitor.Stop();
+        _explorerMonitor.Stop();
+
         _trayHost.Stop();
 
         if (_loopTask is null)
@@ -137,15 +194,14 @@ public sealed class AgentHostedService : IHostedService
         {
             case AgentCommandType.GetStudyModeStatus:
             {
-                var isEnabled = await _whitelistStore.IsStudyModeEnabledAsync(cancellationToken);
-                return AgentResponseEnvelope.Ok(studyModeStatus: new StudyModeStatusResponse(isEnabled));
+                return AgentResponseEnvelope.Ok(studyModeStatus: new StudyModeStatusResponse(GetStudyModeEnabled()));
             }
             case AgentCommandType.SetStudyMode:
             {
                 var payload = request.SetStudyMode
                     ?? throw new InvalidOperationException("SetStudyMode payload is missing.");
 
-                await _whitelistStore.SetStudyModeEnabledAsync(payload.Enabled, cancellationToken);
+                await SetStudyModeAsync(payload.Enabled, cancellationToken);
                 return AgentResponseEnvelope.Ok();
             }
             case AgentCommandType.GetWhitelist:
@@ -158,12 +214,159 @@ public sealed class AgentHostedService : IHostedService
                 var payload = request.SaveWhitelist
                     ?? throw new InvalidOperationException("SaveWhitelist payload is missing.");
 
-                await _whitelistStore.SaveAsync(MapToCore(payload.Config), cancellationToken);
+                var config = MapToCore(payload.Config);
+                await _whitelistStore.SaveAsync(config, cancellationToken);
+
+                if (GetStudyModeEnabled())
+                {
+                    await _siteEnforcer.ApplyAsync(config, cancellationToken);
+                }
+
                 return AgentResponseEnvelope.Ok();
             }
             default:
                 return AgentResponseEnvelope.Fail("Unknown command.");
         }
+    }
+
+    private async Task SetStudyModeAsync(bool enabled, CancellationToken cancellationToken)
+    {
+        await _whitelistStore.SetStudyModeEnabledAsync(enabled, cancellationToken);
+
+        if (enabled)
+        {
+            await EnableStudyModeAsync(cancellationToken);
+        }
+        else
+        {
+            await DisableStudyModeAsync(cancellationToken);
+        }
+
+        _trayHost.SetStudyModeState(GetStudyModeEnabled());
+    }
+
+    private async Task EnableStudyModeAsync(CancellationToken cancellationToken)
+    {
+        if (GetStudyModeEnabled())
+        {
+            return;
+        }
+
+        var snapshot = await _sessionSnapshotService.CaptureAsync(cancellationToken);
+        var config = await _whitelistStore.LoadAsync(cancellationToken);
+
+        lock (_stateLock)
+        {
+            _snapshotProcessIds = snapshot.ExistingProcessIds;
+            _isStudyModeEnabled = true;
+        }
+
+        _processStartMonitor.Start();
+        _explorerMonitor.Start();
+
+        await _siteEnforcer.ApplyAsync(config, cancellationToken);
+
+        _logger.LogInformation(
+            "Study mode enabled. Snapshot captured at {CapturedAtUtc} with {ExistingProcessCount} active processes.",
+            snapshot.CapturedAtUtc,
+            snapshot.ExistingProcessIds.Count);
+    }
+
+    private async Task DisableStudyModeAsync(CancellationToken cancellationToken)
+    {
+        _processStartMonitor.Stop();
+        _explorerMonitor.Stop();
+
+        await _siteEnforcer.ClearAsync(cancellationToken);
+
+        DisableStudyModeInMemory();
+        _logger.LogInformation("Study mode disabled.");
+    }
+
+    private void DisableStudyModeInMemory()
+    {
+        lock (_stateLock)
+        {
+            _isStudyModeEnabled = false;
+            _snapshotProcessIds = [];
+        }
+    }
+
+    private bool GetStudyModeEnabled()
+    {
+        lock (_stateLock)
+        {
+            return _isStudyModeEnabled;
+        }
+    }
+
+    private HashSet<int> GetSnapshotProcessIds()
+    {
+        lock (_stateLock)
+        {
+            return _snapshotProcessIds;
+        }
+    }
+
+    private async void OnProcessStarted(object? sender, ProcessStartedEventArgs args)
+    {
+        try
+        {
+            if (!GetStudyModeEnabled())
+            {
+                return;
+            }
+
+            var snapshotProcessIds = GetSnapshotProcessIds();
+
+            if (snapshotProcessIds.Contains(args.ProcessId))
+            {
+                return;
+            }
+
+            var config = await _whitelistStore.LoadAsync();
+            await _appEnforcer.EnforceAsync(args, config, snapshotProcessIds);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to enforce application rules for PID {ProcessId}.", args.ProcessId);
+        }
+    }
+
+    private async void OnFolderOpened(object? sender, FolderOpenedEventArgs args)
+    {
+        try
+        {
+            if (!GetStudyModeEnabled())
+            {
+                return;
+            }
+
+            var config = await _whitelistStore.LoadAsync();
+            await _folderEnforcer.EnforceAsync(args, config);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to enforce folder rules for path {FolderPath}.", args.FolderPath);
+        }
+    }
+
+    private async void OnTrayStudyModeToggleRequested(bool enabled)
+    {
+        try
+        {
+            await SetStudyModeAsync(enabled, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to change study mode from tray.");
+            _trayHost.SetStudyModeState(GetStudyModeEnabled());
+        }
+    }
+
+    private void OnTrayExitRequested()
+    {
+        _hostApplicationLifetime.StopApplication();
     }
 
     private static WhitelistConfigDto MapToDto(WhitelistConfig config)

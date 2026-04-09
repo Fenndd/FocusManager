@@ -2,7 +2,8 @@ namespace FocusManager.Core.Models;
 
 public sealed class WhitelistConfig
 {
-    public List<AllowedApp> AllowedApps { get; init; } = [];
-    public List<AllowedFolder> AllowedFolders { get; init; } = [];
-    public List<AllowedSite> AllowedSites { get; init; } = [];
+    public List<AllowedApp> AllowedApps { get; set; } = [];
+    public List<AllowedFolder> AllowedFolders { get; set; } = [];
+    public List<AllowedSite> AllowedSites { get; set; } = [];
 }
+
