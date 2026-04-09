@@ -6,15 +6,29 @@ namespace FocusManager.Infrastructure.Windows;
 [SupportedOSPlatform("windows")]
 public sealed class ChromePolicyRegistry
 {
-    private const string ChromePolicyPath = "Software\\Policies\\Google\\Chrome";
+    private const string DefaultChromePolicyPath = "Software\\Policies\\Google\\Chrome";
     private const string UrlAllowListKeyName = "URLAllowlist";
     private const string UrlBlockListKeyName = "URLBlocklist";
+
+    private readonly string _chromePolicyPath;
+
+    public ChromePolicyRegistry()
+        : this(policyPath: null)
+    {
+    }
+
+    public ChromePolicyRegistry(string? policyPath)
+    {
+        _chromePolicyPath = string.IsNullOrWhiteSpace(policyPath)
+            ? DefaultChromePolicyPath
+            : policyPath.Trim();
+    }
 
     public Task ApplyWhitelistAsync(IReadOnlyCollection<string> allowedHosts, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var chromePolicyKey = Registry.CurrentUser.CreateSubKey(ChromePolicyPath, writable: true);
+        using var chromePolicyKey = Registry.CurrentUser.CreateSubKey(_chromePolicyPath, writable: true);
         if (chromePolicyKey is null)
         {
             return Task.CompletedTask;
@@ -52,7 +66,7 @@ public sealed class ChromePolicyRegistry
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var chromePolicyKey = Registry.CurrentUser.OpenSubKey(ChromePolicyPath, writable: true);
+        using var chromePolicyKey = Registry.CurrentUser.OpenSubKey(_chromePolicyPath, writable: true);
         if (chromePolicyKey is null)
         {
             return Task.CompletedTask;

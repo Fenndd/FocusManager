@@ -12,17 +12,23 @@ public sealed class SqliteWhitelistStore : IWhitelistStore
     private readonly string _connectionString;
 
     public SqliteWhitelistStore()
+        : this(databasePath: null)
     {
-        var appDataDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "FocusManager");
+    }
 
-        Directory.CreateDirectory(appDataDir);
+    public SqliteWhitelistStore(string? databasePath)
+    {
+        var resolvedDatabasePath = ResolveDatabasePath(databasePath);
+        var databaseDirectory = Path.GetDirectoryName(resolvedDatabasePath);
 
-        var dbPath = Path.Combine(appDataDir, "focusmanager.db");
+        if (!string.IsNullOrWhiteSpace(databaseDirectory))
+        {
+            Directory.CreateDirectory(databaseDirectory);
+        }
+
         _connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = dbPath,
+            DataSource = resolvedDatabasePath,
             Mode = SqliteOpenMode.ReadWriteCreate
         }.ToString();
 
@@ -283,5 +289,18 @@ ORDER BY id;";
 
         return result;
     }
-}
 
+    private static string ResolveDatabasePath(string? databasePath)
+    {
+        if (!string.IsNullOrWhiteSpace(databasePath))
+        {
+            return Path.GetFullPath(databasePath.Trim());
+        }
+
+        var appDataDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "FocusManager");
+
+        return Path.Combine(appDataDir, "focusmanager.db");
+    }
+}

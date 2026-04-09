@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -15,6 +15,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core.Tests", "tests\FocusManager.Core.Tests\FocusManager.Core.Tests.csproj", "{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Agent.Tests", "tests\FocusManager.Agent.Tests\FocusManager.Agent.Tests.csproj", "{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3AA9D532-B156-4374-805D-BC1B2AD7E324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Infrastructure.Tests", "tests\FocusManager.Infrastructure.Tests\FocusManager.Infrastructure.Tests.csproj", "{66A0E682-A402-4C41-9FFF-42A221F51205}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,8 +54,15 @@ Global
 		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A0E682-A402-4C41-9FFF-42A221F51205}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A0E682-A402-4C41-9FFF-42A221F51205}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A0E682-A402-4C41-9FFF-42A221F51205}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A0E682-A402-4C41-9FFF-42A221F51205}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{66A0E682-A402-4C41-9FFF-42A221F51205} = {3AA9D532-B156-4374-805D-BC1B2AD7E324}
 	EndGlobalSection
 EndGlobal
