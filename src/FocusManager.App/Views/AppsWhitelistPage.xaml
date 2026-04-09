@@ -1,17 +1,36 @@
 <Page
     x:Class="FocusManager.App.Views.AppsWhitelistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="Page_Loaded">
 
     <Grid Padding="24">
-        <StackPanel Spacing="8">
-            <TextBlock Text="Applications Whitelist" FontSize="24" FontWeight="SemiBold" />
-            <TextBlock Text="Stub page: add/remove allowed executable paths." />
-            <ListView x:Name="AllowedAppsList" Height="300" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Add" />
-                <Button Content="Remove" />
+        <ScrollViewer>
+            <StackPanel Spacing="8">
+                <TextBlock Text="Applications Whitelist" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock Text="Allow only new app launches from this list." />
+
+                <TextBox x:Name="AppDisplayNameInput" Header="Display name" PlaceholderText="Visual Studio Code" />
+                <TextBox x:Name="AppPathInput" Header="Executable path" PlaceholderText="C:\Program Files\App\app.exe" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Add" Click="Add_Click" />
+                    <Button Content="Remove Selected" Click="Remove_Click" />
+                </StackPanel>
+
+                <TextBlock x:Name="StatusText" Text="Status: loading..." />
+
+                <ListView x:Name="AllowedAppsList" Height="340" SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Spacing="2" Padding="0,4,0,4">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding ExecutablePath}" Opacity="0.75" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

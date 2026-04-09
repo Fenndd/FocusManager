@@ -1,17 +1,36 @@
 <Page
     x:Class="FocusManager.App.Views.SitesWhitelistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="Page_Loaded">
 
     <Grid Padding="24">
-        <StackPanel Spacing="8">
-            <TextBlock Text="Sites Whitelist" FontSize="24" FontWeight="SemiBold" />
-            <TextBlock Text="Stub page: add/remove allowed hosts for Chrome policy." />
-            <ListView x:Name="AllowedSitesList" Height="300" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Add" />
-                <Button Content="Remove" />
+        <ScrollViewer>
+            <StackPanel Spacing="8">
+                <TextBlock Text="Sites Whitelist" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock Text="Allow only these sites in Chrome policy (host patterns)." />
+
+                <TextBox x:Name="SiteDisplayNameInput" Header="Display name" PlaceholderText="Wikipedia" />
+                <TextBox x:Name="SiteHostInput" Header="Host pattern" PlaceholderText="*.wikipedia.org" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Add" Click="Add_Click" />
+                    <Button Content="Remove Selected" Click="Remove_Click" />
+                </StackPanel>
+
+                <TextBlock x:Name="StatusText" Text="Status: loading..." />
+
+                <ListView x:Name="AllowedSitesList" Height="340" SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Spacing="2" Padding="0,4,0,4">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding HostPattern}" Opacity="0.75" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -1,17 +1,36 @@
 <Page
     x:Class="FocusManager.App.Views.FoldersWhitelistPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="Page_Loaded">
 
     <Grid Padding="24">
-        <StackPanel Spacing="8">
-            <TextBlock Text="Folders Whitelist" FontSize="24" FontWeight="SemiBold" />
-            <TextBlock Text="Stub page: add/remove allowed folder paths." />
-            <ListView x:Name="AllowedFoldersList" Height="300" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Add" />
-                <Button Content="Remove" />
+        <ScrollViewer>
+            <StackPanel Spacing="8">
+                <TextBlock Text="Folders Whitelist" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock Text="Allow only new Explorer folder opens from this list." />
+
+                <TextBox x:Name="FolderDisplayNameInput" Header="Display name" PlaceholderText="Study Materials" />
+                <TextBox x:Name="FolderPathInput" Header="Folder path" PlaceholderText="C:\Users\you\Documents\Study" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Add" Click="Add_Click" />
+                    <Button Content="Remove Selected" Click="Remove_Click" />
+                </StackPanel>
+
+                <TextBlock x:Name="StatusText" Text="Status: loading..." />
+
+                <ListView x:Name="AllowedFoldersList" Height="340" SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Spacing="2" Padding="0,4,0,4">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding FolderPath}" Opacity="0.75" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
