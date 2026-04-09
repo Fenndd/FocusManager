@@ -1,0 +1,23 @@
+<Page
+    x:Class="FocusManager.App.Views.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Spacing="12" Padding="24">
+            <TextBlock Text="FocusManager" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Text="Study mode control panel (stub UI)." />
+
+            <ToggleSwitch x:Name="StudyModeSwitch" Header="Study Mode" />
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Applications" Click="OpenApps_Click" />
+                <Button Content="Folders" Click="OpenFolders_Click" />
+                <Button Content="Sites" Click="OpenSites_Click" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
