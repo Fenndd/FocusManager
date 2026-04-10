@@ -27,6 +27,17 @@ public sealed class FolderEnforcerTests
     }
 
     [Fact]
+    public async Task EnforceAsync_Ignores_VirtualShellPaths()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = CreateSut(notifier);
+
+        await sut.EnforceAsync(new FolderOpenedEventArgs(@"::\\{F874310E-B6B7-47DC-BC84-B9E6B38F5903}"), new WhitelistConfig());
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
     public async Task EnforceAsync_Notifies_WhenFolderIsDenied()
     {
         var notifier = new RecordingNotifier();

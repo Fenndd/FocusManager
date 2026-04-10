@@ -30,6 +30,11 @@ public sealed class FolderEnforcer
 
     public async Task EnforceAsync(FolderOpenedEventArgs args, WhitelistConfig config, CancellationToken cancellationToken = default)
     {
+        if (!IsFileSystemPath(args.FolderPath))
+        {
+            return;
+        }
+
         var decision = _ruleEvaluator.EvaluateFolderOpen(args.FolderPath, config);
         if (decision.IsAllowed)
         {
@@ -43,9 +48,14 @@ public sealed class FolderEnforcer
         }
 
         var fallbackFolder = config.AllowedFolders.FirstOrDefault()?.FolderPath;
+
         if (!string.IsNullOrWhiteSpace(fallbackFolder))
         {
-            await _explorerInterop.RedirectToAllowedFolderAsync(fallbackFolder, cancellationToken);
+            await _explorerInterop.RedirectExplorerWindowToAllowedFolderAsync(args.WindowHandle, fallbackFolder, cancellationToken);
+        }
+        else
+        {
+            await _explorerInterop.CloseExplorerWindowAsync(args.WindowHandle, cancellationToken);
         }
 
         _logger.LogInformation("Blocked folder open: {FolderPath}. Reason: {Reason}", blockedPath, decision.Reason);
@@ -80,6 +90,33 @@ public sealed class FolderEnforcer
 
             return false;
         }
+    }
+
+    private static bool IsFileSystemPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        var trimmed = path.Trim();
+
+        if (trimmed.StartsWith("::", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (trimmed.StartsWith("shell:", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (trimmed.StartsWith("\\\\", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return Path.IsPathRooted(trimmed);
     }
 
     private static string NormalizePath(string path)

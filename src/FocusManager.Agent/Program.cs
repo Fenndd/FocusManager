@@ -13,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddSingleton<IWhitelistStore, SqliteWhitelistStore>();
-builder.Services.AddSingleton<INotifier, TrayNotifier>();
+builder.Services.AddSingleton<INotifier, SilentNotifier>();
 
 builder.Services.AddSingleton<RuleEvaluator>();
 

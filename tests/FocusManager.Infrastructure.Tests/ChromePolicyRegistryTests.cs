@@ -39,8 +39,8 @@ public sealed class ChromePolicyRegistryTests
             .ToList();
 
         Assert.Equal(4, values.Count);
-        Assert.Contains("*://example.com/*", values);
-        Assert.Contains("*://*.wikipedia.org/*", values);
+        Assert.Contains("example.com", values);
+        Assert.Contains("[*.]wikipedia.org", values);
         Assert.Contains("https://news.ycombinator.com", values);
         Assert.Contains("chrome://settings", values);
     }

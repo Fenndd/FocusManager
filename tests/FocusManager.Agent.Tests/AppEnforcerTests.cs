@@ -26,6 +26,32 @@ public sealed class AppEnforcerTests
     }
 
     [Fact]
+    public async Task EnforceAsync_Ignores_KnownSystemProcessName()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+
+        await sut.EnforceAsync(
+            new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Windows\\explorer.exe"),
+            new WhitelistConfig());
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
+    public async Task EnforceAsync_Ignores_NonRootedExecutablePath()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+
+        await sut.EnforceAsync(
+            new ProcessStartedEventArgs(Environment.ProcessId, "svchost.exe"),
+            new WhitelistConfig());
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
     public async Task EnforceAsync_DoesNothing_WhenApplicationIsAllowed()
     {
         var notifier = new RecordingNotifier();
@@ -37,7 +63,7 @@ public sealed class AppEnforcerTests
         };
 
         await sut.EnforceAsync(
-            new ProcessStartedEventArgs(123456, @"C:\\Windows\\System32\\notepad.exe"),
+            new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Windows\\System32\\notepad.exe"),
             config);
 
         Assert.Empty(notifier.Blocked);
