@@ -65,6 +65,19 @@ public sealed class AppEnforcerTests
     }
 
     [Fact]
+    public async Task EnforceAsync_Ignores_AnyProcessUnderWindowsAppsDirectory()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+
+        await sut.EnforceAsync(
+            new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Program Files\\WindowsApps\\SomeApp\\App.exe"),
+            new WhitelistConfig());
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
     public async Task EnforceAsync_DoesNothing_WhenApplicationIsAllowed()
     {
         var notifier = new RecordingNotifier();

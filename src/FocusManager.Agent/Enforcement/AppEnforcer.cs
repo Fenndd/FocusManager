@@ -11,6 +11,8 @@ public sealed class AppEnforcer
 {
     private static readonly int CurrentSessionId = Process.GetCurrentProcess().SessionId;
     private static readonly string WindowsDirectoryPath = NormalizePath(Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+    private static readonly string WindowsAppsDirectoryPath = NormalizePath(
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "WindowsApps"));
 
     private static readonly HashSet<string> IgnoredSystemProcessNames =
     [
@@ -124,7 +126,12 @@ public sealed class AppEnforcer
             return true;
         }
 
-        if (IsWindowsDirectoryPath(executablePath))
+        if (IsPathInsideDirectory(executablePath, WindowsDirectoryPath))
+        {
+            return true;
+        }
+
+        if (IsPathInsideDirectory(executablePath, WindowsAppsDirectoryPath))
         {
             return true;
         }
@@ -132,21 +139,21 @@ public sealed class AppEnforcer
         return false;
     }
 
-    private static bool IsWindowsDirectoryPath(string executablePath)
+    private static bool IsPathInsideDirectory(string executablePath, string directoryPath)
     {
         var normalizedExecutablePath = NormalizePath(executablePath);
-        if (string.IsNullOrWhiteSpace(normalizedExecutablePath) || string.IsNullOrWhiteSpace(WindowsDirectoryPath))
+        if (string.IsNullOrWhiteSpace(normalizedExecutablePath) || string.IsNullOrWhiteSpace(directoryPath))
         {
             return false;
         }
 
-        if (string.Equals(normalizedExecutablePath, WindowsDirectoryPath, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(normalizedExecutablePath, directoryPath, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        var windowsPrefix = WindowsDirectoryPath + Path.DirectorySeparatorChar;
-        return normalizedExecutablePath.StartsWith(windowsPrefix, StringComparison.OrdinalIgnoreCase);
+        var directoryPrefix = directoryPath + Path.DirectorySeparatorChar;
+        return normalizedExecutablePath.StartsWith(directoryPrefix, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizePath(string path)
