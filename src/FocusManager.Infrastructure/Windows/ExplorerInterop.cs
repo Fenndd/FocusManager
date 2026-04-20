@@ -37,19 +37,19 @@ public sealed class ExplorerInterop
         }
     }
 
-    public Task RedirectToAllowedFolderAsync(string targetFolderPath, CancellationToken cancellationToken = default)
+    public Task<bool> RedirectToAllowedFolderAsync(string targetFolderPath, CancellationToken cancellationToken = default)
     {
         return RedirectExplorerWindowToAllowedFolderAsync(windowHandle: 0, targetFolderPath, cancellationToken);
     }
 
-    public Task RedirectExplorerWindowToAllowedFolderAsync(
+    public Task<bool> RedirectExplorerWindowToAllowedFolderAsync(
         int windowHandle,
         string targetFolderPath,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(targetFolderPath))
         {
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -60,22 +60,21 @@ public sealed class ExplorerInterop
         if (!redirected)
         {
             OpenExplorerWindow(normalizedTarget);
+            return Task.FromResult(true);
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
-    public Task CloseExplorerWindowAsync(int windowHandle, CancellationToken cancellationToken = default)
+    public Task<bool> CloseExplorerWindowAsync(int windowHandle, CancellationToken cancellationToken = default)
     {
         if (windowHandle <= 0)
         {
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        TryCloseExplorerWindow(windowHandle);
-
-        return Task.CompletedTask;
+        return Task.FromResult(TryCloseExplorerWindow(windowHandle));
     }
 
     private void PollExplorerWindows(object? state)
@@ -183,9 +182,9 @@ public sealed class ExplorerInterop
             });
     }
 
-    private static void TryCloseExplorerWindow(int windowHandle)
+    private static bool TryCloseExplorerWindow(int windowHandle)
     {
-        ExecuteForExplorerWindow(
+        return ExecuteForExplorerWindow(
             windowHandle,
             window =>
             {
@@ -338,6 +337,17 @@ public sealed class ExplorerInterop
 
     private static string TryGetFolderPath(dynamic window)
     {
+        var fromDocument = TryGetFolderPathFromDocument(window);
+        if (!string.IsNullOrWhiteSpace(fromDocument))
+        {
+            return fromDocument;
+        }
+
+        return TryGetFolderPathFromLocationUrl(window);
+    }
+
+    private static string TryGetFolderPathFromDocument(dynamic window)
+    {
         try
         {
             var document = window.Document;
@@ -354,6 +364,35 @@ public sealed class ExplorerInterop
 
             var self = folder.Self;
             return Convert.ToString(self.Path) ?? string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string TryGetFolderPathFromLocationUrl(dynamic window)
+    {
+        try
+        {
+            var locationUrl = Convert.ToString(window.LocationURL) ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(locationUrl))
+            {
+                return string.Empty;
+            }
+
+            if (!Uri.TryCreate(locationUrl, UriKind.Absolute, out Uri uri))
+            {
+                return string.Empty;
+            }
+
+            if (uri.IsFile)
+            {
+                return uri.LocalPath;
+            }
+
+            // Keep shell-like URL as-is so caller can decide whether to ignore.
+            return locationUrl;
         }
         catch
         {

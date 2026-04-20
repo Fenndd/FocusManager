@@ -42,28 +42,47 @@ public sealed class FolderEnforcer
         }
 
         var blockedPath = NormalizePath(args.FolderPath);
-        if (ShouldSuppressBlock(blockedPath))
+        var fallbackFolder = config.AllowedFolders.FirstOrDefault()?.FolderPath;
+
+        var corrected = await ApplyCorrectiveActionAsync(args.WindowHandle, fallbackFolder, cancellationToken);
+
+        var shouldSuppressLog = ShouldSuppressBlock(blockedPath);
+        if (shouldSuppressLog)
         {
             return;
         }
 
-        var fallbackFolder = config.AllowedFolders.FirstOrDefault()?.FolderPath;
-
-        if (!string.IsNullOrWhiteSpace(fallbackFolder))
-        {
-            await _explorerInterop.RedirectExplorerWindowToAllowedFolderAsync(args.WindowHandle, fallbackFolder, cancellationToken);
-        }
-        else
-        {
-            await _explorerInterop.CloseExplorerWindowAsync(args.WindowHandle, cancellationToken);
-        }
-
-        _logger.LogInformation("Blocked folder open: {FolderPath}. Reason: {Reason}", blockedPath, decision.Reason);
+        _logger.LogInformation(
+            "Blocked folder open: {FolderPath}. Reason: {Reason}. CorrectiveActionApplied: {Corrected}",
+            blockedPath,
+            decision.Reason,
+            corrected);
 
         await _notifier.ShowBlockedAsync(
             "Blocked Folder",
             $"{blockedPath}. {decision.Reason}",
             cancellationToken);
+    }
+
+    private async Task<bool> ApplyCorrectiveActionAsync(
+        int windowHandle,
+        string? fallbackFolder,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(fallbackFolder))
+        {
+            var redirected = await _explorerInterop.RedirectExplorerWindowToAllowedFolderAsync(windowHandle, fallbackFolder, cancellationToken);
+            if (redirected)
+            {
+                return true;
+            }
+
+            // Hard fallback: close blocked window and open allowed folder separately.
+            await _explorerInterop.CloseExplorerWindowAsync(windowHandle, cancellationToken);
+            return await _explorerInterop.RedirectToAllowedFolderAsync(fallbackFolder, cancellationToken);
+        }
+
+        return await _explorerInterop.CloseExplorerWindowAsync(windowHandle, cancellationToken);
     }
 
     private bool ShouldSuppressBlock(string folderPath)
@@ -111,6 +130,11 @@ public sealed class FolderEnforcer
             return false;
         }
 
+        if (trimmed.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         if (trimmed.StartsWith("\\\\", StringComparison.OrdinalIgnoreCase))
         {
             return true;
@@ -127,6 +151,11 @@ public sealed class FolderEnforcer
         }
 
         var cleaned = path.Trim().Trim('"');
+
+        if (Uri.TryCreate(cleaned, UriKind.Absolute, out Uri? uri) && uri is { IsFile: true })
+        {
+            cleaned = uri.LocalPath;
+        }
 
         try
         {

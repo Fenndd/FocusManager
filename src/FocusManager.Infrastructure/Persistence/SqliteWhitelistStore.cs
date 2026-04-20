@@ -90,10 +90,11 @@ VALUES ($display_name, $executable_path);";
                 var command = connection.CreateCommand();
                 command.Transaction = transaction;
                 command.CommandText = @"
-INSERT INTO allowed_folders(display_name, folder_path)
-VALUES ($display_name, $folder_path);";
+INSERT INTO allowed_folders(display_name, folder_path, allow_subfolders)
+VALUES ($display_name, $folder_path, $allow_subfolders);";
                 command.Parameters.AddWithValue("$display_name", folder.DisplayName);
                 command.Parameters.AddWithValue("$folder_path", folder.FolderPath);
+                command.Parameters.AddWithValue("$allow_subfolders", folder.AllowSubfolders ? 1 : 0);
                 await command.ExecuteNonQueryAsync(cancellationToken);
             }
 
@@ -185,7 +186,8 @@ CREATE TABLE IF NOT EXISTS allowed_apps (
 CREATE TABLE IF NOT EXISTS allowed_folders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     display_name TEXT NOT NULL,
-    folder_path TEXT NOT NULL UNIQUE COLLATE NOCASE
+    folder_path TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    allow_subfolders INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS allowed_sites (
@@ -200,6 +202,8 @@ ON CONFLICT(key) DO NOTHING;
 ";
 
         command.ExecuteNonQuery();
+
+        EnsureColumnExists(connection, "allowed_folders", "allow_subfolders", "INTEGER NOT NULL DEFAULT 0");
     }
 
     private async Task<SqliteConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken)
@@ -250,7 +254,7 @@ ORDER BY id;";
     {
         var command = connection.CreateCommand();
         command.CommandText = @"
-SELECT display_name, folder_path
+SELECT display_name, folder_path, allow_subfolders
 FROM allowed_folders
 ORDER BY id;";
 
@@ -261,10 +265,35 @@ ORDER BY id;";
         {
             result.Add(new AllowedFolder(
                 reader.GetString(0),
-                reader.GetString(1)));
+                reader.GetString(1),
+                reader.GetInt64(2) != 0));
         }
 
         return result;
+    }
+
+    private static void EnsureColumnExists(
+        SqliteConnection connection,
+        string tableName,
+        string columnName,
+        string columnSqlDefinition)
+    {
+        var checkCommand = connection.CreateCommand();
+        checkCommand.CommandText = $"PRAGMA table_info({tableName});";
+
+        using var reader = checkCommand.ExecuteReader();
+        while (reader.Read())
+        {
+            var existingColumnName = reader.GetString(1);
+            if (string.Equals(existingColumnName, columnName, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+        }
+
+        var alterCommand = connection.CreateCommand();
+        alterCommand.CommandText = $"ALTER TABLE {tableName} ADD COLUMN {columnName} {columnSqlDefinition};";
+        alterCommand.ExecuteNonQuery();
     }
 
     private static async Task<List<AllowedSite>> ReadAllowedSitesAsync(

@@ -21,6 +21,22 @@ public sealed class FolderEnforcerTests
             AllowedFolders = [new AllowedFolder("Study", @"C:\\Study")]
         };
 
+        await sut.EnforceAsync(new FolderOpenedEventArgs(@"C:\\Study"), config);
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
+    public async Task EnforceAsync_DoesNothing_WhenChildFolderIsAllowedByFlag()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = CreateSut(notifier);
+
+        var config = new WhitelistConfig
+        {
+            AllowedFolders = [new AllowedFolder("Study", @"C:\\Study", AllowSubfolders: true)]
+        };
+
         await sut.EnforceAsync(new FolderOpenedEventArgs(@"C:\\Study\\Math"), config);
 
         Assert.Empty(notifier.Blocked);

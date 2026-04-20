@@ -26,7 +26,7 @@ public sealed record WhitelistConfigDto(
 }
 
 public sealed record AllowedAppDto(string DisplayName, string ExecutablePath);
-public sealed record AllowedFolderDto(string DisplayName, string FolderPath);
+public sealed record AllowedFolderDto(string DisplayName, string FolderPath, bool AllowSubfolders = false);
 public sealed record AllowedSiteDto(string DisplayName, string HostPattern);
 
 public sealed record AgentRequestEnvelope(

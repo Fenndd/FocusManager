@@ -47,7 +47,12 @@ public sealed class RuleEvaluator
         foreach (var folder in config.AllowedFolders)
         {
             var allowedPath = NormalizePath(folder.FolderPath);
-            if (IsChildOrSamePath(candidatePath, allowedPath))
+            if (string.Equals(candidatePath, allowedPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return RuleDecision.Allow();
+            }
+
+            if (folder.AllowSubfolders && IsChildPath(candidatePath, allowedPath))
             {
                 return RuleDecision.Allow();
             }
@@ -101,13 +106,8 @@ public sealed class RuleEvaluator
         return cleaned.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
-    private static bool IsChildOrSamePath(string candidatePath, string allowedPath)
+    private static bool IsChildPath(string candidatePath, string allowedPath)
     {
-        if (string.Equals(candidatePath, allowedPath, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
         var allowedPrefix = allowedPath + Path.DirectorySeparatorChar;
         return candidatePath.StartsWith(allowedPrefix, StringComparison.OrdinalIgnoreCase);
     }

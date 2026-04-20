@@ -12,6 +12,7 @@ public sealed partial class FoldersWhitelistPage : Page
 {
     private readonly IAgentClient _agentClient = new AgentClient();
     private readonly ObservableCollection<FolderListItem> _items = [];
+    private bool _isLoadingFolders;
 
     public FoldersWhitelistPage()
     {
@@ -23,6 +24,7 @@ public sealed partial class FoldersWhitelistPage : Page
     {
         try
         {
+            _isLoadingFolders = true;
             var config = await _agentClient.GetWhitelistAsync();
             _items.Clear();
 
@@ -31,7 +33,8 @@ public sealed partial class FoldersWhitelistPage : Page
                 _items.Add(new FolderListItem
                 {
                     DisplayName = folder.DisplayName,
-                    FolderPath = folder.FolderPath
+                    FolderPath = folder.FolderPath,
+                    AllowSubfolders = folder.AllowSubfolders
                 });
             }
 
@@ -40,6 +43,10 @@ public sealed partial class FoldersWhitelistPage : Page
         catch (Exception ex)
         {
             StatusText.Text = $"Status: failed to load ({ex.Message})";
+        }
+        finally
+        {
+            _isLoadingFolders = false;
         }
     }
 
@@ -113,6 +120,8 @@ public sealed partial class FoldersWhitelistPage : Page
         }
 
         var displayName = FolderDisplayNameInput.Text.Trim();
+        var allowSubfolders = AllowSubfoldersInput.IsChecked ?? false;
+
         if (string.IsNullOrWhiteSpace(displayName))
         {
             displayName = Path.GetFileName(folderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
@@ -126,7 +135,8 @@ public sealed partial class FoldersWhitelistPage : Page
         _items.Add(new FolderListItem
         {
             DisplayName = displayName,
-            FolderPath = folderPath
+            FolderPath = folderPath,
+            AllowSubfolders = allowSubfolders
         });
 
         try
@@ -134,6 +144,7 @@ public sealed partial class FoldersWhitelistPage : Page
             await SaveFoldersToAgentAsync();
             FolderDisplayNameInput.Text = string.Empty;
             FolderPathInput.Text = string.Empty;
+            AllowSubfoldersInput.IsChecked = false;
             StatusText.Text = "Status: saved";
         }
         catch (Exception ex)
@@ -167,10 +178,28 @@ public sealed partial class FoldersWhitelistPage : Page
     {
         var config = await _agentClient.GetWhitelistAsync();
         config.AllowedFolders = _items
-            .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath))
+            .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath, x.AllowSubfolders))
             .ToList();
 
         await _agentClient.SaveWhitelistAsync(config);
+    }
+
+    private async void RuleAllowSubfolders_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoadingFolders)
+        {
+            return;
+        }
+
+        try
+        {
+            await SaveFoldersToAgentAsync();
+            StatusText.Text = "Status: saved";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Status: failed to save ({ex.Message})";
+        }
     }
 
     private static string NormalizeFolderPath(string path)
@@ -198,5 +227,6 @@ public sealed partial class FoldersWhitelistPage : Page
     {
         public string DisplayName { get; init; } = string.Empty;
         public string FolderPath { get; init; } = string.Empty;
+        public bool AllowSubfolders { get; set; }
     }
 }

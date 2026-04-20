@@ -261,15 +261,41 @@ public sealed class AgentHostedService : IHostedService
             _isStudyModeEnabled = true;
         }
 
-        _processStartMonitor.Start();
-        _explorerMonitor.Start();
+        var processMonitorStarted = false;
+        var explorerMonitorStarted = false;
+
+        try
+        {
+            _processStartMonitor.Start();
+            processMonitorStarted = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                "Process start monitoring is unavailable: {Error}. Study mode will continue without app-launch blocking.",
+                ex.Message);
+        }
+
+        try
+        {
+            _explorerMonitor.Start();
+            explorerMonitorStarted = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                "Explorer monitoring is unavailable: {Error}. Study mode will continue without folder blocking.",
+                ex.Message);
+        }
 
         await _siteEnforcer.ApplyAsync(config, cancellationToken);
 
         _logger.LogInformation(
-            "Study mode enabled. Snapshot captured at {CapturedAtUtc} with {ExistingProcessCount} active processes.",
+            "Study mode enabled. Snapshot captured at {CapturedAtUtc} with {ExistingProcessCount} active processes. ProcessMonitorStarted={ProcessMonitorStarted}, ExplorerMonitorStarted={ExplorerMonitorStarted}.",
             snapshot.CapturedAtUtc,
-            snapshot.ExistingProcessIds.Count);
+            snapshot.ExistingProcessIds.Count,
+            processMonitorStarted,
+            explorerMonitorStarted);
     }
 
     private async Task DisableStudyModeAsync(CancellationToken cancellationToken)
@@ -376,7 +402,7 @@ public sealed class AgentHostedService : IHostedService
                 .Select(x => new AllowedAppDto(x.DisplayName, x.ExecutablePath))
                 .ToList(),
             config.AllowedFolders
-                .Select(x => new AllowedFolderDto(x.DisplayName, x.FolderPath))
+                .Select(x => new AllowedFolderDto(x.DisplayName, x.FolderPath, x.AllowSubfolders))
                 .ToList(),
             config.AllowedSites
                 .Select(x => new AllowedSiteDto(x.DisplayName, x.HostPattern))
@@ -391,7 +417,7 @@ public sealed class AgentHostedService : IHostedService
                 .Select(x => new AllowedApp(x.DisplayName, x.ExecutablePath))
                 .ToList(),
             AllowedFolders = dto.AllowedFolders
-                .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath))
+                .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath, x.AllowSubfolders))
                 .ToList(),
             AllowedSites = dto.AllowedSites
                 .Select(x => new AllowedSite(x.DisplayName, x.HostPattern))
