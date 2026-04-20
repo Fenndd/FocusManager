@@ -69,20 +69,26 @@ public sealed class FolderEnforcer
         string? fallbackFolder,
         CancellationToken cancellationToken)
     {
+        // Prefer the native Explorer back-navigation behavior to return user
+        // to the previously viewed location in the same window.
+        if (await _explorerInterop.GoBackExplorerWindowAsync(windowHandle, cancellationToken))
+        {
+            return true;
+        }
+
+        // If there is no navigation history in this window, close it instead
+        // of sending user to an unrelated whitelist folder.
+        if (await _explorerInterop.CloseExplorerWindowAsync(windowHandle, cancellationToken))
+        {
+            return true;
+        }
+
         if (!string.IsNullOrWhiteSpace(fallbackFolder))
         {
-            var redirected = await _explorerInterop.RedirectExplorerWindowToAllowedFolderAsync(windowHandle, fallbackFolder, cancellationToken);
-            if (redirected)
-            {
-                return true;
-            }
-
-            // Hard fallback: close blocked window and open allowed folder separately.
-            await _explorerInterop.CloseExplorerWindowAsync(windowHandle, cancellationToken);
             return await _explorerInterop.RedirectToAllowedFolderAsync(fallbackFolder, cancellationToken);
         }
 
-        return await _explorerInterop.CloseExplorerWindowAsync(windowHandle, cancellationToken);
+        return false;
     }
 
     private bool ShouldSuppressBlock(string folderPath)

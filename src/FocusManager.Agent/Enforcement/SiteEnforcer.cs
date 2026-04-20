@@ -19,6 +19,12 @@ public sealed class SiteEnforcer
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToList();
 
+        if (allowedHosts.Count == 0)
+        {
+            // Empty whitelist means "do not enforce website restrictions".
+            return _chromePolicyRegistry.ClearWhitelistAsync(cancellationToken);
+        }
+
         return _chromePolicyRegistry.ApplyWhitelistAsync(allowedHosts, cancellationToken);
     }
 

@@ -52,6 +52,32 @@ public sealed class AppEnforcerTests
     }
 
     [Fact]
+    public async Task EnforceAsync_Ignores_AnyProcessUnderWindowsDirectory()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+
+        await sut.EnforceAsync(
+            new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Windows\\System32\\calc.exe"),
+            new WhitelistConfig());
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
+    public async Task EnforceAsync_Ignores_AnyProcessUnderWindowsAppsDirectory()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+
+        await sut.EnforceAsync(
+            new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Program Files\\WindowsApps\\SomeApp\\App.exe"),
+            new WhitelistConfig());
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
     public async Task EnforceAsync_DoesNothing_WhenApplicationIsAllowed()
     {
         var notifier = new RecordingNotifier();
@@ -103,7 +129,7 @@ public sealed class AppEnforcerTests
             await Task.Delay(200);
 
             await sut.EnforceAsync(
-                new ProcessStartedEventArgs(process!.Id, process.MainModule?.FileName ?? "cmd.exe"),
+                new ProcessStartedEventArgs(process!.Id, @"C:\\Apps\\blocked.exe"),
                 new WhitelistConfig());
 
             process.WaitForExit(3000);

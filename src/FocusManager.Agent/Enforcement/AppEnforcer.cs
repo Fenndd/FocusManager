@@ -10,6 +10,9 @@ namespace FocusManager.Agent.Enforcement;
 public sealed class AppEnforcer
 {
     private static readonly int CurrentSessionId = Process.GetCurrentProcess().SessionId;
+    private static readonly string WindowsDirectoryPath = NormalizePath(Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+    private static readonly string WindowsAppsDirectoryPath = NormalizePath(
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "WindowsApps"));
 
     private static readonly HashSet<string> IgnoredSystemProcessNames =
     [
@@ -123,7 +126,55 @@ public sealed class AppEnforcer
             return true;
         }
 
+        if (IsPathInsideDirectory(executablePath, WindowsDirectoryPath))
+        {
+            return true;
+        }
+
+        if (IsPathInsideDirectory(executablePath, WindowsAppsDirectoryPath))
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private static bool IsPathInsideDirectory(string executablePath, string directoryPath)
+    {
+        var normalizedExecutablePath = NormalizePath(executablePath);
+        if (string.IsNullOrWhiteSpace(normalizedExecutablePath) || string.IsNullOrWhiteSpace(directoryPath))
+        {
+            return false;
+        }
+
+        if (string.Equals(normalizedExecutablePath, directoryPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var directoryPrefix = directoryPath + Path.DirectorySeparatorChar;
+        return normalizedExecutablePath.StartsWith(directoryPrefix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        var cleaned = path.Trim().Trim('"');
+
+        try
+        {
+            cleaned = Path.GetFullPath(cleaned);
+        }
+        catch
+        {
+            // Keep raw value when normalization fails.
+        }
+
+        return cleaned.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
     private static bool TryGetSessionId(int processId, out int sessionId)

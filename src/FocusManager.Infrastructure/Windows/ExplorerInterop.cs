@@ -77,6 +77,17 @@ public sealed class ExplorerInterop
         return Task.FromResult(TryCloseExplorerWindow(windowHandle));
     }
 
+    public Task<bool> GoBackExplorerWindowAsync(int windowHandle, CancellationToken cancellationToken = default)
+    {
+        if (windowHandle <= 0)
+        {
+            return Task.FromResult(false);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(TryGoBackExplorerWindow(windowHandle));
+    }
+
     private void PollExplorerWindows(object? state)
     {
         try
@@ -191,6 +202,24 @@ public sealed class ExplorerInterop
                 try
                 {
                     window.Quit();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+    }
+
+    private static bool TryGoBackExplorerWindow(int windowHandle)
+    {
+        return ExecuteForExplorerWindow(
+            windowHandle,
+            window =>
+            {
+                try
+                {
+                    window.GoBack();
                     return true;
                 }
                 catch
