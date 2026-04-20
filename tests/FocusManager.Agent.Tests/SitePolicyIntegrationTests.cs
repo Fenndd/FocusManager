@@ -56,6 +56,29 @@ public sealed class SitePolicyIntegrationTests
     }
 
     [Fact]
+    public async Task SiteEnforcer_ApplyAsync_WithEmptyWhitelist_RemovesPolicySubkeys()
+    {
+        using var scope = new RegistryPolicyScope();
+        var registry = new ChromePolicyRegistry(scope.PolicyPath);
+        var sut = new SiteEnforcer(registry);
+
+        await sut.ApplyAsync(new WhitelistConfig
+        {
+            AllowedSites = [new AllowedSite("Wiki", "wikipedia.org")]
+        });
+
+        await sut.ApplyAsync(new WhitelistConfig
+        {
+            AllowedSites = []
+        });
+
+        using var policyKey = Registry.CurrentUser.OpenSubKey(scope.PolicyPath);
+        Assert.NotNull(policyKey);
+        Assert.Null(policyKey!.OpenSubKey("URLAllowlist"));
+        Assert.Null(policyKey.OpenSubKey("URLBlocklist"));
+    }
+
+    [Fact]
     public async Task ChromeMonitor_ApplyAndClear_ManagePolicyKeys()
     {
         using var scope = new RegistryPolicyScope();
