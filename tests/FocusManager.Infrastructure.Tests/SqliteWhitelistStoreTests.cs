@@ -7,8 +7,10 @@ namespace FocusManager.Infrastructure.Tests;
 
 public sealed class SqliteWhitelistStoreTests
 {
+    private static readonly AllowedFolder DefaultRootFolder = new("System Root (C:)", @"C:\", false);
+
     [Fact]
-    public async Task LoadAsync_ReturnsEmptyLists_AndStudyModeDisabled_ByDefault()
+    public async Task LoadAsync_ReturnsDefaultRootFolder_AndStudyModeDisabled_ByDefault()
     {
         using var scope = new TempDatabaseScope();
         var sut = new SqliteWhitelistStore(scope.DatabasePath);
@@ -17,7 +19,7 @@ public sealed class SqliteWhitelistStoreTests
         var studyMode = await sut.IsStudyModeEnabledAsync();
 
         Assert.Empty(config.AllowedApps);
-        Assert.Empty(config.AllowedFolders);
+        Assert.Equal([DefaultRootFolder], config.AllowedFolders);
         Assert.Empty(config.AllowedSites);
         Assert.False(studyMode);
     }
@@ -51,7 +53,7 @@ public sealed class SqliteWhitelistStoreTests
         var loaded = await sut.LoadAsync();
 
         Assert.Equal(saved.AllowedApps, loaded.AllowedApps);
-        Assert.Equal(saved.AllowedFolders, loaded.AllowedFolders);
+        Assert.Equal(WithDefaultFolder(saved.AllowedFolders), loaded.AllowedFolders);
         Assert.Equal(saved.AllowedSites, loaded.AllowedSites);
     }
 
@@ -81,7 +83,7 @@ public sealed class SqliteWhitelistStoreTests
         var loaded = await sut.LoadAsync();
 
         Assert.Equal(second.AllowedApps, loaded.AllowedApps);
-        Assert.Equal(second.AllowedFolders, loaded.AllowedFolders);
+        Assert.Equal(WithDefaultFolder(second.AllowedFolders), loaded.AllowedFolders);
         Assert.Equal(second.AllowedSites, loaded.AllowedSites);
     }
 
@@ -121,7 +123,7 @@ public sealed class SqliteWhitelistStoreTests
 
         var loaded = await sut.LoadAsync();
 
-        var folder = Assert.Single(loaded.AllowedFolders);
+        var folder = Assert.Single(loaded.AllowedFolders.Where(x => !string.Equals(x.FolderPath, DefaultRootFolder.FolderPath, StringComparison.OrdinalIgnoreCase)));
         Assert.True(folder.AllowSubfolders);
     }
 
@@ -201,5 +203,16 @@ CREATE TABLE IF NOT EXISTS allowed_sites (
 );";
 
         command.ExecuteNonQuery();
+    }
+
+    private static List<AllowedFolder> WithDefaultFolder(IEnumerable<AllowedFolder> folders)
+    {
+        var list = folders.ToList();
+        if (list.All(x => !string.Equals(x.FolderPath, DefaultRootFolder.FolderPath, StringComparison.OrdinalIgnoreCase)))
+        {
+            list.Insert(0, DefaultRootFolder);
+        }
+
+        return list;
     }
 }

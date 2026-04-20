@@ -7,6 +7,7 @@ namespace FocusManager.Infrastructure.Persistence;
 public sealed class SqliteWhitelistStore : IWhitelistStore
 {
     private const string StudyModeKey = "study_mode_enabled";
+    private static readonly AllowedFolder DefaultRootFolder = new("System Root (C:)", @"C:\", false);
 
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly string _connectionString;
@@ -43,7 +44,7 @@ public sealed class SqliteWhitelistStore : IWhitelistStore
             await using var connection = await CreateOpenConnectionAsync(cancellationToken);
 
             var apps = await ReadAllowedAppsAsync(connection, cancellationToken);
-            var folders = await ReadAllowedFoldersAsync(connection, cancellationToken);
+            var folders = EnsureDefaultFolders(await ReadAllowedFoldersAsync(connection, cancellationToken));
             var sites = await ReadAllowedSitesAsync(connection, cancellationToken);
 
             return new WhitelistConfig
@@ -85,7 +86,8 @@ VALUES ($display_name, $executable_path);";
                 await command.ExecuteNonQueryAsync(cancellationToken);
             }
 
-            foreach (var folder in config.AllowedFolders)
+            var foldersToSave = EnsureDefaultFolders(config.AllowedFolders);
+            foreach (var folder in foldersToSave)
             {
                 var command = connection.CreateCommand();
                 command.Transaction = transaction;
@@ -246,6 +248,42 @@ ORDER BY id;";
         }
 
         return result;
+    }
+
+    private static List<AllowedFolder> EnsureDefaultFolders(IEnumerable<AllowedFolder> folders)
+    {
+        var result = folders.ToList();
+
+        var hasRootFolder = result.Any(x =>
+            string.Equals(NormalizeFolderPath(x.FolderPath), NormalizeFolderPath(DefaultRootFolder.FolderPath), StringComparison.OrdinalIgnoreCase));
+
+        if (!hasRootFolder)
+        {
+            result.Insert(0, DefaultRootFolder);
+        }
+
+        return result;
+    }
+
+    private static string NormalizeFolderPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        var cleaned = path.Trim().Trim('"');
+
+        try
+        {
+            cleaned = Path.GetFullPath(cleaned);
+        }
+        catch
+        {
+            // Keep raw path if normalization fails.
+        }
+
+        return cleaned.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
     private static async Task<List<AllowedFolder>> ReadAllowedFoldersAsync(
