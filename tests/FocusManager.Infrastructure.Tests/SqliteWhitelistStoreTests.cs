@@ -1,5 +1,6 @@
 using FocusManager.Core.Models;
 using FocusManager.Infrastructure.Persistence;
+using Microsoft.Data.Sqlite;
 using Xunit;
 
 namespace FocusManager.Infrastructure.Tests;
@@ -36,8 +37,8 @@ public sealed class SqliteWhitelistStoreTests
             ],
             AllowedFolders =
             [
-                new AllowedFolder("Study", @"C:\\Study"),
-                new AllowedFolder("Notes", @"C:\\Notes")
+                new AllowedFolder("Study", @"C:\\Study", AllowSubfolders: true),
+                new AllowedFolder("Notes", @"C:\\Notes", AllowSubfolders: false)
             ],
             AllowedSites =
             [
@@ -106,6 +107,25 @@ public sealed class SqliteWhitelistStoreTests
     }
 
     [Fact]
+    public async Task InitializeSchema_MigratesExistingAllowedFoldersTable_AddingAllowSubfoldersColumn()
+    {
+        using var scope = new TempDatabaseScope();
+        CreateLegacySchema(scope.DatabasePath);
+
+        var sut = new SqliteWhitelistStore(scope.DatabasePath);
+
+        await sut.SaveAsync(new WhitelistConfig
+        {
+            AllowedFolders = [new AllowedFolder("Study", @"C:\\Study", AllowSubfolders: true)]
+        });
+
+        var loaded = await sut.LoadAsync();
+
+        var folder = Assert.Single(loaded.AllowedFolders);
+        Assert.True(folder.AllowSubfolders);
+    }
+
+    [Fact]
     public async Task SaveAsync_Throws_WhenConfigIsNull()
     {
         using var scope = new TempDatabaseScope();
@@ -143,5 +163,43 @@ public sealed class SqliteWhitelistStoreTests
                 // Best-effort cleanup only.
             }
         }
+    }
+
+    private static void CreateLegacySchema(string databasePath)
+    {
+        using var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = databasePath,
+            Mode = SqliteOpenMode.ReadWriteCreate
+        }.ToString());
+
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS allowed_apps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    display_name TEXT NOT NULL,
+    executable_path TEXT NOT NULL UNIQUE COLLATE NOCASE
+);
+
+CREATE TABLE IF NOT EXISTS allowed_folders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    display_name TEXT NOT NULL,
+    folder_path TEXT NOT NULL UNIQUE COLLATE NOCASE
+);
+
+CREATE TABLE IF NOT EXISTS allowed_sites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    display_name TEXT NOT NULL,
+    host_pattern TEXT NOT NULL UNIQUE COLLATE NOCASE
+);";
+
+        command.ExecuteNonQuery();
     }
 }

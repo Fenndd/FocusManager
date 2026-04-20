@@ -45,11 +45,13 @@ public sealed class ChromePolicyRegistry
         ClearValues(blockListKey);
         ClearValues(allowListKey);
 
+        // Block everything, then explicitly allow whitelist entries.
         blockListKey.SetValue("1", "*", RegistryValueKind.String);
 
         var normalizedRules = allowedHosts
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(NormalizeAllowRule)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -81,18 +83,31 @@ public sealed class ChromePolicyRegistry
     private static string NormalizeAllowRule(string value)
     {
         var trimmed = value.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+        {
+            return string.Empty;
+        }
 
-        if (trimmed.Contains("://", StringComparison.Ordinal) || trimmed.StartsWith("chrome://", StringComparison.OrdinalIgnoreCase))
+        // Chrome URL filter format supports wildcard subdomains via [*.] prefix.
+        if (trimmed.StartsWith("*.", StringComparison.Ordinal))
+        {
+            return "[*.]" + trimmed[2..];
+        }
+
+        // Preserve explicit wildcard format if already provided.
+        if (trimmed.StartsWith("[*.]", StringComparison.Ordinal))
         {
             return trimmed;
         }
 
-        if (trimmed.Contains("/*", StringComparison.Ordinal))
+        // Preserve full scheme rules and chrome:// rules as-is.
+        if (trimmed.Contains("://", StringComparison.Ordinal) ||
+            trimmed.StartsWith("chrome://", StringComparison.OrdinalIgnoreCase))
         {
             return trimmed;
         }
 
-        return $"*://{trimmed}/*";
+        return trimmed;
     }
 
     private static void ClearValues(RegistryKey key)

@@ -106,7 +106,7 @@ public sealed class AgentClient : IAgentClient
                 .Select(x => new AllowedAppDto(x.DisplayName, x.ExecutablePath))
                 .ToList(),
             config.AllowedFolders
-                .Select(x => new AllowedFolderDto(x.DisplayName, x.FolderPath))
+                .Select(x => new AllowedFolderDto(x.DisplayName, x.FolderPath, x.AllowSubfolders))
                 .ToList(),
             config.AllowedSites
                 .Select(x => new AllowedSiteDto(x.DisplayName, x.HostPattern))
@@ -121,7 +121,7 @@ public sealed class AgentClient : IAgentClient
                 .Select(x => new AllowedApp(x.DisplayName, x.ExecutablePath))
                 .ToList(),
             AllowedFolders = dto.AllowedFolders
-                .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath))
+                .Select(x => new AllowedFolder(x.DisplayName, x.FolderPath, x.AllowSubfolders))
                 .ToList(),
             AllowedSites = dto.AllowedSites
                 .Select(x => new AllowedSite(x.DisplayName, x.HostPattern))

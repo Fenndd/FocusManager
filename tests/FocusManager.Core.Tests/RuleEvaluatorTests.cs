@@ -91,13 +91,29 @@ public sealed class RuleEvaluatorTests
     }
 
     [Fact]
-    public void EvaluateFolderOpen_Allows_ChildFolder()
+    public void EvaluateFolderOpen_Denies_ChildFolder_WhenSubfoldersNotAllowed()
     {
         var config = new WhitelistConfig
         {
             AllowedFolders =
             [
                 new AllowedFolder("Study", @"C:\Study")
+            ]
+        };
+
+        var decision = _sut.EvaluateFolderOpen(@"C:\Study\Math\Algebra", config);
+
+        Assert.False(decision.IsAllowed);
+    }
+
+    [Fact]
+    public void EvaluateFolderOpen_Allows_ChildFolder_WhenSubfoldersAllowed()
+    {
+        var config = new WhitelistConfig
+        {
+            AllowedFolders =
+            [
+                new AllowedFolder("Study", @"C:\Study", AllowSubfolders: true)
             ]
         };
 

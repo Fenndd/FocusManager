@@ -21,7 +21,34 @@ public sealed class FolderEnforcerTests
             AllowedFolders = [new AllowedFolder("Study", @"C:\\Study")]
         };
 
+        await sut.EnforceAsync(new FolderOpenedEventArgs(@"C:\\Study"), config);
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
+    public async Task EnforceAsync_DoesNothing_WhenChildFolderIsAllowedByFlag()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = CreateSut(notifier);
+
+        var config = new WhitelistConfig
+        {
+            AllowedFolders = [new AllowedFolder("Study", @"C:\\Study", AllowSubfolders: true)]
+        };
+
         await sut.EnforceAsync(new FolderOpenedEventArgs(@"C:\\Study\\Math"), config);
+
+        Assert.Empty(notifier.Blocked);
+    }
+
+    [Fact]
+    public async Task EnforceAsync_Ignores_VirtualShellPaths()
+    {
+        var notifier = new RecordingNotifier();
+        var sut = CreateSut(notifier);
+
+        await sut.EnforceAsync(new FolderOpenedEventArgs(@"::\\{F874310E-B6B7-47DC-BC84-B9E6B38F5903}"), new WhitelistConfig());
 
         Assert.Empty(notifier.Blocked);
     }

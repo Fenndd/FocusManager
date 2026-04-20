@@ -31,8 +31,8 @@ public sealed class SitePolicyIntegrationTests
         var values = ReadAllowListValues(scope.PolicyPath);
 
         Assert.Equal(2, values.Count);
-        Assert.Contains("*://wikipedia.org/*", values);
-        Assert.Contains("*://*.microsoft.com/*", values);
+        Assert.Contains("wikipedia.org", values);
+        Assert.Contains("[*.]microsoft.com", values);
     }
 
     [Fact]
@@ -65,6 +65,8 @@ public sealed class SitePolicyIntegrationTests
 
         var valuesAfterApply = ReadAllowListValues(scope.PolicyPath);
         Assert.Equal(2, valuesAfterApply.Count);
+        Assert.Contains("example.com", valuesAfterApply);
+        Assert.Contains("https://news.ycombinator.com", valuesAfterApply);
 
         await monitor.ClearAsync();
 

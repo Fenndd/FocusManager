@@ -37,32 +37,44 @@ public sealed class ExplorerInterop
         }
     }
 
-    public Task RedirectToAllowedFolderAsync(string targetFolderPath, CancellationToken cancellationToken = default)
+    public Task<bool> RedirectToAllowedFolderAsync(string targetFolderPath, CancellationToken cancellationToken = default)
+    {
+        return RedirectExplorerWindowToAllowedFolderAsync(windowHandle: 0, targetFolderPath, cancellationToken);
+    }
+
+    public Task<bool> RedirectExplorerWindowToAllowedFolderAsync(
+        int windowHandle,
+        string targetFolderPath,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(targetFolderPath))
         {
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        try
-        {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "explorer.exe",
-                Arguments = $"\"{targetFolderPath}\"",
-                UseShellExecute = true
-            };
+        var normalizedTarget = NormalizeTargetPath(targetFolderPath);
+        var redirected = windowHandle > 0 && TryNavigateExplorerWindow(windowHandle, normalizedTarget);
 
-            Process.Start(startInfo);
-        }
-        catch
+        if (!redirected)
         {
-            // Best effort redirect only.
+            OpenExplorerWindow(normalizedTarget);
+            return Task.FromResult(true);
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> CloseExplorerWindowAsync(int windowHandle, CancellationToken cancellationToken = default)
+    {
+        if (windowHandle <= 0)
+        {
+            return Task.FromResult(false);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(TryCloseExplorerWindow(windowHandle));
     }
 
     private void PollExplorerWindows(object? state)
@@ -125,7 +137,7 @@ public sealed class ExplorerInterop
 
                         if (HasFolderChanged(hwnd, folderPath))
                         {
-                            RaiseFolderOpened(new FolderOpenedEventArgs(folderPath));
+                            RaiseFolderOpened(new FolderOpenedEventArgs(folderPath, hwnd));
                         }
                     }
                     catch
@@ -149,6 +161,151 @@ public sealed class ExplorerInterop
         catch
         {
             // Ignore polling errors and try again on next tick.
+        }
+    }
+
+    private static bool TryNavigateExplorerWindow(int windowHandle, string targetFolderPath)
+    {
+        return ExecuteForExplorerWindow(
+            windowHandle,
+            window =>
+            {
+                try
+                {
+                    window.Navigate2(targetFolderPath);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+    }
+
+    private static bool TryCloseExplorerWindow(int windowHandle)
+    {
+        return ExecuteForExplorerWindow(
+            windowHandle,
+            window =>
+            {
+                try
+                {
+                    window.Quit();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+    }
+
+    private static bool ExecuteForExplorerWindow(int windowHandle, Func<dynamic, bool> action)
+    {
+        try
+        {
+            var shellType = Type.GetTypeFromProgID("Shell.Application");
+            if (shellType is null)
+            {
+                return false;
+            }
+
+            object? shell = null;
+            object? windows = null;
+
+            try
+            {
+                shell = Activator.CreateInstance(shellType);
+                if (shell is null)
+                {
+                    return false;
+                }
+
+                dynamic shellDynamic = shell;
+                windows = shellDynamic.Windows();
+
+                dynamic windowsDynamic = windows;
+                var count = Convert.ToInt32(windowsDynamic.Count);
+
+                for (var i = 0; i < count; i++)
+                {
+                    object? window = null;
+
+                    try
+                    {
+                        window = windowsDynamic.Item(i);
+                        if (window is null)
+                        {
+                            continue;
+                        }
+
+                        dynamic windowDynamic = window;
+                        if (!IsMatchingExplorerWindow(windowDynamic, windowHandle))
+                        {
+                            continue;
+                        }
+
+                        return action(windowDynamic);
+                    }
+                    catch
+                    {
+                        // Ignore broken window entry.
+                    }
+                    finally
+                    {
+                        ReleaseComObject(window);
+                    }
+                }
+            }
+            finally
+            {
+                ReleaseComObject(windows);
+                ReleaseComObject(shell);
+            }
+        }
+        catch
+        {
+            // Best-effort COM access only.
+        }
+
+        return false;
+    }
+
+    private static bool IsMatchingExplorerWindow(dynamic window, int windowHandle)
+    {
+        try
+        {
+            var hwnd = Convert.ToInt32(window.HWND);
+            if (hwnd != windowHandle)
+            {
+                return false;
+            }
+
+            var fullName = Convert.ToString(window.FullName) ?? string.Empty;
+            return fullName.EndsWith("explorer.exe", StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static void OpenExplorerWindow(string targetFolderPath)
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "explorer.exe",
+                Arguments = $"\"{targetFolderPath}\"",
+                UseShellExecute = true
+            };
+
+            Process.Start(startInfo);
+        }
+        catch
+        {
+            // Best effort redirect only.
         }
     }
 
@@ -180,6 +337,17 @@ public sealed class ExplorerInterop
 
     private static string TryGetFolderPath(dynamic window)
     {
+        var fromDocument = TryGetFolderPathFromDocument(window);
+        if (!string.IsNullOrWhiteSpace(fromDocument))
+        {
+            return fromDocument;
+        }
+
+        return TryGetFolderPathFromLocationUrl(window);
+    }
+
+    private static string TryGetFolderPathFromDocument(dynamic window)
+    {
         try
         {
             var document = window.Document;
@@ -200,6 +368,49 @@ public sealed class ExplorerInterop
         catch
         {
             return string.Empty;
+        }
+    }
+
+    private static string TryGetFolderPathFromLocationUrl(dynamic window)
+    {
+        try
+        {
+            var locationUrl = Convert.ToString(window.LocationURL) ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(locationUrl))
+            {
+                return string.Empty;
+            }
+
+            if (!Uri.TryCreate(locationUrl, UriKind.Absolute, out Uri uri))
+            {
+                return string.Empty;
+            }
+
+            if (uri.IsFile)
+            {
+                return uri.LocalPath;
+            }
+
+            // Keep shell-like URL as-is so caller can decide whether to ignore.
+            return locationUrl;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string NormalizeTargetPath(string targetFolderPath)
+    {
+        var cleaned = targetFolderPath.Trim().Trim('"');
+
+        try
+        {
+            return Path.GetFullPath(cleaned);
+        }
+        catch
+        {
+            return cleaned;
         }
     }
 
@@ -226,4 +437,4 @@ public sealed class ExplorerInterop
     }
 }
 
-public sealed record FolderOpenedEventArgs(string FolderPath);
+public sealed record FolderOpenedEventArgs(string FolderPath, int WindowHandle = 0);
