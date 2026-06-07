@@ -130,12 +130,7 @@ public sealed class AgentHostedService : IHostedService
         {
             try
             {
-                using var server = new NamedPipeServerStream(
-                    IpcProtocol.PipeName,
-                    PipeDirection.InOut,
-                    NamedPipeServerStream.MaxAllowedServerInstances,
-                    PipeTransmissionMode.Byte,
-                    PipeOptions.Asynchronous);
+                using var server = IpcPipeFactory.CreateServerStream(IpcProtocol.PipeName);
 
                 await server.WaitForConnectionAsync(cancellationToken);
                 await HandleClientAsync(server, cancellationToken);
@@ -147,6 +142,15 @@ public sealed class AgentHostedService : IHostedService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "IPC server loop error.");
+
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
         }
     }
