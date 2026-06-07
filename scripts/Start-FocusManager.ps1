@@ -90,21 +90,14 @@ $appExe = Get-FirstExistingFile `
         (Join-Path $repoRoot "src\FocusManager.App\bin\$Configuration\net8.0-windows10.0.19041.0\FocusManager.App.exe")
     )
 
-$runningAgents = Get-Process -Name "FocusManager.Agent" -ErrorAction SilentlyContinue
-if ($runningAgents) {
-    Write-Host "Stopping existing FocusManager.Agent processes..."
-    $runningAgents | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 1
+$elevatedAgentLauncher = Join-Path $scriptDirectory "Start-FocusManager.AgentElevated.ps1"
+if (-not (Test-Path -LiteralPath $elevatedAgentLauncher -PathType Leaf)) {
+    throw "Elevated agent launcher was not found at $elevatedAgentLauncher."
 }
 
-$remainingAgents = Get-Process -Name "FocusManager.Agent" -ErrorAction SilentlyContinue
-if ($remainingAgents) {
-    Write-Warning "An existing FocusManager.Agent process is still running. The UI will connect to the existing agent."
-}
-else {
-    Write-Host "Starting FocusManager.Agent as administrator..."
-    Start-Process -FilePath $agentExe -Verb RunAs -WorkingDirectory (Split-Path -Parent $agentExe)
-}
+Write-Host "Restarting FocusManager.Agent as administrator..."
+$elevatedArguments = "-NoProfile -ExecutionPolicy Bypass -File `"$elevatedAgentLauncher`" -AgentExe `"$agentExe`""
+Start-Process -FilePath "powershell.exe" -ArgumentList $elevatedArguments -Verb RunAs -WindowStyle Hidden
 
 if ($AgentStartupDelaySeconds -gt 0) {
     Start-Sleep -Seconds $AgentStartupDelaySeconds
