@@ -8,22 +8,24 @@ namespace FocusManager.Agent.Enforcement;
 
 public sealed class FolderEnforcer
 {
+    private const int MaxBackNavigationAttempts = 8;
+
     private readonly object _sync = new();
     private readonly Dictionary<string, DateTimeOffset> _recentBlocks = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly RuleEvaluator _ruleEvaluator;
-    private readonly ExplorerInterop _explorerInterop;
+    private readonly IExplorerNavigator _explorerNavigator;
     private readonly INotifier _notifier;
     private readonly ILogger<FolderEnforcer> _logger;
 
     public FolderEnforcer(
         RuleEvaluator ruleEvaluator,
-        ExplorerInterop explorerInterop,
+        IExplorerNavigator explorerNavigator,
         INotifier notifier,
         ILogger<FolderEnforcer> logger)
     {
         _ruleEvaluator = ruleEvaluator;
-        _explorerInterop = explorerInterop;
+        _explorerNavigator = explorerNavigator;
         _notifier = notifier;
         _logger = logger;
     }
@@ -44,7 +46,12 @@ public sealed class FolderEnforcer
         var blockedPath = NormalizePath(args.FolderPath);
         var fallbackFolder = config.AllowedFolders.FirstOrDefault()?.FolderPath;
 
-        var corrected = await ApplyCorrectiveActionAsync(args.WindowHandle, fallbackFolder, cancellationToken);
+        var corrected = await ApplyCorrectiveActionAsync(
+            args.ToExplorerWindowTarget(),
+            blockedPath,
+            config,
+            fallbackFolder,
+            cancellationToken);
 
         var shouldSuppressLog = ShouldSuppressBlock(blockedPath);
         if (shouldSuppressLog)
@@ -65,30 +72,92 @@ public sealed class FolderEnforcer
     }
 
     private async Task<bool> ApplyCorrectiveActionAsync(
-        int windowHandle,
+        ExplorerWindowTarget target,
+        string blockedPath,
+        WhitelistConfig config,
         string? fallbackFolder,
         CancellationToken cancellationToken)
     {
-        // Prefer the native Explorer back-navigation behavior to return user
-        // to the previously viewed location in the same window.
-        if (await _explorerInterop.GoBackExplorerWindowAsync(windowHandle, cancellationToken))
+        var currentPath = await _explorerNavigator.GetCurrentFolderPathAsync(target, cancellationToken);
+        if (IsAllowedFolder(currentPath, config))
         {
             return true;
         }
 
-        // If there is no navigation history in this window, close it instead
-        // of sending user to an unrelated whitelist folder.
-        if (await _explorerInterop.CloseExplorerWindowAsync(windowHandle, cancellationToken))
+        if (string.IsNullOrWhiteSpace(currentPath))
+        {
+            return await RedirectToFallbackAsync(target, fallbackFolder, cancellationToken);
+        }
+
+        if (!PathsEqual(currentPath, blockedPath))
+        {
+            return false;
+        }
+
+        for (var attempt = 0; attempt < MaxBackNavigationAttempts; attempt++)
+        {
+            var previousPath = currentPath;
+            if (!await _explorerNavigator.GoBackExplorerWindowAsync(target, cancellationToken))
+            {
+                break;
+            }
+
+            currentPath = await _explorerNavigator.GetCurrentFolderPathAsync(target, cancellationToken);
+            if (IsAllowedFolder(currentPath, config))
+            {
+                return true;
+            }
+
+            if (!PathsEqual(currentPath, blockedPath) && !PathsEqual(currentPath, previousPath))
+            {
+                continue;
+            }
+
+            break;
+        }
+
+        if (await _explorerNavigator.CloseExplorerWindowAsync(target, cancellationToken))
         {
             return true;
         }
 
+        return await RedirectToFallbackAsync(target, fallbackFolder, cancellationToken);
+    }
+
+    private async Task<bool> RedirectToFallbackAsync(
+        ExplorerWindowTarget target,
+        string? fallbackFolder,
+        CancellationToken cancellationToken)
+    {
         if (!string.IsNullOrWhiteSpace(fallbackFolder))
         {
-            return await _explorerInterop.RedirectToAllowedFolderAsync(fallbackFolder, cancellationToken);
+            if (target.HasTarget &&
+                await _explorerNavigator.RedirectExplorerWindowToAllowedFolderAsync(target, fallbackFolder, cancellationToken))
+            {
+                return true;
+            }
+
+            return await _explorerNavigator.RedirectToAllowedFolderAsync(fallbackFolder, cancellationToken);
         }
 
         return false;
+    }
+
+    private bool IsAllowedFolder(string? folderPath, WhitelistConfig config)
+    {
+        return !string.IsNullOrWhiteSpace(folderPath) &&
+            IsFileSystemPath(folderPath) &&
+            _ruleEvaluator.EvaluateFolderOpen(folderPath, config).IsAllowed;
+    }
+
+    private static bool PathsEqual(string? first, string? second)
+    {
+        if (string.IsNullOrWhiteSpace(first) || string.IsNullOrWhiteSpace(second))
+        {
+            return false;
+        }
+
+        return string.Equals(NormalizePath(first), NormalizePath(second), StringComparison.OrdinalIgnoreCase);
     }
 
     private bool ShouldSuppressBlock(string folderPath)

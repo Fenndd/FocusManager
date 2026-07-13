@@ -19,6 +19,7 @@ builder.Services.AddSingleton<RuleEvaluator>();
 
 builder.Services.AddSingleton<WmiProcessWatcher>();
 builder.Services.AddSingleton<ExplorerInterop>();
+builder.Services.AddSingleton<IExplorerNavigator>(services => services.GetRequiredService<ExplorerInterop>());
 builder.Services.AddSingleton<ChromePolicyRegistry>();
 
 builder.Services.AddSingleton<ProcessStartMonitor>();
