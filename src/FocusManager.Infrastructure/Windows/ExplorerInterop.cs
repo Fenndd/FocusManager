@@ -5,10 +5,10 @@ using System.Runtime.Versioning;
 namespace FocusManager.Infrastructure.Windows;
 
 [SupportedOSPlatform("windows")]
-public sealed class ExplorerInterop
+public sealed class ExplorerInterop : IExplorerNavigator
 {
     private readonly object _sync = new();
-    private readonly Dictionary<int, string> _lastWindowPaths = [];
+    private readonly ExplorerWindowPathCache _pathCache = new();
 
     private Timer? _pollTimer;
 
@@ -33,7 +33,7 @@ public sealed class ExplorerInterop
         {
             _pollTimer?.Dispose();
             _pollTimer = null;
-            _lastWindowPaths.Clear();
+            _pathCache.Clear();
         }
     }
 
@@ -47,6 +47,17 @@ public sealed class ExplorerInterop
         string targetFolderPath,
         CancellationToken cancellationToken = default)
     {
+        return RedirectExplorerWindowToAllowedFolderAsync(
+            new ExplorerWindowTarget(windowHandle),
+            targetFolderPath,
+            cancellationToken);
+    }
+
+    public Task<bool> RedirectExplorerWindowToAllowedFolderAsync(
+        ExplorerWindowTarget target,
+        string targetFolderPath,
+        CancellationToken cancellationToken = default)
+    {
         if (string.IsNullOrWhiteSpace(targetFolderPath))
         {
             return Task.FromResult(false);
@@ -55,7 +66,7 @@ public sealed class ExplorerInterop
         cancellationToken.ThrowIfCancellationRequested();
 
         var normalizedTarget = NormalizeTargetPath(targetFolderPath);
-        var redirected = windowHandle > 0 && TryNavigateExplorerWindow(windowHandle, normalizedTarget);
+        var redirected = target.HasTarget && TryNavigateExplorerWindow(target, normalizedTarget);
 
         if (!redirected)
         {
@@ -63,29 +74,72 @@ public sealed class ExplorerInterop
             return Task.FromResult(true);
         }
 
+        _pathCache.UpdateLastKnownPath(target, normalizedTarget);
         return Task.FromResult(true);
     }
 
     public Task<bool> CloseExplorerWindowAsync(int windowHandle, CancellationToken cancellationToken = default)
     {
-        if (windowHandle <= 0)
+        return CloseExplorerWindowAsync(new ExplorerWindowTarget(windowHandle), cancellationToken);
+    }
+
+    public Task<bool> CloseExplorerWindowAsync(ExplorerWindowTarget target, CancellationToken cancellationToken = default)
+    {
+        if (!target.HasTarget)
         {
             return Task.FromResult(false);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(TryCloseExplorerWindow(windowHandle));
+        var closed = TryCloseExplorerWindow(target);
+        if (closed)
+        {
+            _pathCache.Remove(target);
+        }
+
+        return Task.FromResult(closed);
     }
 
     public Task<bool> GoBackExplorerWindowAsync(int windowHandle, CancellationToken cancellationToken = default)
     {
-        if (windowHandle <= 0)
+        return GoBackExplorerWindowAsync(new ExplorerWindowTarget(windowHandle), cancellationToken);
+    }
+
+    public Task<bool> GoBackExplorerWindowAsync(ExplorerWindowTarget target, CancellationToken cancellationToken = default)
+    {
+        if (!target.HasTarget)
         {
             return Task.FromResult(false);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(TryGoBackExplorerWindow(windowHandle));
+        return Task.FromResult(TryGoBackExplorerWindow(target));
+    }
+
+    public Task<string?> GetCurrentFolderPathAsync(ExplorerWindowTarget target, CancellationToken cancellationToken = default)
+    {
+        if (!target.HasTarget)
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string? currentPath = null;
+        var found = ExecuteForExplorerWindow(
+            target,
+            window =>
+            {
+                currentPath = TryGetFolderPath(window);
+                return !string.IsNullOrWhiteSpace(currentPath);
+            });
+
+        if (found && !string.IsNullOrWhiteSpace(currentPath))
+        {
+            _pathCache.UpdateLastKnownPath(target, currentPath);
+        }
+
+        return Task.FromResult(found ? currentPath : null);
     }
 
     private void PollExplorerWindows(object? state)
@@ -114,7 +168,7 @@ public sealed class ExplorerInterop
 
                 dynamic windowsDynamic = windows;
                 var count = Convert.ToInt32(windowsDynamic.Count);
-                var seenHandles = new HashSet<int>();
+                var seenKeys = new HashSet<ExplorerWindowKey>();
 
                 for (var i = 0; i < count; i++)
                 {
@@ -144,11 +198,12 @@ public sealed class ExplorerInterop
                             continue;
                         }
 
-                        seenHandles.Add(hwnd);
+                        var key = new ExplorerWindowKey(hwnd, i);
+                        seenKeys.Add(key);
 
-                        if (HasFolderChanged(hwnd, folderPath))
+                        if (_pathCache.HasFolderChanged(key.WindowHandle, key.ShellWindowIndex, folderPath))
                         {
-                            RaiseFolderOpened(new FolderOpenedEventArgs(folderPath, hwnd));
+                            RaiseFolderOpened(new FolderOpenedEventArgs(folderPath, hwnd, i));
                         }
                     }
                     catch
@@ -161,7 +216,7 @@ public sealed class ExplorerInterop
                     }
                 }
 
-                CleanupClosedWindows(seenHandles);
+                _pathCache.CleanupClosedWindows(seenKeys);
             }
             finally
             {
@@ -175,10 +230,10 @@ public sealed class ExplorerInterop
         }
     }
 
-    private static bool TryNavigateExplorerWindow(int windowHandle, string targetFolderPath)
+    private static bool TryNavigateExplorerWindow(ExplorerWindowTarget target, string targetFolderPath)
     {
         return ExecuteForExplorerWindow(
-            windowHandle,
+            target,
             window =>
             {
                 try
@@ -193,10 +248,10 @@ public sealed class ExplorerInterop
             });
     }
 
-    private static bool TryCloseExplorerWindow(int windowHandle)
+    private static bool TryCloseExplorerWindow(ExplorerWindowTarget target)
     {
         return ExecuteForExplorerWindow(
-            windowHandle,
+            target,
             window =>
             {
                 try
@@ -211,10 +266,10 @@ public sealed class ExplorerInterop
             });
     }
 
-    private static bool TryGoBackExplorerWindow(int windowHandle)
+    private static bool TryGoBackExplorerWindow(ExplorerWindowTarget target)
     {
         return ExecuteForExplorerWindow(
-            windowHandle,
+            target,
             window =>
             {
                 try
@@ -229,7 +284,7 @@ public sealed class ExplorerInterop
             });
     }
 
-    private static bool ExecuteForExplorerWindow(int windowHandle, Func<dynamic, bool> action)
+    private static bool ExecuteForExplorerWindow(ExplorerWindowTarget target, Func<dynamic, bool> action)
     {
         try
         {
@@ -269,7 +324,7 @@ public sealed class ExplorerInterop
                         }
 
                         dynamic windowDynamic = window;
-                        if (!IsMatchingExplorerWindow(windowDynamic, windowHandle))
+                        if (!IsMatchingExplorerWindow(windowDynamic, target, i))
                         {
                             continue;
                         }
@@ -300,18 +355,37 @@ public sealed class ExplorerInterop
         return false;
     }
 
-    private static bool IsMatchingExplorerWindow(dynamic window, int windowHandle)
+    private static bool IsMatchingExplorerWindow(dynamic window, ExplorerWindowTarget target, int shellWindowIndex)
     {
         try
         {
             var hwnd = Convert.ToInt32(window.HWND);
-            if (hwnd != windowHandle)
+            if (target.WindowHandle > 0 && hwnd != target.WindowHandle)
             {
                 return false;
             }
 
             var fullName = Convert.ToString(window.FullName) ?? string.Empty;
-            return fullName.EndsWith("explorer.exe", StringComparison.OrdinalIgnoreCase);
+            if (!fullName.EndsWith("explorer.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (target.ShellWindowIndex >= 0)
+            {
+                return shellWindowIndex == target.ShellWindowIndex;
+            }
+
+            if (!string.IsNullOrWhiteSpace(target.FolderPath))
+            {
+                var currentPath = TryGetFolderPath(window);
+                return string.Equals(
+                    NormalizeTargetPath(currentPath),
+                    NormalizeTargetPath(target.FolderPath),
+                    StringComparison.OrdinalIgnoreCase);
+            }
+
+            return target.WindowHandle > 0;
         }
         catch
         {
@@ -335,32 +409,6 @@ public sealed class ExplorerInterop
         catch
         {
             // Best effort redirect only.
-        }
-    }
-
-    private bool HasFolderChanged(int windowHandle, string folderPath)
-    {
-        lock (_sync)
-        {
-            if (_lastWindowPaths.TryGetValue(windowHandle, out var previousPath) &&
-                string.Equals(previousPath, folderPath, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            _lastWindowPaths[windowHandle] = folderPath;
-            return true;
-        }
-    }
-
-    private void CleanupClosedWindows(HashSet<int> seenHandles)
-    {
-        lock (_sync)
-        {
-            foreach (var handle in _lastWindowPaths.Keys.Where(x => !seenHandles.Contains(x)).ToList())
-            {
-                _lastWindowPaths.Remove(handle);
-            }
         }
     }
 
@@ -466,4 +514,113 @@ public sealed class ExplorerInterop
     }
 }
 
-public sealed record FolderOpenedEventArgs(string FolderPath, int WindowHandle = 0);
+public interface IExplorerNavigator
+{
+    Task<string?> GetCurrentFolderPathAsync(ExplorerWindowTarget target, CancellationToken cancellationToken = default);
+
+    Task<bool> GoBackExplorerWindowAsync(ExplorerWindowTarget target, CancellationToken cancellationToken = default);
+
+    Task<bool> CloseExplorerWindowAsync(ExplorerWindowTarget target, CancellationToken cancellationToken = default);
+
+    Task<bool> RedirectExplorerWindowToAllowedFolderAsync(
+        ExplorerWindowTarget target,
+        string targetFolderPath,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> RedirectToAllowedFolderAsync(string targetFolderPath, CancellationToken cancellationToken = default);
+}
+
+public sealed class ExplorerWindowPathCache
+{
+    private readonly object _sync = new();
+    private readonly Dictionary<ExplorerWindowKey, string> _lastWindowPaths = [];
+
+    public bool HasFolderChanged(int windowHandle, int shellWindowIndex, string folderPath)
+    {
+        var key = new ExplorerWindowKey(windowHandle, shellWindowIndex);
+
+        lock (_sync)
+        {
+            if (_lastWindowPaths.TryGetValue(key, out var previousPath) &&
+                string.Equals(previousPath, folderPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            _lastWindowPaths[key] = folderPath;
+            return true;
+        }
+    }
+
+    public void UpdateLastKnownPath(ExplorerWindowTarget target, string folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath) || !TryCreateKey(target, out var key))
+        {
+            return;
+        }
+
+        lock (_sync)
+        {
+            _lastWindowPaths[key] = folderPath;
+        }
+    }
+
+    public void Remove(ExplorerWindowTarget target)
+    {
+        if (!TryCreateKey(target, out var key))
+        {
+            return;
+        }
+
+        lock (_sync)
+        {
+            _lastWindowPaths.Remove(key);
+        }
+    }
+
+    public void Clear()
+    {
+        lock (_sync)
+        {
+            _lastWindowPaths.Clear();
+        }
+    }
+
+    internal void CleanupClosedWindows(HashSet<ExplorerWindowKey> seenKeys)
+    {
+        lock (_sync)
+        {
+            foreach (var key in _lastWindowPaths.Keys.Where(x => !seenKeys.Contains(x)).ToList())
+            {
+                _lastWindowPaths.Remove(key);
+            }
+        }
+    }
+
+    private static bool TryCreateKey(ExplorerWindowTarget target, out ExplorerWindowKey key)
+    {
+        if (target.WindowHandle > 0 && target.ShellWindowIndex >= 0)
+        {
+            key = new ExplorerWindowKey(target.WindowHandle, target.ShellWindowIndex);
+            return true;
+        }
+
+        key = default!;
+        return false;
+    }
+}
+
+public sealed record ExplorerWindowTarget(int WindowHandle = 0, int ShellWindowIndex = -1, string FolderPath = "")
+{
+    public bool HasTarget => WindowHandle > 0 || ShellWindowIndex >= 0;
+}
+
+public sealed record FolderOpenedEventArgs(string FolderPath, int WindowHandle = 0, int ShellWindowIndex = -1)
+{
+    public ExplorerWindowTarget ToExplorerWindowTarget()
+    {
+        return new ExplorerWindowTarget(WindowHandle, ShellWindowIndex, FolderPath);
+    }
+}
+
+internal sealed record ExplorerWindowKey(int WindowHandle, int ShellWindowIndex);
