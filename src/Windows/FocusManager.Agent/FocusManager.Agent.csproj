@@ -11,8 +11,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="appsettings*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Shared\FocusManager.Core\FocusManager.Core.csproj" />
-    <ProjectReference Include="..\..\Shared\FocusManager.Persistence.Sqlite\FocusManager.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\..\Shared\FocusManager.Persistence.Postgres\FocusManager.Persistence.Postgres.csproj" />
     <ProjectReference Include="..\FocusManager.Contracts\FocusManager.Contracts.csproj" />
     <ProjectReference Include="..\FocusManager.Platform.Windows\FocusManager.Platform.Windows.csproj" />
   </ItemGroup>

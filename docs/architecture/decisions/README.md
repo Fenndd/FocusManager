@@ -14,6 +14,7 @@ ADR фиксирует значимое архитектурное решени�
 | [0001](0001-docs-spec-plans-layout.md) | Спецификация, планы и задачи хранятся в репозитории в `docs/` | Принято |
 | [0002](0002-shared-dotnet-code-for-android.md) | Android-версия пишется на .NET, чтобы переиспользовать общий C#-код | Принято |
 | [0003](0003-source-tree-by-platform.md) | Исходники разделены на `Shared` / `Windows` / `Android` | Принято |
+| [0004](0004-postgresql-storage.md) | PostgreSQL вместо SQLite | Принято |
 
 ## Шаблон
 

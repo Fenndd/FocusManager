@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Shared\FocusManager.Persistence.Sqlite\FocusManager.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\..\..\src\Shared\FocusManager.Persistence.Postgres\FocusManager.Persistence.Postgres.csproj" />
   </ItemGroup>
 </Project>

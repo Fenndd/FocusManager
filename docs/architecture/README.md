@@ -1,7 +1,8 @@
 # Архитектура FocusManager
 
 Решения, на которых основан этот документ: [ADR-0001](decisions/0001-docs-spec-plans-layout.md),
-[ADR-0002](decisions/0002-shared-dotnet-code-for-android.md), [ADR-0003](decisions/0003-source-tree-by-platform.md).
+[ADR-0002](decisions/0002-shared-dotnet-code-for-android.md), [ADR-0003](decisions/0003-source-tree-by-platform.md),
+[ADR-0004](decisions/0004-postgresql-storage.md).
 
 ## Структура репозитория
 
@@ -14,7 +15,7 @@ Directory.Build.props            ← общие настройки всех пр
 src/
 ├── Shared/                      ← кроссплатформенный код, net8.0, без OS API
 │   ├── FocusManager.Core/                  доменные модели, правила, абстракции (порты)
-│   └── FocusManager.Persistence.Sqlite/    реализация IWhitelistStore на SQLite
+│   └── FocusManager.Persistence.Postgres/  реализация IWhitelistStore на PostgreSQL (Npgsql)
 ├── Windows/                     ← только Windows
 │   ├── FocusManager.Platform.Windows/      интеграции с ОС: WMI, COM Проводника, реестр Chrome
 │   ├── FocusManager.Contracts/             IPC-сообщения App ↔ Agent (named pipe)
@@ -34,13 +35,13 @@ scripts/
 Кто на кого ссылается (стрелка = «зависит от»):
 
 ```
-Shared:   Persistence.Sqlite ──► Core
+Shared:   Persistence.Postgres ──► Core
 Windows:  Platform.Windows   ──► Core
           Contracts          (без зависимостей)
-          Agent              ──► Core, Persistence.Sqlite, Platform.Windows, Contracts
+          Agent              ──► Core, Persistence.Postgres, Platform.Windows, Contracts
           App (WinUI)        ──► Core, Contracts            (с агентом — только через IPC)
 Android:  Platform.Android   ──► Core                                  (план)
-          Android-приложение ──► Core, Persistence.Sqlite, Platform.Android (план)
+          Android-приложение ──► Core, Platform.Android, хранилище — по итогам 0008 (план)
 ```
 
 Правила (проверяются ревью):
@@ -63,7 +64,7 @@ Android:  Platform.Android   ──► Core                                  (п
 |-----|------|
 | Модель предметной области, правило «разрешено/запрещено», валидация и нормализация ввода пользователя | `Shared/FocusManager.Core` |
 | Оркестрация режима учёбы (вкл/выкл, снимок, применение правил), не зависящая от ОС | `Shared/FocusManager.Core` (пока проект маленький; при росте — выделить `FocusManager.Application`, через ADR) |
-| Хранение данных | `Shared/FocusManager.Persistence.Sqlite` |
+| Хранение данных | `Shared/FocusManager.Persistence.Postgres` |
 | Интерфейс к возможности ОС (запуск процесса, открыть папку, политика браузера, уведомление) | интерфейс — `Core/Abstractions`, реализация — `Platform.<OS>` |
 | Код, вызывающий API ОС (WMI, COM, реестр, AccessibilityService, VpnService) | `Platform.<OS>` |
 | Хост фонового процесса, DI-композиция, трей | `Windows/FocusManager.Agent` / Android-приложение |
@@ -80,7 +81,7 @@ Android:  Platform.Android   ──► Core                                  (п
 |-----|--------|------|
 | Модели (`AllowedApp`, `AllowedFolder`, `AllowedSite`, `WhitelistConfig`) | Shared | Shared |
 | `RuleEvaluator` (правила сравнения) | Shared, но зависит от семантики путей текущей ОС | Shared, OS-независимый — задача 0001 |
-| `SqliteWhitelistStore` | Shared, но содержит Windows-умолчание `C:\` | Shared без Windows-умолчаний — задача 0002 |
+| `PostgresWhitelistStore` | Shared, но содержит Windows-умолчание `C:\` | Shared без Windows-умолчаний — задача 0002 |
 | Оркестрация режима учёбы | внутри `AgentHostedService` (Windows) | Shared — задача 0003 |
 | Валидация/нормализация ввода белых списков | в code-behind страниц WinUI | Shared — задача 0004 |
 | Маппинг DTO ↔ модели | продублирован в `AgentClient` и `AgentHostedService` | `Contracts` — задача 0005 |

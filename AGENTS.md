@@ -58,6 +58,23 @@ Start-FocusManager.cmd
 Известное состояние: 3 теста `FocusManager.Core.Tests` падают не на Windows (Windows-пути в тестах) —
 см. задачу `0001`.
 
+### PostgreSQL
+
+Хранилище — PostgreSQL (ADR-0004). Тесты `FocusManager.Persistence.Postgres.Tests` работают с настоящей
+базой и **пропускаются (Skipped), если не задана** переменная `FOCUSMANAGER_TEST_POSTGRES`.
+Пропуск не считается проверкой: если меняешь хранилище — подними PostgreSQL и прогони тесты.
+
+```bash
+# Linux-контейнер (Ubuntu): локальный PostgreSQL для тестов
+apt-get install -y postgresql && service postgresql start
+su postgres -c "psql -c \"CREATE ROLE focusmanager LOGIN PASSWORD 'focusmanager';\" -c \"CREATE DATABASE focusmanager_test OWNER focusmanager;\""
+export FOCUSMANAGER_TEST_POSTGRES="Host=localhost;Port=5432;Database=focusmanager_test;Username=focusmanager;Password=focusmanager"
+dotnet test FocusManager.Shared.slnf
+```
+
+Каждый тест создаёт и удаляет свою схему, поэтому одну тестовую базу можно использовать многократно.
+Пароли и строки подключения с паролями в репозиторий не коммитить.
+
 ## Правила кода
 
 - Язык кода, идентификаторов и комментариев в коде — английский. Документация в `docs/` — русский.

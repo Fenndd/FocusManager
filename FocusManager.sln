@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Windows", "Windows", "{623F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core", "src\Shared\FocusManager.Core\FocusManager.Core.csproj", "{C8C80A49-52A9-46F8-B786-9B2202B466E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Persistence.Sqlite", "src\Shared\FocusManager.Persistence.Sqlite\FocusManager.Persistence.Sqlite.csproj", "{20002ACD-F995-448D-BAC8-96048498FF14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Persistence.Postgres", "src\Shared\FocusManager.Persistence.Postgres\FocusManager.Persistence.Postgres.csproj", "{20002ACD-F995-448D-BAC8-96048498FF14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Contracts", "src\Windows\FocusManager.Contracts\FocusManager.Contracts.csproj", "{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}"
 EndProject
@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.App", "src\Win
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core.Tests", "tests\Shared\FocusManager.Core.Tests\FocusManager.Core.Tests.csproj", "{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Persistence.Sqlite.Tests", "tests\Shared\FocusManager.Persistence.Sqlite.Tests\FocusManager.Persistence.Sqlite.Tests.csproj", "{C8CF3341-1AA7-43A1-B08A-B9999190A124}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Persistence.Postgres.Tests", "tests\Shared\FocusManager.Persistence.Postgres.Tests\FocusManager.Persistence.Postgres.Tests.csproj", "{C8CF3341-1AA7-43A1-B08A-B9999190A124}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Platform.Windows.Tests", "tests\Windows\FocusManager.Platform.Windows.Tests\FocusManager.Platform.Windows.Tests.csproj", "{66A0E682-A402-4C41-9FFF-42A221F51205}"
 EndProject

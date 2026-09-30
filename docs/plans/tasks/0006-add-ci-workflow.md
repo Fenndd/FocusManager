@@ -19,7 +19,8 @@ CI нет. Агенты часто работают в Linux-контейнер�
 ## Что сделать
 
 1. `.github/workflows/ci.yml`:
-   - job `shared` на `ubuntu-latest`: `dotnet test FocusManager.Shared.slnf`;
+   - job `shared` на `ubuntu-latest` с сервисом `postgres` (service container):
+     `dotnet test FocusManager.Shared.slnf` с заданной `FOCUSMANAGER_TEST_POSTGRES`;
    - job `windows` на `windows-latest`: сборка и тесты `FocusManager.Windows.slnf`
      (для WinUI при необходимости — `microsoft/setup-msbuild`).
 2. Тесты, требующие реального окружения (реестр, COM Проводника, права администратора), пометить
@@ -30,6 +31,7 @@ CI нет. Агенты часто работают в Linux-контейнер�
 ## Критерии приёмки
 
 - [ ] Оба job зелёные на `main`.
+- [ ] Тесты PostgreSQL в job `shared` выполняются, а не пропускаются (Skipped = 0).
 - [ ] Версия SDK берётся из `global.json`.
 
 ## Вне рамок

@@ -3,9 +3,9 @@
     "path": "FocusManager.sln",
     "projects": [
       "src\\Shared\\FocusManager.Core\\FocusManager.Core.csproj",
-      "src\\Shared\\FocusManager.Persistence.Sqlite\\FocusManager.Persistence.Sqlite.csproj",
+      "src\\Shared\\FocusManager.Persistence.Postgres\\FocusManager.Persistence.Postgres.csproj",
       "tests\\Shared\\FocusManager.Core.Tests\\FocusManager.Core.Tests.csproj",
-      "tests\\Shared\\FocusManager.Persistence.Sqlite.Tests\\FocusManager.Persistence.Sqlite.Tests.csproj"
+      "tests\\Shared\\FocusManager.Persistence.Postgres.Tests\\FocusManager.Persistence.Postgres.Tests.csproj"
     ]
   }
 }

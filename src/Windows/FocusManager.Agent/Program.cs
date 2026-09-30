@@ -5,14 +5,28 @@ using FocusManager.Agent.Services;
 using FocusManager.Agent.Tray;
 using FocusManager.Core.Abstractions;
 using FocusManager.Core.Rules;
-using FocusManager.Persistence.Sqlite;
+using FocusManager.Persistence.Postgres;
 using FocusManager.Platform.Windows;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+{
+    Args = args,
+    // appsettings.json lives next to the exe; the agent may be started from any working directory.
+    ContentRootPath = AppContext.BaseDirectory
+});
 
-builder.Services.AddSingleton<IWhitelistStore, SqliteWhitelistStore>();
+var connectionString = builder.Configuration.GetConnectionString("FocusManager");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "PostgreSQL connection string 'ConnectionStrings:FocusManager' is not configured. " +
+        "Set it in appsettings.json or the ConnectionStrings__FocusManager environment variable.");
+}
+
+builder.Services.AddSingleton<IWhitelistStore>(_ => new PostgresWhitelistStore(connectionString));
 builder.Services.AddSingleton<INotifier, SilentNotifier>();
 
 builder.Services.AddSingleton<RuleEvaluator>();

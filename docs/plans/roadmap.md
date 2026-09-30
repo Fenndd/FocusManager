@@ -5,7 +5,7 @@
 ## M0 — Реструктуризация репозитория ✅
 
 Разделение кода на `Shared`/`Windows`/`Android`, спецификация, архитектура, система задач.
-См. ADR-0001, ADR-0003.
+См. ADR-0001, ADR-0003. Хранилище переведено на PostgreSQL — ADR-0004.
 
 ## M1 — Подготовка общего кода к Android
 
@@ -15,12 +15,13 @@
 | Задача | Кратко |
 |--------|--------|
 | [0001](tasks/0001-make-core-path-rules-os-independent.md) | Правила путей в Core не зависят от ОС; тесты зелёные на Linux |
-| [0002](tasks/0002-remove-windows-defaults-from-sqlite-store.md) | Убрать Windows-умолчание `C:\` из общего хранилища |
+| [0002](tasks/0002-remove-windows-defaults-from-store.md) | Убрать Windows-умолчание `C:\` из общего хранилища |
 | [0003](tasks/0003-extract-study-mode-orchestration-to-shared.md) | Вынести оркестрацию режима учёбы из Windows-агента в Shared |
 | [0004](tasks/0004-extract-whitelist-editing-logic-to-shared.md) | Вынести валидацию/нормализацию ввода из WinUI-страниц в Shared |
 | [0005](tasks/0005-deduplicate-contracts-mapping.md) | Убрать дублирование маппинга DTO ↔ модели |
 | [0006](tasks/0006-add-ci-workflow.md) | CI: Shared на Linux, Windows на Windows |
 | [0007](tasks/0007-migrate-to-dotnet-10.md) | Переход на .NET 10 LTS |
+| [0010](tasks/0010-migrate-data-from-sqlite.md) | Перенос данных из старой SQLite-базы в PostgreSQL |
 
 ## M2 — Android: исследование и каркас
 
