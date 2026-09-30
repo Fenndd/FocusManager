@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "FocusManager.sln",
+    "projects": [
+      "src\\Shared\\FocusManager.Core\\FocusManager.Core.csproj",
+      "src\\Shared\\FocusManager.Persistence.Sqlite\\FocusManager.Persistence.Sqlite.csproj",
+      "tests\\Shared\\FocusManager.Core.Tests\\FocusManager.Core.Tests.csproj",
+      "tests\\Shared\\FocusManager.Persistence.Sqlite.Tests\\FocusManager.Persistence.Sqlite.Tests.csproj"
+    ]
+  }
+}

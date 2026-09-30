@@ -1,0 +1,17 @@
+{
+  "solution": {
+    "path": "FocusManager.sln",
+    "projects": [
+      "src\\Shared\\FocusManager.Core\\FocusManager.Core.csproj",
+      "src\\Shared\\FocusManager.Persistence.Sqlite\\FocusManager.Persistence.Sqlite.csproj",
+      "src\\Windows\\FocusManager.Contracts\\FocusManager.Contracts.csproj",
+      "src\\Windows\\FocusManager.Platform.Windows\\FocusManager.Platform.Windows.csproj",
+      "src\\Windows\\FocusManager.Agent\\FocusManager.Agent.csproj",
+      "src\\Windows\\FocusManager.App\\FocusManager.App.csproj",
+      "tests\\Shared\\FocusManager.Core.Tests\\FocusManager.Core.Tests.csproj",
+      "tests\\Shared\\FocusManager.Persistence.Sqlite.Tests\\FocusManager.Persistence.Sqlite.Tests.csproj",
+      "tests\\Windows\\FocusManager.Platform.Windows.Tests\\FocusManager.Platform.Windows.Tests.csproj",
+      "tests\\Windows\\FocusManager.Agent.Tests\\FocusManager.Agent.Tests.csproj"
+    ]
+  }
+}

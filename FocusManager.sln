@@ -2,23 +2,37 @@
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.App", "src\FocusManager.App\FocusManager.App.csproj", "{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{42FF4E6D-9A74-4DBB-9837-7244BA69073A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Agent", "src\FocusManager.Agent\FocusManager.Agent.csproj", "{B1FB3282-C2A6-4FD8-AB62-B214855E8393}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{644FF983-C455-403E-8AED-DDF77702ACA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core", "src\FocusManager.Core\FocusManager.Core.csproj", "{C8C80A49-52A9-46F8-B786-9B2202B466E4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Infrastructure", "src\FocusManager.Infrastructure\FocusManager.Infrastructure.csproj", "{75D7D83A-8276-4E3F-A6F6-086F404AA96B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Contracts", "src\FocusManager.Contracts\FocusManager.Contracts.csproj", "{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core.Tests", "tests\FocusManager.Core.Tests\FocusManager.Core.Tests.csproj", "{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Agent.Tests", "tests\FocusManager.Agent.Tests\FocusManager.Agent.Tests.csproj", "{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Windows", "Windows", "{D92ED92A-040D-4D06-92EA-190C215C167B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3AA9D532-B156-4374-805D-BC1B2AD7E324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Infrastructure.Tests", "tests\FocusManager.Infrastructure.Tests\FocusManager.Infrastructure.Tests.csproj", "{66A0E682-A402-4C41-9FFF-42A221F51205}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{7F7F9166-A4F4-43BA-9D07-209193DB418B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Windows", "Windows", "{623FDDAB-9DC0-4DD4-B7E6-41D9E0B81F79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core", "src\Shared\FocusManager.Core\FocusManager.Core.csproj", "{C8C80A49-52A9-46F8-B786-9B2202B466E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Persistence.Sqlite", "src\Shared\FocusManager.Persistence.Sqlite\FocusManager.Persistence.Sqlite.csproj", "{20002ACD-F995-448D-BAC8-96048498FF14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Contracts", "src\Windows\FocusManager.Contracts\FocusManager.Contracts.csproj", "{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Platform.Windows", "src\Windows\FocusManager.Platform.Windows\FocusManager.Platform.Windows.csproj", "{75D7D83A-8276-4E3F-A6F6-086F404AA96B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Agent", "src\Windows\FocusManager.Agent\FocusManager.Agent.csproj", "{B1FB3282-C2A6-4FD8-AB62-B214855E8393}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.App", "src\Windows\FocusManager.App\FocusManager.App.csproj", "{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Core.Tests", "tests\Shared\FocusManager.Core.Tests\FocusManager.Core.Tests.csproj", "{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Persistence.Sqlite.Tests", "tests\Shared\FocusManager.Persistence.Sqlite.Tests\FocusManager.Persistence.Sqlite.Tests.csproj", "{C8CF3341-1AA7-43A1-B08A-B9999190A124}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Platform.Windows.Tests", "tests\Windows\FocusManager.Platform.Windows.Tests\FocusManager.Platform.Windows.Tests.csproj", "{66A0E682-A402-4C41-9FFF-42A221F51205}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusManager.Agent.Tests", "tests\Windows\FocusManager.Agent.Tests\FocusManager.Agent.Tests.csproj", "{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,43 +40,64 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C8C80A49-52A9-46F8-B786-9B2202B466E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C8C80A49-52A9-46F8-B786-9B2202B466E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8C80A49-52A9-46F8-B786-9B2202B466E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8C80A49-52A9-46F8-B786-9B2202B466E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20002ACD-F995-448D-BAC8-96048498FF14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20002ACD-F995-448D-BAC8-96048498FF14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20002ACD-F995-448D-BAC8-96048498FF14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20002ACD-F995-448D-BAC8-96048498FF14}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D7D83A-8276-4E3F-A6F6-086F404AA96B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1FB3282-C2A6-4FD8-AB62-B214855E8393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8CF3341-1AA7-43A1-B08A-B9999190A124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8CF3341-1AA7-43A1-B08A-B9999190A124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8CF3341-1AA7-43A1-B08A-B9999190A124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8CF3341-1AA7-43A1-B08A-B9999190A124}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66A0E682-A402-4C41-9FFF-42A221F51205}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66A0E682-A402-4C41-9FFF-42A221F51205}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66A0E682-A402-4C41-9FFF-42A221F51205}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66A0E682-A402-4C41-9FFF-42A221F51205}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{66A0E682-A402-4C41-9FFF-42A221F51205} = {3AA9D532-B156-4374-805D-BC1B2AD7E324}
+		{644FF983-C455-403E-8AED-DDF77702ACA0} = {42FF4E6D-9A74-4DBB-9837-7244BA69073A}
+		{D92ED92A-040D-4D06-92EA-190C215C167B} = {42FF4E6D-9A74-4DBB-9837-7244BA69073A}
+		{7F7F9166-A4F4-43BA-9D07-209193DB418B} = {3AA9D532-B156-4374-805D-BC1B2AD7E324}
+		{623FDDAB-9DC0-4DD4-B7E6-41D9E0B81F79} = {3AA9D532-B156-4374-805D-BC1B2AD7E324}
+		{C8C80A49-52A9-46F8-B786-9B2202B466E4} = {644FF983-C455-403E-8AED-DDF77702ACA0}
+		{20002ACD-F995-448D-BAC8-96048498FF14} = {644FF983-C455-403E-8AED-DDF77702ACA0}
+		{A7A776CE-E5CE-48A8-9CFB-10B4E2E3D267} = {D92ED92A-040D-4D06-92EA-190C215C167B}
+		{75D7D83A-8276-4E3F-A6F6-086F404AA96B} = {D92ED92A-040D-4D06-92EA-190C215C167B}
+		{B1FB3282-C2A6-4FD8-AB62-B214855E8393} = {D92ED92A-040D-4D06-92EA-190C215C167B}
+		{5F2F8300-A8B4-4C45-89A2-FF6B678D850D} = {D92ED92A-040D-4D06-92EA-190C215C167B}
+		{DE730C5D-A16F-4D8D-97F0-8A0B7A8D26E9} = {7F7F9166-A4F4-43BA-9D07-209193DB418B}
+		{C8CF3341-1AA7-43A1-B08A-B9999190A124} = {7F7F9166-A4F4-43BA-9D07-209193DB418B}
+		{66A0E682-A402-4C41-9FFF-42A221F51205} = {623FDDAB-9DC0-4DD4-B7E6-41D9E0B81F79}
+		{0DF6FCFB-B48B-4B76-BEB0-3FC2E48EF4F8} = {623FDDAB-9DC0-4DD4-B7E6-41D9E0B81F79}
 	EndGlobalSection
 EndGlobal
