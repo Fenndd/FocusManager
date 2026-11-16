@@ -17,6 +17,7 @@ docs/
 │   ├── stats.md              ← статистика для пользователя (STAT-*)
 │   ├── sync.md               ← аккаунт и синхронизация (SYNC-*)
 │   ├── telemetry.md          ← техническая аналитика и приватность (TEL-*)
+│   ├── protection.md         ← уровни защиты от обхода (PROT-*)
 │   ├── monetization.md       ← монетизация (PAY-*)
 │   └── platforms/
 │       ├── windows.md        ← Windows (WIN-*)

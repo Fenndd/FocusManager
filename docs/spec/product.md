@@ -31,7 +31,7 @@ FocusManager помогает сосредоточиться — прежде в
 | Учебные сессии | Предметы, наборы правил под предмет, режим экзаменов |
 | Партнёр по контролю | Код разблокировки у друга/родителя, уведомление партнёру при обходе |
 | Одна сессия на всех устройствах | Запуск на телефоне блокирует и ПК, и наоборот (требует облака) |
-| Уровни защиты | Разная сложность снятия блокировки (детали — решения F, ещё не приняты) |
+| Уровни защиты | Четыре уровня сложности снятия блокировки (`protection.md`) |
 | Мягкое трение | Пауза, вопрос «зачем открываешь?» вместо жёсткого запрета |
 | Игровая механика | Серии дней, достижения |
 
@@ -81,6 +81,20 @@ FocusManager помогает сосредоточиться — прежде в
 
 Платформы: Android — planned · Windows — partial (сейчас нужен сервер PostgreSQL — см. WIN-006) · Linux — planned · iOS — deferred
 
+### GEN-006 Каналы распространения
+- Android — только Google Play (решение H1);
+- Windows — свой сайт и Microsoft Store (решение H2);
+- Linux — не решено (LNX-001).
+
+Платформы: Android — planned · Windows — planned · Linux — research · iOS — deferred
+Примечание: новый личный аккаунт Google Play требует закрытого тестирования (12 тестировщиков, 14 дней)
+перед выпуском. Для Microsoft Store нужно проверить, допускает ли он агента с правами администратора.
+
+### GEN-007 Сайт продукта
+У продукта есть простой сайт: описание, загрузка для ПК, политика конфиденциальности (решение H3, TEL-005).
+
+Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+
 ## Функциональные области
 
 | Область | Файл | Android | Windows | Linux | iOS |
@@ -96,6 +110,7 @@ FocusManager помогает сосредоточиться — прежде в
 | Статистика | [stats.md](stats.md) | planned | planned | planned | deferred |
 | Аккаунт и синхронизация | [sync.md](sync.md) | planned | planned | planned | deferred |
 | Техническая аналитика | [telemetry.md](telemetry.md) | planned | planned | planned | deferred |
+| Защита от обхода | [protection.md](protection.md) | planned | planned | planned | deferred |
 | Монетизация | [monetization.md](monetization.md) | planned | planned | planned | deferred |
 
 Платформенные детали: [Windows](platforms/windows.md), [Linux](platforms/linux.md),
