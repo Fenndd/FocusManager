@@ -1,0 +1,9 @@
+<Project>
+  <!-- Settings shared by every project in the repository (src and tests). -->
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Lets Windows-targeted projects restore/build on Linux/macOS agents and CI with the official SDK. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+</Project>
