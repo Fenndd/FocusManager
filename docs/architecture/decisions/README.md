@@ -12,9 +12,12 @@ ADR фиксирует значимое архитектурное решени�
 | ADR | Решение | Статус |
 |-----|---------|--------|
 | [0001](0001-docs-spec-plans-layout.md) | Спецификация, планы и задачи хранятся в репозитории в `docs/` | Принято |
-| [0002](0002-shared-dotnet-code-for-android.md) | Android-версия пишется на .NET, чтобы переиспользовать общий C#-код | Принято |
-| [0003](0003-source-tree-by-platform.md) | Исходники разделены на `Shared` / `Windows` / `Android` | Принято |
-| [0004](0004-postgresql-storage.md) | PostgreSQL вместо SQLite | Принято |
+| [0002](0002-shared-dotnet-code-for-android.md) | Android-версия пишется на .NET, чтобы переиспользовать общий C#-код | Заменено ADR-0005 |
+| [0003](0003-source-tree-by-platform.md) | Исходники разделены на `Shared` / `Windows` / `Android` | Принято, дополнено ADR-0007 |
+| [0004](0004-postgresql-storage.md) | PostgreSQL вместо SQLite | Заменено ADR-0006 |
+| [0005](0005-native-stack-per-platform.md) | Свой стек на каждой платформе; общие — спецификация и тестовые примеры | Принято |
+| [0006](0006-local-storage-and-firebase.md) | Локальное хранилище (SQLite/Room) + Firebase для облака | Принято |
+| [0007](0007-desktop-agent-and-tauri-ui.md) | ПК: фоновый агент на C# + интерфейс на Tauri 2 / React | Принято |
 
 ## Шаблон
 

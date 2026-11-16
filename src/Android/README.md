@@ -1,12 +1,10 @@
 # Android (planned)
 
-Android projects will live here. Nothing is implemented yet.
+The Android app will live here: a Gradle project in Kotlin with Jetpack Compose, Room for local storage
+and Firebase for sync (ADR-0005, ADR-0006). Nothing is implemented yet.
 
-Planned layout (see `docs/plans/tasks/0009-bootstrap-android-projects.md`):
+- Research: `docs/plans/tasks/0008-research-android-enforcement-and-ui.md`
+- Bootstrap: `docs/plans/tasks/0009-bootstrap-android-projects.md`
+- Platform spec: `docs/spec/platforms/android.md`
 
-| Project | Purpose |
-|---------|---------|
-| `FocusManager.Platform.Android` | OS integrations (AccessibilityService, VpnService, foreground service) implementing ports from `FocusManager.Core` |
-| `FocusManager.Android` | The Android app (UI + background service), references `src/Shared/*` |
-
-Rules: `docs/architecture/README.md`. Decisions: `docs/architecture/decisions/0002-shared-dotnet-code-for-android.md`.
+This project does not use .NET; rules shared with other platforms are kept consistent through `test-vectors/`.

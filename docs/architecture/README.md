@@ -1,96 +1,98 @@
 # Архитектура FocusManager
 
-Решения, на которых основан этот документ: [ADR-0001](decisions/0001-docs-spec-plans-layout.md),
-[ADR-0002](decisions/0002-shared-dotnet-code-for-android.md), [ADR-0003](decisions/0003-source-tree-by-platform.md),
-[ADR-0004](decisions/0004-postgresql-storage.md).
+Решения: [ADR-0001](decisions/0001-docs-spec-plans-layout.md) (документация),
+[ADR-0003](decisions/0003-source-tree-by-platform.md) (структура исходников),
+[ADR-0005](decisions/0005-native-stack-per-platform.md) (стеки платформ),
+[ADR-0006](decisions/0006-local-storage-and-firebase.md) (хранилище и облако),
+[ADR-0007](decisions/0007-desktop-agent-and-tauri-ui.md) (архитектура ПК).
+
+## Платформы и стеки
+
+| Платформа | Логика | Интерфейс | Локальное хранилище | Облако |
+|-----------|--------|-----------|---------------------|--------|
+| Windows | C#/.NET — агент (служба) | Tauri 2 + TypeScript + React | SQLite | Firebase (через интерфейс) |
+| Linux | C#/.NET — агент (systemd), общий код с Windows | то же Tauri-приложение | SQLite | Firebase (через интерфейс) |
+| Android | Kotlin | Jetpack Compose | Room (SQLite) | Firebase Android SDK |
+| iOS (позже) | Swift | SwiftUI | — | — |
+
+Общие для всех платформ — **спецификация**, **тестовые примеры** (`test-vectors/`) и **форматы данных**
+(`contracts/`), а не код (ADR-0005).
 
 ## Структура репозитория
 
+Текущее состояние и цель (ADR-0007). ⏳ — ещё не создано.
+
 ```
-FocusManager.sln                 ← все проекты (папки решения: src/Shared, src/Windows, src/Android, tests/...)
-FocusManager.Shared.slnf         ← только общий код + его тесты (собирается на любой ОС)
+FocusManager.sln                 ← C#-проекты (папки решения: src/Shared, src/Windows, src/Linux, tests/...)
+FocusManager.Shared.slnf         ← общий C#-код + тесты (собирается на любой ОС)
 FocusManager.Windows.slnf        ← Shared + Windows (собирается на Windows)
-FocusManager.Android.slnf        ← Shared + Android (появится с задачей 0009)
-Directory.Build.props            ← общие настройки всех проектов
+Directory.Build.props            ← общие настройки C#-проектов
+contracts/                    ⏳ JSON Schema: сообщения интерфейс ↔ агент, документы синхронизации
+test-vectors/                 ⏳ общие тестовые примеры правил (JSON) для всех платформ
 src/
-├── Shared/                      ← кроссплатформенный код, net8.0, без OS API
-│   ├── FocusManager.Core/                  доменные модели, правила, абстракции (порты)
-│   └── FocusManager.Persistence.Postgres/  реализация IWhitelistStore на PostgreSQL (Npgsql)
-├── Windows/                     ← только Windows
-│   ├── FocusManager.Platform.Windows/      интеграции с ОС: WMI, COM Проводника, реестр Chrome
-│   ├── FocusManager.Contracts/             IPC-сообщения App ↔ Agent (named pipe)
-│   ├── FocusManager.Agent/                 фоновый агент: мониторинг, блокировки, трей, IPC-сервер
-│   └── FocusManager.App/                   UI на WinUI 3
-└── Android/                     ← только Android (планируется, см. src/Android/README.md)
+├── Shared/                      ← C#, общий код агентов ПК (Windows + Linux), net8.0, без API ОС
+│   ├── FocusManager.Core/                  модели, правила, абстракции (порты)
+│   └── FocusManager.Persistence.Postgres/  временно; заменяется на Persistence.Sqlite (задача 0002)
+├── Windows/                     ← C#, только Windows
+│   ├── FocusManager.Platform.Windows/      WMI, COM Проводника, реестр политик браузеров
+│   ├── FocusManager.Contracts/             IPC-сообщения (станут генерироваться из contracts/, задача 0005)
+│   ├── FocusManager.Agent/                 агент (станет службой без UI, задача 0016)
+│   └── FocusManager.App/                   WinUI 3 — удаляется после перехода на Tauri (задача 0018)
+├── Linux/                    ⏳ C#: Platform.Linux, хост агента (задача 0020)
+├── Desktop/                  ⏳ Tauri 2 + TypeScript + React — интерфейс ПК (задача 0017)
+├── Android/                  ⏳ Kotlin + Compose, Gradle (задача 0009)
+└── iOS/                         позже
 tests/
-├── Directory.Build.props        ← общие пакеты тестов (xUnit)
-├── Shared/                      ← тесты общего кода, запускаются на любой ОС
-└── Windows/                     ← тесты Windows-проектов, запускаются на Windows
+├── Directory.Build.props        ← общие пакеты C#-тестов (xUnit)
+├── Shared/                      ← тесты общего C#-кода, на любой ОС
+└── Windows/                     ← тесты Windows-проектов, на Windows
 scripts/
 └── windows/                     ← скрипты разработчика для Windows
 ```
 
-## Слои и зависимости
+Каждый не-.NET проект (Tauri, Android) держит свои тесты внутри своей папки по правилам своего
+инструментария (`src/Desktop/...`, `src/Android/...`).
 
-Кто на кого ссылается (стрелка = «зависит от»):
+## Зависимости C#-проектов
 
 ```
-Shared:   Persistence.Postgres ──► Core
-Windows:  Platform.Windows   ──► Core
-          Contracts          (без зависимостей)
-          Agent              ──► Core, Persistence.Postgres, Platform.Windows, Contracts
-          App (WinUI)        ──► Core, Contracts            (с агентом — только через IPC)
-Android:  Platform.Android   ──► Core                                  (план)
-          Android-приложение ──► Core, Platform.Android, хранилище — по итогам 0008 (план)
+Shared:   Persistence.*        ──► Core
+Windows:  Platform.Windows     ──► Core
+          Contracts            (без зависимостей; позже — сгенерирован из contracts/)
+          Agent                ──► Core, Persistence.*, Platform.Windows, Contracts
+          App (WinUI, временно) ──► Core, Contracts
+Linux:    Platform.Linux       ──► Core                                      (план)
+          Agent (Linux-хост)   ──► Core, Persistence.Sqlite, Platform.Linux  (план)
 ```
 
 Правила (проверяются ревью):
 
-1. `src/Shared/*` ссылается только на `src/Shared/*`. Никаких ссылок на `src/Windows`, `src/Android`.
-2. `src/Shared/*` таргетит `net8.0` (без `-windows`/`-android`) и не использует OS-специфичные API:
-   реестр, WMI, COM, P/Invoke, `System.Windows.*`, Android SDK. Если нужно — объяви интерфейс в `Core.Abstractions`
-   и реализуй его в `Platform.<OS>`.
-3. `FocusManager.Core` не зависит ни от чего, кроме BCL.
-4. Проекты платформы X не ссылаются на проекты платформы Y.
-5. UI-проекты не ссылаются на `Platform.<OS>` напрямую, если это не требуется платформой
-   (на Windows UI общается с агентом только через `Contracts`).
-6. Тесты зеркалят `src/`: тест общего кода — в `tests/Shared`, Windows-кода — в `tests/Windows`.
+1. `src/Shared/*` ссылается только на `src/Shared/*` и таргетит `net8.0` (без `-windows`). Никаких API ОС
+   (реестр, WMI, COM, P/Invoke, `System.Windows.*`, `/proc`, D-Bus). Нужна возможность ОС — интерфейс
+   в `Core.Abstractions`, реализация в `Platform.<OS>`.
+2. `FocusManager.Core` не зависит ни от чего, кроме BCL.
+3. Проекты платформы X не ссылаются на проекты платформы Y.
+4. Интерфейс ПК общается с агентом только через контракты (`contracts/`); агент не зависит от интерфейса.
+5. Блокировка не зависит от сети и от запущенного интерфейса: агент применяет последние сохранённые правила.
+6. C#-тесты зеркалят `src/`: общий код — `tests/Shared`, Windows-код — `tests/Windows`, Linux — `tests/Linux`.
 
 ## Куда класть новый код
 
-Задай себе вопрос: **«Будет ли этот код одинаковым на Windows и Android?»**
-
 | Код | Куда |
 |-----|------|
-| Модель предметной области, правило «разрешено/запрещено», валидация и нормализация ввода пользователя | `Shared/FocusManager.Core` |
-| Оркестрация режима учёбы (вкл/выкл, снимок, применение правил), не зависящая от ОС | `Shared/FocusManager.Core` (пока проект маленький; при росте — выделить `FocusManager.Application`, через ADR) |
-| Хранение данных | `Shared/FocusManager.Persistence.Postgres` |
-| Интерфейс к возможности ОС (запуск процесса, открыть папку, политика браузера, уведомление) | интерфейс — `Core/Abstractions`, реализация — `Platform.<OS>` |
-| Код, вызывающий API ОС (WMI, COM, реестр, AccessibilityService, VpnService) | `Platform.<OS>` |
-| Хост фонового процесса, DI-композиция, трей | `Windows/FocusManager.Agent` / Android-приложение |
-| Экраны, ViewModel, привязки к UI-фреймворку | UI-проект платформы |
-| Логика ViewModel, не зависящая от UI-фреймворка | `Shared` (см. задачу 0004) |
+| Модель предметной области, правило «разрешено/запрещено» для ПК | `src/Shared/FocusManager.Core` |
+| Логика сессий, профилей, триггеров агента ПК (одинакова на Windows и Linux) | `src/Shared` (задача 0003) |
+| Локальное хранилище ПК | `src/Shared/FocusManager.Persistence.Sqlite` |
+| Код, вызывающий API Windows / Linux | `src/Windows/FocusManager.Platform.Windows` / `src/Linux/...` |
+| Экраны ПК, трей, вход в аккаунт, синхронизация с Firebase | `src/Desktop` (Tauri) |
+| Сообщения интерфейс ↔ агент, документы синхронизации | `contracts/` (JSON Schema) |
+| Правило, которое должно работать одинаково на нескольких платформах | реализация в каждой платформе + примеры в `test-vectors/` |
+| Всё Android | `src/Android` |
 
-Если код сейчас нужен только одной платформе, но **по смыслу** платформенно-независим (например, правило
-сравнения хостов) — клади в `Shared`. Если код по смыслу платформенный, но пока есть только одна
-платформа — клади в `Platform.<OS>`, не в `Shared`.
+## Конвенции
 
-## Что уже общее и что нет (на 2026-09-30)
-
-| Код | Сейчас | Цель |
-|-----|--------|------|
-| Модели (`AllowedApp`, `AllowedFolder`, `AllowedSite`, `WhitelistConfig`) | Shared | Shared |
-| `RuleEvaluator` (правила сравнения) | Shared, но зависит от семантики путей текущей ОС | Shared, OS-независимый — задача 0001 |
-| `PostgresWhitelistStore` | Shared, но содержит Windows-умолчание `C:\` | Shared без Windows-умолчаний — задача 0002 |
-| Оркестрация режима учёбы | внутри `AgentHostedService` (Windows) | Shared — задача 0003 |
-| Валидация/нормализация ввода белых списков | в code-behind страниц WinUI | Shared — задача 0004 |
-| Маппинг DTO ↔ модели | продублирован в `AgentClient` и `AgentHostedService` | `Contracts` — задача 0005 |
-
-## Конвенции именования
-
-- Проекты: `FocusManager.<Слой>` для общего кода, `FocusManager.Platform.<OS>` для интеграций с ОС.
-- Namespace = имя проекта + путь папки.
-- В проектах, где есть namespace `FocusManager.Platform.Windows`, `FocusManager.Platform.Android`
-  или `FocusManager.Android`, типы ОС при полном квалифицировании пиши через `global::`
-  (`global::Android.App.Service`, `global::Windows.Storage.StorageFile`) — иначе `Android`/`Windows`
-  разрешится в наш namespace. Директивы `using` в начале файла работают без `global::`.
+- Язык кода, идентификаторов и комментариев — английский; документация в `docs/` — русский.
+- C#: file-scoped namespaces, `sealed` по умолчанию, `record` для моделей, async с `CancellationToken`.
+- Проекты C#: `FocusManager.<Слой>` для общего кода, `FocusManager.Platform.<OS>` для интеграций с ОС.
+- В namespace `FocusManager.Platform.Windows`/`...Linux` типы ОС при полном квалифицировании —
+  через `global::` (иначе имя разрешится в наш namespace); `using` в начале файла работает без этого.

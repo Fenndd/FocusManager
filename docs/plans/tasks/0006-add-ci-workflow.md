@@ -1,14 +1,14 @@
 ---
 id: 0006
-title: Добавить CI (GitHub Actions) для Shared и Windows
+title: Добавить CI (GitHub Actions)
 status: todo
 type: chore
 platform: all
 milestone: M1
 priority: medium
-depends_on: [0001]
+depends_on: [0001, 0002]
 spec: []
-adr: [0003]
+adr: [0003, 0007]
 ---
 
 ## Контекст
@@ -19,24 +19,23 @@ CI нет. Агенты часто работают в Linux-контейнер�
 ## Что сделать
 
 1. `.github/workflows/ci.yml`:
-   - job `shared` на `ubuntu-latest` с сервисом `postgres` (service container):
-     `dotnet test FocusManager.Shared.slnf` с заданной `FOCUSMANAGER_TEST_POSTGRES`;
+   - job `shared` на `ubuntu-latest`: `dotnet test FocusManager.Shared.slnf`;
    - job `windows` на `windows-latest`: сборка и тесты `FocusManager.Windows.slnf`
-     (для WinUI при необходимости — `microsoft/setup-msbuild`).
+     (для WinUI при необходимости — `microsoft/setup-msbuild`, пока WinUI не удалён).
 2. Тесты, требующие реального окружения (реестр, COM Проводника, права администратора), пометить
    трейтом (например, `[Trait("Category", "Integration")]`) и при необходимости исключить в CI фильтром.
    Не отключать и не удалять их.
-3. Добавить бейдж/упоминание в `README.md`, в `AGENTS.md` — что CI — финальная проверка Windows-кода.
+3. В `AGENTS.md` — что CI является финальной проверкой Windows-кода.
+4. Подготовить место для следующих job: интерфейс Tauri (задача 0017), Linux-агент (0020), Android (0009).
+   Каждая из этих задач добавляет свой job.
 
 ## Критерии приёмки
 
-- [ ] Оба job зелёные на `main`.
-- [ ] Тесты PostgreSQL в job `shared` выполняются, а не пропускаются (Skipped = 0).
+- [ ] Оба job зелёные на основной ветке.
 - [ ] Версия SDK берётся из `global.json`.
 
 ## Вне рамок
 
-- Публикация релизов, подпись, Android-сборка (добавится в 0009).
+- Публикация релизов, подпись.
 
 ## Результат
-

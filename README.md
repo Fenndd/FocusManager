@@ -1,9 +1,11 @@
 # FocusManager
 
-Study mode for your devices: while it is on, only whitelisted applications, folders and websites can be opened.
+Focus blocker for study and work: profiles with allow-lists or block-lists of apps, websites and folders,
+schedules and limits, and protection levels against bypassing.
 
-- Windows version: `src/Windows` (WinUI 3 UI + elevated background agent).
-- Android version: planned, see `docs/plans/roadmap.md`.
+- Main platforms: Android, Windows, Linux; iOS later (`docs/spec/product.md`).
+- Today only the Windows version exists: `src/Windows` (background agent + WinUI 3 UI, to be replaced by a Tauri UI).
+- Plan: `docs/plans/roadmap.md`. Architecture: `docs/architecture/README.md`.
 
 ## Repository map
 
@@ -12,9 +14,9 @@ Study mode for your devices: while it is on, only whitelisted applications, fold
 | `docs/spec/` | Product specification — source of truth for behavior |
 | `docs/architecture/` | Architecture, project layout rules, decision records (ADR) |
 | `docs/plans/` | Roadmap and task files for AI agents / developers |
-| `src/Shared/` | Cross-platform code (domain rules, PostgreSQL storage) |
+| `src/Shared/` | C# code shared by the Windows and Linux agents (rules, storage) |
 | `src/Windows/` | Windows-only projects (App, Agent, IPC contracts, OS integrations) |
-| `src/Android/` | Android projects (planned) |
+| `src/Linux/`, `src/Desktop/`, `src/Android/` | Linux agent, Tauri desktop UI, Android app (planned) |
 | `tests/` | Tests, mirrored by platform |
 | `scripts/` | Developer scripts, per platform |
 | `AGENTS.md` | Working rules for AI agents |
@@ -26,9 +28,9 @@ dotnet test FocusManager.Shared.slnf    # shared code, any OS
 dotnet test FocusManager.Windows.slnf   # full Windows build, Windows only
 ```
 
-## Database (PostgreSQL)
+## Database (PostgreSQL — temporary)
 
-The agent stores settings and whitelists in PostgreSQL. Tables are created automatically on first start;
+The agent will return to a local SQLite file (task 0002, ADR-0006). Until then it stores settings and whitelists in PostgreSQL. Tables are created automatically on first start;
 the database and role must exist:
 
 ```sql

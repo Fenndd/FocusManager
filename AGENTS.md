@@ -5,8 +5,18 @@
 
 ## Что это за проект
 
-FocusManager — «режим учёбы»: пока он включён, пользователь может запускать только разрешённые
-приложения, открывать разрешённые папки и сайты. Сейчас есть Windows-версия, планируется Android.
+FocusManager — блокировщик для сосредоточения (прежде всего на учёбе): профили с белым или чёрным
+списком приложений, сайтов и папок, способы запуска, уровни защиты от обхода. Основные платформы —
+**Android, Windows, Linux** (одинаковый функционал); iOS — позже. Сейчас есть только Windows-версия.
+
+| Платформа | Стек (ADR-0005, ADR-0007) |
+|-----------|---------------------------|
+| Windows, Linux | Агент — C#/.NET (служба); интерфейс — Tauri 2 + TypeScript + React; хранилище — SQLite |
+| Android | Kotlin + Jetpack Compose; хранилище — Room |
+| Облако | Firebase (ADR-0006) |
+
+Решения владельца продукта — `docs/spec/decisions.md`. Не принимай за владельца продуктовых решений:
+если спецификация молчит — спроси или оформи вопрос `> ❓` в спецификации.
 
 ## Где что лежит
 
@@ -17,10 +27,14 @@ FocusManager — «режим учёбы»: пока он включён, пол
 | Архитектурные решения (ADR) | `docs/architecture/decisions/` |
 | Дорожная карта | `docs/plans/roadmap.md` |
 | Задачи для агентов | `docs/plans/tasks/` |
-| Общий (кроссплатформенный) код | `src/Shared/` |
-| Windows-код | `src/Windows/` |
-| Android-код (планируется) | `src/Android/` |
-| Тесты | `tests/Shared/`, `tests/Windows/`, `tests/Android/` |
+| Общий C#-код агентов ПК (Windows + Linux) | `src/Shared/` |
+| Windows-код (C#) | `src/Windows/` |
+| Linux-код (C#, планируется) | `src/Linux/` |
+| Интерфейс ПК (Tauri, планируется) | `src/Desktop/` |
+| Android (Kotlin, планируется) | `src/Android/` |
+| Контракты и форматы данных (JSON Schema, планируется) | `contracts/` |
+| Общие тестовые примеры правил (планируется) | `test-vectors/` |
+| C#-тесты | `tests/Shared/`, `tests/Windows/`, `tests/Linux/` |
 | Скрипты разработчика | `scripts/<platform>/` |
 
 ## Порядок работы над задачей
@@ -58,11 +72,11 @@ Start-FocusManager.cmd
 Известное состояние: 3 теста `FocusManager.Core.Tests` падают не на Windows (Windows-пути в тестах) —
 см. задачу `0001`.
 
-### PostgreSQL
+### PostgreSQL (временно, до задачи 0002)
 
-Хранилище — PostgreSQL (ADR-0004). Тесты `FocusManager.Persistence.Postgres.Tests` работают с настоящей
-базой и **пропускаются (Skipped), если не задана** переменная `FOCUSMANAGER_TEST_POSTGRES`.
-Пропуск не считается проверкой: если меняешь хранилище — подними PostgreSQL и прогони тесты.
+Сейчас хранилище агента — PostgreSQL; по ADR-0006 оно возвращается на SQLite (задача 0002), после чего
+этот раздел удаляется. Пока: тесты `FocusManager.Persistence.Postgres.Tests` **пропускаются (Skipped),
+если не задана** переменная `FOCUSMANAGER_TEST_POSTGRES`.
 
 ```bash
 # Linux-контейнер (Ubuntu): локальный PostgreSQL для тестов
@@ -72,15 +86,16 @@ export FOCUSMANAGER_TEST_POSTGRES="Host=localhost;Port=5432;Database=focusmanage
 dotnet test FocusManager.Shared.slnf
 ```
 
-Каждый тест создаёт и удаляет свою схему, поэтому одну тестовую базу можно использовать многократно.
 Пароли и строки подключения с паролями в репозиторий не коммитить.
 
 ## Правила кода
 
 - Язык кода, идентификаторов и комментариев в коде — английский. Документация в `docs/` — русский.
-- `src/Shared/*` **не должен** ссылаться на проекты из `src/Windows`/`src/Android` и использовать
-  OS-специфичные API (реестр, WMI, COM, Android SDK). Платформенные вещи — через интерфейсы в `FocusManager.Core`.
-- Стиль: file-scoped namespaces, `sealed` классы по умолчанию, `record` для моделей, async-методы с `CancellationToken`.
+- `src/Shared/*` (общий C#-код агентов ПК) **не должен** ссылаться на `src/Windows`/`src/Linux` и использовать
+  API ОС (реестр, WMI, COM, `/proc`, D-Bus). Платформенные вещи — через интерфейсы в `FocusManager.Core`.
+- Правило, которое есть на нескольких платформах (совпадение сайтов, приложений, путей), меняется вместе
+  с общими тестовыми примерами в `test-vectors/` (ADR-0005).
+- Стиль C#: file-scoped namespaces, `sealed` классы по умолчанию, `record` для моделей, async-методы с `CancellationToken`.
 - Общие настройки проектов — в `Directory.Build.props` (корень) и `tests/Directory.Build.props`; не дублируй их в `.csproj`.
 - Новый проект обязательно добавляй в `FocusManager.sln` (в папку своей платформы) и в соответствующий `*.slnf`.
 - Не меняй поведение «попутно» в задачах на рефакторинг: рефакторинг — без изменения поведения, изменения поведения — через спецификацию.

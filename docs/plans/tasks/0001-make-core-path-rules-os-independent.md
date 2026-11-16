@@ -7,8 +7,8 @@ platform: shared
 milestone: M1
 priority: high
 depends_on: []
-spec: [APP-002, APP-003, FLD-002, FLD-003]
-adr: [0002]
+spec: [APP-002, FLD-002, FLD-003]
+adr: [0005]
 ---
 
 ## Контекст
@@ -21,8 +21,9 @@ adr: [0002]
 - `EvaluateFolderOpen_Allows_SameFolderPath_IgnoringTrailingSeparator`
 - `EvaluateFolderOpen_Allows_ChildFolder_WhenSubfoldersAllowed`
 
-Для Android это значит, что общий код нельзя проверить на CI вне Windows, а на самом Android
-(case-sensitive ФС, `/`) правила будут вести себя иначе, чем описано в спецификации.
+`FocusManager.Core` — общий код агентов Windows и Linux (ADR-0005, ADR-0007). На Linux пути
+чувствительны к регистру и используют `/`, поэтому семантика должна задаваться явно, а не ОС,
+на которой запущены тесты.
 
 ## Что сделать
 
@@ -43,8 +44,7 @@ adr: [0002]
 
 ## Вне рамок
 
-- Изменение семантики правил (например, отказ от APP-003) — отдельные задачи `change`.
+- Изменение семантики правил (APP-003, APP-004, SITE-002) — задача 0012.
 - Аналогичные `NormalizePath` в `AppEnforcer`/`FolderEnforcer` (Windows-код) — можно не трогать.
 
 ## Результат
-

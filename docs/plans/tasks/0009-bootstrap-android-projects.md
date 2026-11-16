@@ -1,43 +1,40 @@
 ---
 id: 0009
-title: Создать каркас Android-проектов
+title: Создать каркас Android-приложения (Kotlin + Compose)
 status: todo
 type: feature
 platform: android
-milestone: M2
+milestone: M3
 priority: medium
-depends_on: [0002, 0007, 0008]
-spec: [AND-001]
-adr: [0002, 0003]
+depends_on: [0008]
+spec: [AND-001, AND-006, GEN-002]
+adr: [0005, 0006, 0007]
 ---
 
 ## Контекст
 
-Нужна пустая, но собирающаяся Android-версия, подключённая к общему коду, чтобы следующие задачи
-добавляли функциональность, а не инфраструктуру.
+Нужна пустая, но собирающаяся Android-версия, чтобы следующие задачи добавляли функциональность,
+а не инфраструктуру. Стек — ADR-0005, хранилище — ADR-0006.
 
 ## Что сделать
 
-1. Создать проекты (UI-подход — по ADR из задачи 0008):
-   - `src/Android/FocusManager.Platform.Android` — интеграции с ОС (пока пустые реализации портов из Core);
-   - `src/Android/FocusManager.Android` — приложение (ссылается на Core, Platform.Android и хранилище, выбранное в 0008).
-2. Добавить их в `FocusManager.sln` (папка `src/Android`) и создать `FocusManager.Android.slnf`
-   (Shared + Android). В `FocusManager.Windows.slnf` Android-проекты не добавлять.
-3. Приложение: один экран с переключателем режима учёбы, состояние сохраняется через
-   реализацию `IWhitelistStore`, выбранную в 0008 (проверка, что общий код работает на устройстве).
-4. `scripts/android/` — скрипт сборки/установки на эмулятор (если нужен).
-5. Обновить `AGENTS.md` (команды сборки Android), `src/Android/README.md`, `docs/architecture/README.md`.
-6. Добавить Android-сборку в CI (если задача 0006 выполнена).
+1. Gradle-проект в `src/Android/` (Kotlin, Jetpack Compose, minSdk 26 — AND-006), с README:
+   как собрать, запустить на эмуляторе, прогнать тесты.
+2. Room-база с минимальной сущностью (состояние сессии) и тестом.
+3. Один экран с переключателем сессии; состояние сохраняется между перезапусками.
+4. Локализация с первого дня: строки в ресурсах, английский и русский (GEN-002).
+5. Заготовка foreground service (без блокировки) — проверка, что служба переживает закрытие экрана.
+6. `AGENTS.md`: команды сборки и тестов Android; `src/Android/README.md`; `docs/architecture/README.md`.
+7. Job Android в CI (если задача 0006 выполнена).
 
 ## Критерии приёмки
 
-- [ ] `dotnet build FocusManager.Android.slnf` проходит на машине с workload `android`.
+- [ ] `./gradlew build` и тесты проходят на машине с Android SDK.
 - [ ] Приложение запускается на эмуляторе, переключатель сохраняет состояние после перезапуска.
-- [ ] `dotnet build FocusManager.Windows.slnf` не требует Android workload.
+- [ ] Строк интерфейса в коде нет — только ресурсы, есть `values` и `values-ru`.
 
 ## Вне рамок
 
-- Реальная блокировка приложений/сайтов — задачи M3.
+- Реальная блокировка, Firebase — следующие задачи этапа M3.
 
 ## Результат
-
