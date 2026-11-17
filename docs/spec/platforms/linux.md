@@ -1,40 +1,40 @@
-# Платформа Linux (LNX) — черновик
+# Linux platform (LNX) — draft
 
-Основная платформа (решение B1), функционал как на Windows (решение B5).
-Статус: **черновик**. Механизмы ниже — гипотезы; реализуемость нужно подтвердить исследованием
-(задача 0019). Агент на C#/.NET, общий код с Windows-агентом; интерфейс — то же Tauri-приложение, что на Windows (ADR-0007).
+A primary platform (decision B1), with the same functionality as Windows (decision B5).
+Status: **draft**. The mechanisms below are hypotheses; feasibility must be confirmed through research
+(task T019). A C#/.NET agent shares code with the Windows agent; the UI is the same Tauri application as on Windows (ADR-0007).
 
-## Предполагаемые механизмы
+## Proposed mechanisms
 
-| Функция | Механизм Linux | Сложности |
+| Feature | Linux mechanism | Challenges |
 |---------|----------------|-----------|
-| Агент | Системная служба (systemd) с правами root + пользовательский процесс UI | Установка требует прав администратора |
-| Обнаружение запуска процессов | Netlink proc connector или eBPF (root), резерв — опрос `/proc` | Разные ядра и дистрибутивы |
-| Блокировка приложения | Завершение процесса | Flatpak/Snap-приложения запускаются через обёртки — идентификатор приложения сложнее |
-| Блокировка сайтов | Политики браузеров на Chromium (`/etc/opt/chrome/policies/managed/` и аналоги) и Firefox (`policies.json`, `WebsiteFilter`), как на Windows (SITE-005); остальные — SITE-006 | Браузеры в Flatpak/Snap читают политики из других мест |
-| Блокировка папок | Исследовать: `fanotify` (запрет открытия на уровне ФС, root) или интеграция с файловыми менеджерами (Nautilus, Dolphin) | Нет единого файлового менеджера как Проводник; Wayland не даёт доступа к чужим окнам |
-| Уведомления других приложений | Исследовать: режим «Не беспокоить» окружения рабочего стола (GNOME, KDE) | Зависит от окружения |
-| Уведомления FocusManager | Freedesktop Notifications (D-Bus) | — |
-| Хранилище | Локально (SQLite — решение C6) | — |
+| Agent | System service (systemd) with root privileges + user UI process | Installation requires administrator privileges |
+| Detecting process launches | Netlink proc connector or eBPF (root), fallback — polling `/proc` | Different kernels and distributions |
+| Blocking applications | Terminating the process | Flatpak/Snap applications launch through wrappers — application identification is more complex |
+| Blocking websites | Chromium browser policies (`/etc/opt/chrome/policies/managed/` and equivalents) and Firefox (`policies.json`, `WebsiteFilter`), as on Windows (SITE-005); other browsers — SITE-006 | Browsers in Flatpak/Snap read policies from different locations |
+| Blocking folders | Investigate: `fanotify` (deny opening at the filesystem level, root) or integration with file managers (Nautilus, Dolphin) | No single file manager like Explorer; Wayland does not allow access to other applications' windows |
+| Other applications' notifications | Investigate: the desktop environment's “Do Not Disturb” mode (GNOME, KDE) | Depends on the environment |
+| FocusManager notifications | Freedesktop Notifications (D-Bus) | — |
+| Storage | Local (SQLite — decision C6) | — |
 
-## Требования
+## Requirements
 
-### LNX-001 Поддерживаемые дистрибутивы и окружения
-Поддерживаются популярные дистрибутивы и окружения рабочего стола, покрывающие большинство
-пользователей (GEN-004). Предложение для старта: Ubuntu LTS, Fedora, Debian; GNOME и KDE; X11 и Wayland.
+### LNX-001 Supported distributions and environments
+Popular distributions and desktop environments covering the majority of users are supported
+(GEN-004). Initial proposal: Ubuntu LTS, Fedora, Debian; GNOME and KDE; X11 and Wayland.
 
-Платформы: Linux — research
-> ❓ Вопрос: подтвердить список и формат распространения (deb/rpm, Flatpak, AppImage) — решение H2.
+Platforms: Linux — research
+> ❓ Question: confirm the list and distribution format (deb/rpm, Flatpak, AppImage) — decision H2.
 
-### LNX-002 Агент с правами администратора
-Агент работает как системная служба с правами root (нужны для мониторинга процессов, политик браузеров,
-блокировки папок). UI работает от имени пользователя и общается с агентом через локальный IPC,
-доступный только этому пользователю.
+### LNX-002 Agent with administrator privileges
+The agent runs as a system service with root privileges (needed for process monitoring, browser policies,
+and folder blocking). The UI runs as the user and communicates with the agent through local IPC
+accessible only to that user.
 
-Платформы: Linux — planned
+Platforms: Linux — planned
 
-### LNX-003 Системные процессы
-Не блокируются процессы ядра, systemd, окружения рабочего стола, оконного менеджера, а также сам
-FocusManager (APP-005).
+### LNX-003 System processes
+Kernel, systemd, desktop environment, and window manager processes, as well as
+FocusManager itself, are not blocked (APP-005).
 
-Платформы: Linux — planned
+Platforms: Linux — planned

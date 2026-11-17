@@ -1,28 +1,28 @@
-# Контент (CNT)
+# Content (CNT)
 
-Блокировка не целиком приложений и сайтов, а их содержимого (решение E1).
+Blocking the contents of applications and websites rather than the entire application or website (decision E1).
 
-### CNT-001 Ключевые слова
-В профиль можно добавить ключевые слова. Во время сессии блокируются страницы и поисковые запросы,
-содержащие эти слова в адресе или тексте запроса.
+### CNT-001 Keywords
+Keywords can be added to a profile. During a session, pages and search queries
+containing these words in the address or query text are blocked.
 
-Платформы: Android — planned · Windows — research · Linux — research · iOS — n/a (нет доступа к содержимому)
-Примечание: на Android — через специальные возможности (адресная строка, поле поиска); на ПК — способ
-зависит от браузера (политики URL-шаблонов, расширение браузера) — требует исследования.
-> ❓ Вопрос: искать ключевые слова и в видимом тексте на экране (Android позволяет, но это тяжелее и
-> чувствительнее с точки зрения приватности)?
+Platforms: Android — planned · Windows — research · Linux — research · iOS — n/a (no access to content)
+Note: on Android — through accessibility services (address bar, search field); on desktop, the method
+depends on the browser (URL pattern policies, browser extension) — requires research.
+> ❓ Question: should keywords also be searched for in visible on-screen text (Android permits this, but it is more demanding and
+> more sensitive from a privacy perspective)?
 
-### CNT-002 Разделы приложений и сайтов
-Во время сессии можно блокировать отдельные разделы, оставляя остальное доступным
-(например, YouTube Shorts, Instagram Reels, ленту рекомендаций).
+### CNT-002 Application and website sections
+Individual sections can be blocked during a session while leaving the rest available
+(for example, YouTube Shorts, Instagram Reels, a recommendation feed).
 
-Платформы: Android — planned · Windows — research · Linux — research · iOS — n/a
-Примечание: на Android — распознавание экранов приложений через специальные возможности (ломается при
-обновлениях этих приложений, нужен механизм быстрого обновления правил); на ПК — как разделы сайтов
-по адресу (например, `youtube.com/shorts`).
+Platforms: Android — planned · Windows — research · Linux — research · iOS — n/a
+Note: on Android — recognizing application screens through accessibility services (breaks when these
+applications update; a mechanism for quick rule updates is needed); on desktop — website sections
+identified by address (for example, `youtube.com/shorts`).
 
-### CNT-003 Уведомления заблокированных приложений
-Если в профиле включено, во время сессии уведомления от заблокированных приложений скрываются.
+### CNT-003 Notifications from blocked applications
+If enabled in the profile, notifications from blocked applications are hidden during a session.
 
-Платформы: Android — planned · Windows — research · Linux — research · iOS — n/a
-> ❓ Вопрос: показывать ли после сессии сводку скрытых уведомлений?
+Platforms: Android — planned · Windows — research · Linux — research · iOS — n/a
+> ❓ Question: should a summary of hidden notifications be shown after the session?

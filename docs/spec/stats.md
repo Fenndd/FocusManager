@@ -1,32 +1,32 @@
-# Статистика для пользователя (STAT)
+# User statistics (STAT)
 
-Подробная статистика, по которой пользователь видит свои успехи (решения D4, E9).
-Техническая аналитика для разработчика — отдельно, `telemetry.md`.
+Detailed statistics that show the user their progress (decisions D4, E9).
+Technical analytics for the developer are separate, in `telemetry.md`.
 
-### STAT-001 Время использования
-Время в приложениях и на сайтах по дням и неделям, с графиками и сравнением с прошлыми периодами.
+### STAT-001 Usage time
+Time spent in applications and on websites by day and week, with charts and comparisons against previous periods.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred (только системный отчёт, без доступа к данным)
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred (system report only, no access to data)
 
-### STAT-002 История сессий
-Список сессий: профиль, запланированная и фактическая длительность, завершена ли сессия
-полностью или прервана досрочно.
+### STAT-002 Session history
+A list of sessions: profile, planned and actual duration, whether the session
+was completed in full or ended early.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### STAT-003 Попытки открыть заблокированное
-Сколько раз и что пользователь пытался открыть во время сессий.
+### STAT-003 Attempts to open blocked items
+How many times and what the user tried to open during sessions.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### STAT-004 Успехи
-Сводные показатели прогресса: суммарное время сосредоточенной работы, серии дней с выполненными
-сессиями. Основа для игровой механики (направление «Игровая механика» в `product.md`).
+### STAT-004 Progress
+Aggregate progress metrics: total focused work time, streaks of days with completed
+sessions. A foundation for gamification (the “Gamification” direction in `product.md`).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### STAT-005 Где хранится статистика
-Статистика хранится на устройстве. При включённой синхронизации — объединяется по всем устройствам
-пользователя (`sync.md`).
+### STAT-005 Where statistics are stored
+Statistics are stored on the device. When synchronization is enabled, they are combined across all the user's
+devices (`sync.md`).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred

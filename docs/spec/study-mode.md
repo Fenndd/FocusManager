@@ -1,51 +1,51 @@
-# Сессии (SM)
+# Sessions (SM)
 
-Сессия — период, когда действуют правила профиля (`profiles.md`). Исторически на Windows это
-называлось «режимом учёбы» с одним набором правил.
+A session is a period when a profile's rules apply (`profiles.md`). Historically, on Windows this
+was called “study mode”, with a single rule set.
 
-### SM-001 Начало и завершение сессии
-Сессия по профилю начинается и завершается вручную или по триггеру (`triggers.md`).
-Возможность досрочного завершения зависит от уровня защиты профиля (`protection.md`).
+### SM-001 Starting and ending a session
+A session under a profile starts and ends manually or through a trigger (`triggers.md`).
+Whether it can end early depends on the profile's protection level (`protection.md`).
 
-Платформы: Android — planned · Windows — partial (один неявный профиль, вкл/выкл вручную) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (one implicit profile, manual on/off) · Linux — planned · iOS — deferred
 
-### SM-002 Сохранение состояния
-Состояние сессий сохраняется между перезапусками. Если сессия была активна, после перезапуска
-агента (или устройства) она снова активна и ограничения действуют.
+### SM-002 Persisting state
+Session state persists across restarts. If a session was active, it becomes active again after the
+agent (or device) restarts, and restrictions apply.
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
 
-### SM-003 Уже открытое не блокируется
-При начале сессии фиксируется снимок. Приложения, запущенные до начала, продолжают работать.
-Блокируются только **новые** действия (запуск, открытие папки, переход на сайт).
+### SM-003 Already open items are not blocked
+A snapshot is taken when a session starts. Applications launched before the start continue running.
+Only **new** actions are blocked (launching, opening a folder, navigating to a website).
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
-> ❓ Вопрос: на Android «уже запущенное приложение» почти не имеет смысла (приложения живут в фоне).
-> Нужно решить, что считать снимком на Android (например, приложение на переднем плане в момент начала),
-> или не делать снимок на телефонах вовсе.
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
+> ❓ Question: on Android, “an already running application” is barely meaningful (applications live in the background).
+> We need to decide what counts as a snapshot on Android (for example, the foreground application at the start),
+> or whether to omit snapshots on phones altogether.
 
-### SM-004 Завершение снимает ограничения
-При завершении сессии все её ограничения снимаются (в т. ч. политики браузера), снимок сбрасывается.
-Ограничения других активных профилей продолжают действовать (PRF-005).
+### SM-004 Ending a session removes its restrictions
+When a session ends, all its restrictions are removed (including browser policies), and the snapshot is cleared.
+Restrictions from other active profiles remain in effect (PRF-005).
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
 
-### SM-005 Изменение профиля во время сессии
-Правила профиля можно менять во время сессии; изменения применяются без перезапуска сессии.
+### SM-005 Editing a profile during a session
+Profile rules can be changed during a session; changes apply without restarting the session.
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
-Ограничения: на строгом уровне правила менять нельзя (PROT-004), ослабление защиты — по PROT-006.
-Примечание: на Windows новые правила для приложений и папок применяются к следующему событию;
-политика сайтов переприменяется сразу при сохранении.
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Restrictions: rules cannot be changed at the strict level (PROT-004); weakening protection follows PROT-006.
+Note: on Windows, new application and folder rules apply to the next event;
+website policies are reapplied immediately on saving.
 
-### SM-006 Предупреждение о пустых категориях
-UI показывает, какие категории профиля заполнены, и предупреждает, что пустые категории
-**не будут ограничены** (PRF-004).
+### SM-006 Warning about empty categories
+The UI shows which profile categories are populated and warns that empty categories
+**will not be restricted** (PRF-004).
 
-Платформы: Android — planned · Windows — partial (предупреждает, но смысл «пусто» на Windows сейчас другой — APP-004) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (warns, but “empty” currently has a different meaning on Windows — APP-004) · Linux — planned · iOS — deferred
 
-### SM-007 Статус агента в UI
-На ПК, где UI и агент — разные процессы, UI показывает, доступен ли агент, и текущее состояние сессий.
-Если агент недоступен — состояние «неизвестно» и есть возможность обновить статус.
+### SM-007 Agent status in the UI
+On desktop, where the UI and agent are separate processes, the UI shows whether the agent is available and the current session state.
+If the agent is unavailable, the state is “unknown” and an option to refresh the status is provided.
 
-Платформы: Android — n/a (UI и агент в одном приложении — AND-001) · Windows — done · Linux — planned · iOS — n/a
+Platforms: Android — n/a (UI and agent are in one application — AND-001) · Windows — done · Linux — planned · iOS — n/a

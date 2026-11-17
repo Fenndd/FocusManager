@@ -1,63 +1,63 @@
-# Платформа Android (AND)
+# Android platform (AND)
 
-Основная платформа (решение B1). Язык — Kotlin, UI — Jetpack Compose (решение C1).
-Детали механизмов уточняются прототипом (задача 0008) — там, где статус `research`.
+A primary platform (decision B1). Language — Kotlin; UI — Jetpack Compose (decision C1).
+Mechanism details will be clarified by a prototype (task T008) wherever the status is `research`.
 
-## Механизмы
+## Mechanisms
 
-| Функция | Механизм Android | Ограничения |
+| Feature | Android mechanism | Limitations |
 |---------|------------------|-------------|
-| Обнаружение запуска приложения | `AccessibilityService` (`TYPE_WINDOW_STATE_CHANGED`), резерв — `UsageStatsManager` | Специальные возможности включаются пользователем вручную; Google Play требует декларацию и явное раскрытие |
-| Блокировка приложения | Блокирующий экран поверх приложения / возврат на главный экран | «Убить» чужой процесс нельзя |
-| Блокировка сайтов | Оба способа (решение E4): чтение адресной строки браузеров через специальные возможности **и** локальный `VpnService` с DNS-фильтром | VPN-слот один на устройство (конфликт с VPN пользователя); адресная строка зависит от браузера |
-| Ключевые слова, разделы приложений | Специальные возможности (чтение элементов экрана) | Ломается при обновлениях приложений |
-| Уведомления других приложений | `NotificationListenerService` | Отдельное разрешение |
-| Лимиты времени и запусков, статистика | `UsageStatsManager` + собственный учёт | Разрешение «Доступ к истории использования» |
-| Место / Wi-Fi | Геозоны (Google Play Services или `LocationManager`), состояние Wi-Fi | Разрешения на местоположение (в т. ч. фоновое) |
-| Работа в фоне | Foreground service с постоянным уведомлением | Энергосбережение производителей может убивать службу |
-| Защита от удаления и отключения | Права администратора устройства; закрытие экранов Настроек через специальные возможности | Только строгий уровень (PROT-007, PROT-008) |
-| Хранилище | Локально: Room (SQLite); синхронизация — Firebase (`sync.md`) | — |
+| Detecting application launches | `AccessibilityService` (`TYPE_WINDOW_STATE_CHANGED`), fallback — `UsageStatsManager` | Accessibility is enabled manually by the user; Google Play requires a declaration and explicit disclosure |
+| Blocking applications | A blocking screen over the application / returning to the home screen | Other applications' processes cannot be killed |
+| Blocking websites | Both methods (decision E4): reading browser address bars through accessibility services **and** a local `VpnService` with DNS filtering | One VPN slot per device (conflicts with the user's VPN); address bars depend on the browser |
+| Keywords, application sections | Accessibility services (reading screen elements) | Breaks when applications update |
+| Other applications' notifications | `NotificationListenerService` | Separate permission |
+| Time and launch limits, statistics | `UsageStatsManager` + custom tracking | “Usage access” permission |
+| Location / Wi-Fi | Geofences (Google Play Services or `LocationManager`), Wi-Fi state | Location permissions (including background location) |
+| Background operation | Foreground service with a persistent notification | Manufacturers' power saving may kill the service |
+| Protection against uninstalling and disabling | Device administrator privileges; blocking Settings screens through accessibility services | Strict level only (PROT-007, PROT-008) |
+| Storage | Local: Room (SQLite); synchronization — Firebase (see [synchronization](../sync.md)) | — |
 
-## Требования
+## Requirements
 
-### AND-001 Единое приложение
-UI и агент — одно приложение: агент реализован как foreground service, IPC между процессами не нужен.
+### AND-001 A single application
+The UI and agent form one application: the agent is implemented as a foreground service, with no interprocess IPC needed.
 
-Платформы: Android — planned
+Platforms: Android — planned
 
-### AND-002 Идентификатор приложения
-Приложение в списке идентифицируется именем пакета. Выбор — из списка установленных приложений
-с иконками и названиями.
+### AND-002 Application identifier
+An application in a list is identified by its package name. It is selected from a list of installed applications
+with icons and names.
 
-Платформы: Android — planned
+Platforms: Android — planned
 
-### AND-003 Системные приложения
-Не блокируются: сам FocusManager, лаунчер, системный UI, экран звонка и экстренных вызовов,
-клавиатура (APP-005).
+### AND-003 System applications
+The following are not blocked: FocusManager itself, the launcher, system UI, call and emergency call screens,
+and the keyboard (APP-005).
 
-Платформы: Android — planned
-Примечание: экраны Настроек, которые закрываются в строгом уровне, — PROT-008.
+Platforms: Android — planned
+Note: Settings screens blocked at the strict level — PROT-008.
 
-### AND-004 Разрешения
-При первом запуске приложение проводит пользователя через выдачу нужных разрешений (специальные
-возможности, история использования, уведомления, VPN, местоположение — по мере необходимости
-для включённых функций) и показывает, каких не хватает и какие функции из-за этого не работают.
+### AND-004 Permissions
+On first launch, the application guides the user through granting the required permissions (accessibility,
+usage history, notifications, VPN, location — as needed
+for enabled features), and shows which are missing and which features do not work as a result.
 
-Платформы: Android — planned
+Platforms: Android — planned
 
-### AND-005 Выбор способа фильтрации сайтов
-Пользователь может выбрать способ фильтрации сайтов: через специальные возможности, через локальный VPN
-или оба (решение E4). Если у пользователя свой VPN, предлагается способ без VPN.
+### AND-005 Choosing the website filtering method
+The user can choose a website filtering method: accessibility services, local VPN,
+or both (decision E4). If the user has their own VPN, the method without a VPN is suggested.
 
-Платформы: Android — research
+Platforms: Android — research
 
-### AND-006 Минимальная версия
-Android 8.0 (API 26) и новее (GEN-004: покрывает подавляющее большинство устройств).
+### AND-006 Minimum version
+Android 8.0 (API 26) and later (GEN-004: covers the vast majority of devices).
 
-Платформы: Android — planned
+Platforms: Android — planned
 
-### AND-007 Устойчивость к энергосбережению
-Приложение проверяет, не ограничено ли оно энергосбережением, и проводит пользователя через
-исключение из оптимизации батареи (с инструкциями для популярных производителей).
+### AND-007 Resilience to power saving
+The application checks whether power saving restricts it and guides the user through
+exemption from battery optimization (with instructions for popular manufacturers).
 
-Платформы: Android — planned
+Platforms: Android — planned

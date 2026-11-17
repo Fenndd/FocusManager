@@ -1,82 +1,82 @@
-# Платформа Windows (WIN)
+# Windows platform (WIN)
 
-Основная платформа (решение B1), развивается параллельно с Android (решение B2).
-Архитектура ПК — ADR-0007: агент на C#/.NET (фоновая служба) + интерфейс на Tauri 2 и веб-технологиях
-(решение C3), общий для Windows и Linux.
+A primary platform (decision B1), developed in parallel with Android (decision B2).
+Desktop architecture — ADR-0007: a C#/.NET agent (background service) + a UI using Tauri 2 and web technologies
+(decision C3), shared by Windows and Linux.
 
-## Компоненты
+## Components
 
-| Компонент | Проект | Роль |
+| Component | Project | Role |
 |-----------|--------|------|
-| UI | сейчас `FocusManager.App` (WinUI 3); цель — Tauri-приложение, общее с Linux (задачи 0017, 0018) | Управление сессиями и профилями, трей, вход в аккаунт |
-| Агент | `FocusManager.Agent` (Worker; сейчас со значком в трее на WinForms, цель — служба без UI, задача 0016) | Мониторинг событий, блокировки, хранение настроек |
-| IPC | `FocusManager.Contracts` | Сообщения UI ↔ агент по named pipe `FocusManager.Agent.Pipe` (JSON, одна строка на запрос/ответ) |
-| Интеграции с ОС | `FocusManager.Platform.Windows` | WMI, COM Проводника, реестр политик Chrome |
+| UI | Currently `FocusManager.App` (WinUI 3); target — a Tauri application shared with Linux (tasks T017, T018) | Managing sessions and profiles, tray, account sign-in |
+| Agent | `FocusManager.Agent` (Worker; currently with a WinForms tray icon; target — a service without UI, task T016) | Event monitoring, blocking, settings storage |
+| IPC | `FocusManager.Contracts` | UI ↔ agent messages over the named pipe `FocusManager.Agent.Pipe` (JSON, one line per request/response) |
+| OS integrations | `FocusManager.Platform.Windows` | WMI, Explorer COM, Chrome policy registry |
 
-## Требования
+## Requirements
 
-### WIN-001 Агент с правами администратора
-Агент запускается с правами администратора (манифест `requireAdministrator`): мониторинг запуска
-процессов через WMI (`Win32_ProcessStartTrace`) требует повышенных прав.
+### WIN-001 Agent with administrator privileges
+The agent runs with administrator privileges (`requireAdministrator` manifest): monitoring process launches
+through WMI (`Win32_ProcessStartTrace`) requires elevated privileges.
 
-Платформы: Windows — done
+Platforms: Windows — done
 
-### WIN-002 Доступ к IPC
-Named pipe агента доступен только текущему пользователю, администраторам и SYSTEM.
+### WIN-002 IPC access
+The agent's named pipe is accessible only to the current user, administrators, and SYSTEM.
 
-Платформы: Windows — done
+Platforms: Windows — done
 
-### WIN-003 Игнорируемые процессы
-Не блокируются: процессы других сессий Windows; процессы из каталога Windows и `Program Files\WindowsApps`;
-процессы без полного пути; известные системные процессы (`explorer.exe`, `svchost.exe`, `conhost.exe`, …);
-сам FocusManager (`focusmanager.agent.exe`, `focusmanager.app.exe`). Полный список — `AppEnforcer`.
+### WIN-003 Ignored processes
+The following are not blocked: processes from other Windows sessions; processes in the Windows directory and `Program Files\WindowsApps`;
+processes without a full path; known system processes (`explorer.exe`, `svchost.exe`, `conhost.exe`, …);
+FocusManager itself (`focusmanager.agent.exe`, `focusmanager.app.exe`). The full list is in `AppEnforcer`.
 
-Платформы: Windows — done
+Platforms: Windows — done
 
-### WIN-004 Способ блокировки приложения
-Запрещённый процесс завершается вместе с деревом дочерних процессов.
+### WIN-004 Application blocking method
+A forbidden process is terminated together with its child process tree.
 
-Платформы: Windows — done
+Platforms: Windows — done
 
-### WIN-005 Способ блокировки сайтов
-Для браузеров на Chromium (SITE-005) в раздел политик каждого браузера (`Software\Policies\Google\Chrome`,
-`Software\Policies\Microsoft\Edge` и т. д.) записываются `URLBlocklist`/`URLAllowlist`; для Firefox —
-политика `WebsiteFilter` (`Software\Policies\Mozilla\Firefox`). При завершении сессии политики очищаются.
-В строгом уровне защиты политики пишутся в `HKLM` (пользователь без прав администратора их не снимет),
-на остальных уровнях — в `HKCU` (решение I5).
+### WIN-005 Website blocking method
+For Chromium browsers (SITE-005), `URLBlocklist`/`URLAllowlist` are written to each browser's policy key (`Software\Policies\Google\Chrome`,
+`Software\Policies\Microsoft\Edge`, etc.); for Firefox, the
+`WebsiteFilter` policy is used (`Software\Policies\Mozilla\Firefox`). Policies are cleared when a session ends.
+At the strict protection level, policies are written to `HKLM` (a user without administrator privileges cannot remove them);
+at other levels, they are written to `HKCU` (decision I5).
 
-Платформы: Windows — partial (только Chrome и только `HKCU`)
+Platforms: Windows — partial (Chrome only and `HKCU` only)
 
-### WIN-006 Хранилище
-Настройки, профили и статистика хранятся локально в SQLite (решение C6). Пользователю ничего не нужно
-устанавливать. Облачная синхронизация — через Firebase (`sync.md`).
+### WIN-006 Storage
+Settings, profiles, and statistics are stored locally in SQLite (decision C6). The user does not need to
+install anything. Cloud synchronization is through Firebase (see [synchronization](../sync.md)).
 
-Платформы: Windows — partial
-Примечание: **изменение реализации.** Сейчас код использует PostgreSQL (с 2026-09-30, до этого — SQLite
-в `%LOCALAPPDATA%\FocusManager\focusmanager.db`). Нужна задача на возврат к SQLite.
+Platforms: Windows — partial
+Note: **implementation change.** The code currently uses PostgreSQL (since 2026-09-30; previously SQLite
+in `%LOCALAPPDATA%\FocusManager\focusmanager.db`). A task to return to SQLite is needed.
 
-### WIN-007 Значок в трее
-Агент показывает значок в трее с переключателем сессии и пунктом «Выход». Пункт «Выход» подчиняется
-уровню защиты: в строгом уровне выхода нет (или он усложнён — опция профиля), на остальных — требует
-того же, что и досрочное завершение сессии (PROT-001, решение I5).
+### WIN-007 Tray icon
+The agent shows a tray icon with a session toggle and an “Exit” item. “Exit” follows the
+protection level: at the strict level, exit is unavailable (or made more difficult — a profile option); at other levels, it requires
+the same check as ending a session early (PROT-001, decision I5).
 
-Платформы: Windows — partial (сейчас «Выход» доступен всегда)
+Platforms: Windows — partial (currently “Exit” is always available)
 
-### WIN-008 Скрипт запуска для разработки
-`Start-FocusManager.cmd` собирает `FocusManager.Windows.slnf`, перезапускает агента с повышением прав
-и запускает UI.
+### WIN-008 Development launch script
+`Start-FocusManager.cmd` builds `FocusManager.Windows.slnf`, restarts the agent with elevation,
+and launches the UI.
 
-Платформы: Windows — done
+Platforms: Windows — done
 
-### WIN-009 Минимальная версия
-Windows 10 версии 1809 (сборка 17763) и новее, x64 (GEN-004).
+### WIN-009 Minimum version
+Windows 10 version 1809 (build 17763) and later, x64 (GEN-004).
 
-Платформы: Windows — done
+Platforms: Windows — done
 
-### WIN-010 Агент как служба Windows
-Агент работает как служба Windows, чтобы обычный пользователь не мог просто завершить процесс;
-интерфейс и значок в трее — Tauri-приложение в сеансе пользователя (решения I5, C3).
+### WIN-010 Agent as a Windows service
+The agent runs as a Windows service so that an ordinary user cannot simply terminate its process;
+the UI and tray icon are a Tauri application in the user's session (decisions I5, C3).
 
-Платформы: Windows — planned
-> ❓ Вопрос: служба обязательна всегда или только для строгого уровня? Предложение — всегда
-> (одна схема установки), а уровень защиты определяет, разрешена ли остановка.
+Platforms: Windows — planned
+> ❓ Question: is the service always required or only for the strict level? Proposal — always
+> (one installation scheme), with the protection level determining whether stopping is allowed.

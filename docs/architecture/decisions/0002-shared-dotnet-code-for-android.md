@@ -1,40 +1,40 @@
-# ADR-0002: Android-версия на .NET с общим C#-кодом
+# ADR-0002: Android on .NET with Shared C# Code
 
-- Статус: **Заменено ADR-0005** (2026-11-16)
-- Дата: 2026-09-30
+- Status: **Superseded by ADR-0005** (2026-11-16)
+- Date: 2026-09-30
 
-## Контекст
+## Context
 
-Планируется Android-версия. Требование: использовать общий код там, где это реально.
-Текущий код — C#/.NET 8. Платформенно-независимая часть: модели, правила сравнения (`RuleEvaluator`),
-хранилище на SQLite, (после рефакторинга) оркестрация режима учёбы и валидация ввода.
-Механизмы блокировки на Android принципиально другие (Accessibility/VPN вместо WMI/COM/реестра),
-поэтому общими они быть не могут.
+An Android version is planned. The requirement is to share code where practical.
+The current code uses C#/.NET 8. The platform-independent part consists of models, matching rules (`RuleEvaluator`),
+SQLite storage, and (after refactoring) study-mode orchestration and input validation.
+Android blocking mechanisms are fundamentally different (Accessibility/VPN instead of WMI/COM/registry),
+so they cannot be shared.
 
-## Решение
+## Decision
 
-- Android-приложение пишется на **.NET for Android** (`net8.0-android` или новее) и ссылается на проекты из `src/Shared`.
-- Общий код таргетит `net8.0` (без суффикса ОС) — такие сборки подключаются и в Windows-, и в Android-проекты.
-- Платформенные механизмы реализуются в `FocusManager.Platform.Android` за интерфейсами из `FocusManager.Core`.
+- The Android application uses **.NET for Android** (`net8.0-android` or newer) and references projects in `src/Shared`.
+- Shared code targets `net8.0` (without an OS suffix), allowing these assemblies to be referenced by both Windows and Android projects.
+- Platform mechanisms are implemented in `FocusManager.Platform.Android` behind interfaces from `FocusManager.Core`.
 
-## Альтернативы
+## Alternatives
 
-- **Kotlin + Jetpack Compose.** Лучший нативный инструментарий и документация под Android, но общего
-  кода с Windows не будет — правила пришлось бы дублировать. Частично компенсируется общими тестовыми
-  векторами (JSON), но это удвоение работы на каждом изменении правил.
-- **.NET MAUI для обеих платформ (общий UI).** Можно было бы делить и UI, но на Windows пришлось бы
-  переписывать уже работающий WinUI 3 UI, а специфика платформ (трей и агент на Windows, экран разрешений
-  и сервисы на Android) всё равно требует платформенного UI.
+- **Kotlin + Jetpack Compose.** The best native Android tooling and documentation, but no code would be shared
+  with Windows: rules would have to be duplicated. Shared test vectors (JSON) partly compensate,
+  but every rule change still means doing the work twice.
+- **.NET MAUI for both platforms (shared UI).** The UI could also be shared, but Windows would require
+  rewriting the already working WinUI 3 UI, and platform specifics (tray and agent on Windows, permissions
+  screen and services on Android) still require platform-specific UI.
 
-## Открытые вопросы
+## Open Questions
 
-- UI на Android: нативные Android Views/`AndroidX` из C# или .NET MAUI только для Android.
-  Решается в задаче `0008`, фиксируется отдельным ADR.
-- Версия .NET: .NET 8 поддерживается до ноября 2026 — переход на .NET 10 (LTS) в задаче `0007`,
-  лучше до начала Android-разработки.
+- Android UI: native Android Views/`AndroidX` from C#, or .NET MAUI for Android only.
+  To be resolved in task `T008` and recorded in a separate ADR.
+- .NET version: .NET 8 is supported until November 2026; upgrade to .NET 10 (LTS) in task `T007`,
+  preferably before Android development begins.
 
-## Последствия
+## Consequences
 
-- Всё, что может быть общим, должно лежать в `src/Shared` и не зависеть от ОС (см. `docs/architecture/README.md`).
-- Тесты общего кода должны проходить на любой ОС (задача `0001`), иначе нельзя гарантировать поведение на Android.
-- Для сборки Android нужен workload `android`; Windows-разработчики собирают `FocusManager.Windows.slnf` без него.
+- Everything that can be shared must live in `src/Shared` and have no OS dependency (see `docs/architecture/README.md`).
+- Shared-code tests must pass on every OS (task `T001`); otherwise Android behavior cannot be guaranteed.
+- Building Android requires the `android` workload; Windows developers build `FocusManager.Windows.slnf` without it.

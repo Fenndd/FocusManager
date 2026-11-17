@@ -1,60 +1,60 @@
-# Сайты (SITE)
+# Websites (SITE)
 
-### SITE-001 Блокировка сайтов
-Во время сессии открытие сайта, запрещённого правилами профиля (PRF-002), блокируется.
+### SITE-001 Blocking websites
+During a session, opening a website forbidden by the profile's rules (PRF-002) is blocked.
 
-Платформы: Android — planned · Windows — partial (только Google Chrome, только белый список) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (Google Chrome only, allowlist only) · Linux — planned · iOS — deferred
 
-### SITE-002 Формат шаблона хоста
-Запись списка — шаблон хоста:
-- `example.com` — сам домен **и все его поддомены** (решение I3);
-- `*.example.com` — то же самое (принимается для совместимости);
-- `*` — любой хост.
+### SITE-002 Host pattern format
+A list entry is a host pattern:
+- `example.com` — the domain itself **and all its subdomains** (decision I3);
+- `*.example.com` — the same (accepted for compatibility);
+- `*` — any host.
 
-Сравнение без учёта регистра. Схема, путь и порт в шаблоне не учитываются (разделы сайтов — CNT-002).
+Matching is case insensitive. Scheme, path, and port are ignored in the pattern (website sections — CNT-002).
 
-Платформы: Android — planned · Windows — partial · Linux — planned · iOS — deferred
-Примечание: **изменение поведения.** Политика Chrome уже так работает, а `RuleEvaluator` сейчас для
-`example.com` проверяет только точный хост — нужна задача `change`.
+Platforms: Android — planned · Windows — partial · Linux — planned · iOS — deferred
+Note: **behavior change.** Chrome policy already works this way, but `RuleEvaluator` currently checks
+only the exact host for `example.com` — a `change` task is needed.
 
-### SITE-003 Нормализация ввода
-При добавлении шаблон очищается: обрезаются пробелы и `/`; ввод с пробелами внутри отклоняется;
-дубликаты не добавляются.
+### SITE-003 Input normalization
+When adding a pattern, it is cleaned up: whitespace and `/` are trimmed; input containing internal whitespace is rejected;
+duplicates are not added.
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
 
-### SITE-004 Пустой список — без ограничений
-Если список сайтов профиля пуст, сайты не ограничиваются (PRF-004).
+### SITE-004 Empty list means no restrictions
+If the profile's website list is empty, websites are not restricted (PRF-004).
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
 
-### SITE-005 Поддерживаемые браузеры
-Поддерживаются **самые используемые браузеры** платформы по статистике (StatCounter); список пересматривается
-по статистике перед крупными релизами. Все остальные браузеры — неподдерживаемые (SITE-006). Решение I4.
+### SITE-005 Supported browsers
+The platform's **most used browsers** according to statistics (StatCounter) are supported; the list is reviewed
+against statistics before major releases. All other browsers are unsupported (SITE-006). Decision I4.
 
-Стартовый список (по StatCounter, октябрь 2026):
-- ПК: Chrome (~67%), Edge (~13%), Firefox (~6%), Opera (~3%), Brave (~1%). Safari — только macOS, не нужен;
-- Android: Chrome, Samsung Internet, Opera, Firefox (мировые доли — включая iOS; доля Android отдельно не найдена).
+Initial list (StatCounter, October 2026):
+- Desktop: Chrome (~67%), Edge (~13%), Firefox (~6%), Opera (~3%), Brave (~1%). Safari is macOS only and is not needed;
+- Android: Chrome, Samsung Internet, Opera, Firefox (global shares include iOS; a separate Android share was not found).
 
-На ПК браузеры делятся на две группы:
-- **на базе Chromium** (Chrome, Edge, Brave, Vivaldi, Chromium и др.) — общий механизм корпоративных
-  политик (`URLBlocklist`/`URLAllowlist`); каждый браузер читает их из своего раздела реестра/каталога,
-  поэтому FocusManager ведёт внутренний список известных браузеров и их расположений;
-- **Firefox** — свой механизм политик (`WebsiteFilter`), поддерживается отдельно.
+Desktop browsers fall into two groups:
+- **Chromium-based** (Chrome, Edge, Brave, Vivaldi, Chromium, etc.) — a shared enterprise policy mechanism
+  (`URLBlocklist`/`URLAllowlist`); each browser reads them from its own registry key/directory,
+  so FocusManager maintains an internal list of known browsers and their locations;
+- **Firefox** — its own policy mechanism (`WebsiteFilter`), supported separately.
 
-Пользователю не нужно выбирать браузеры: политики применяются ко всем установленным поддерживаемым.
-**Opera поддерживается** (решение владельца 2026-11-16), но, по сообщениям пользователей, не читает
-корпоративные политики — для неё нужен отдельный способ фильтрации (задача 0011). Пока он не реализован,
-Opera блокируется как неподдерживаемая (SITE-006).
-На Android — браузеры, которые поддерживает выбранный способ фильтрации (AND-005).
+The user does not need to select browsers: policies apply to all installed supported browsers.
+**Opera is supported** (owner's decision, 2026-11-16), but, according to user reports, does not read
+enterprise policies — it needs a separate filtering method (task T011). Until that is implemented,
+Opera is blocked as unsupported (SITE-006).
+On Android, supported browsers depend on the selected filtering method (AND-005).
 
-Платформы: Android — planned · Windows — partial (только Google Chrome) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (Google Chrome only) · Linux — planned · iOS — deferred
 
-### SITE-006 Неподдерживаемые браузеры блокируются
-Если профиль ограничивает сайты, все браузеры, не входящие в список поддерживаемых (SITE-005), во время
-сессии автоматически блокируются целиком как приложения — в обоих режимах (решения E5, I4).
-Иначе ограничение сайтов обходится запуском другого браузера.
+### SITE-006 Unsupported browsers are blocked
+If a profile restricts websites, all browsers outside the supported list (SITE-005) are automatically blocked
+entirely as applications during a session — in both modes (decisions E5, I4).
+Otherwise, website restrictions can be bypassed by launching another browser.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-Примечание: на Android при фильтрации через VPN сайты фильтруются во всех браузерах; браузеры со своим
-зашифрованным DNS могут обходить фильтр — исследовать (AND-005).
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Note: on Android, VPN filtering filters websites in all browsers; browsers with their own
+encrypted DNS may bypass the filter — investigate (AND-005).

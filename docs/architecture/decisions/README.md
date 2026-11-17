@@ -1,41 +1,42 @@
 # Architecture Decision Records (ADR)
 
-ADR фиксирует значимое архитектурное решение: контекст, решение, последствия.
-Решения не редактируются задним числом — если решение меняется, пишется новый ADR,
-а старый получает статус `Заменено ADR-NNNN`.
+An ADR records a significant architectural decision: context, decision, and consequences.
+Decisions are not rewritten retroactively. When a decision changes, write a new ADR
+and mark the old one `Superseded by ADR-NNNN` (or identify the superseded part for a partial replacement).
 
-Когда писать ADR: новый проект или слой, новая внешняя зависимость/фреймворк, смена подхода
-к хранению/IPC/UI, изменение правил зависимостей между проектами.
+Write an ADR for a new project or layer, a new external dependency/framework, a change in
+storage/IPC/UI approach, or a change in project dependency rules.
 
-Имя файла: `NNNN-kebab-case-title.md`, номер — следующий по порядку.
+File name: `NNNN-kebab-case-title.md`, using the next sequential number.
 
-| ADR | Решение | Статус |
+| ADR | Decision | Status |
 |-----|---------|--------|
-| [0001](0001-docs-spec-plans-layout.md) | Спецификация, планы и задачи хранятся в репозитории в `docs/` | Принято |
-| [0002](0002-shared-dotnet-code-for-android.md) | Android-версия пишется на .NET, чтобы переиспользовать общий C#-код | Заменено ADR-0005 |
-| [0003](0003-source-tree-by-platform.md) | Исходники разделены на `Shared` / `Windows` / `Android` | Принято, дополнено ADR-0007 |
-| [0004](0004-postgresql-storage.md) | PostgreSQL вместо SQLite | Заменено ADR-0006 |
-| [0005](0005-native-stack-per-platform.md) | Свой стек на каждой платформе; общие — спецификация и тестовые примеры | Принято |
-| [0006](0006-local-storage-and-firebase.md) | Локальное хранилище (SQLite/Room) + Firebase для облака | Принято |
-| [0007](0007-desktop-agent-and-tauri-ui.md) | ПК: фоновый агент на C# + интерфейс на Tauri 2 / React | Принято |
+| [0001](0001-docs-spec-plans-layout.md) | Keep specifications, plans, and tasks in the repository under `docs/` | Accepted; task layout and workflow superseded by ADR-0008 |
+| [0002](0002-shared-dotnet-code-for-android.md) | Build Android with .NET to reuse shared C# code | Superseded by ADR-0005 |
+| [0003](0003-source-tree-by-platform.md) | Split sources into `Shared` / `Windows` / `Android` | Accepted, extended by ADR-0007 |
+| [0004](0004-postgresql-storage.md) | PostgreSQL instead of SQLite | Superseded by ADR-0006 |
+| [0005](0005-native-stack-per-platform.md) | A separate stack per platform; share the specification and test vectors | Accepted |
+| [0006](0006-local-storage-and-firebase.md) | Local storage (SQLite/Room) + Firebase for the cloud | Accepted |
+| [0007](0007-desktop-agent-and-tauri-ui.md) | Desktop: background C# agent + Tauri 2 / React UI | Accepted |
+| [0008](0008-adopt-ai-development-infrastructure.md) | Adopt the transferred AI development infrastructure, English documentation, and root-level work tracking | Accepted |
 
-## Шаблон
+## Template
 
 ```markdown
-# ADR-NNNN: Заголовок
+# ADR-NNNN: Title
 
-- Статус: Предложено | Принято | Заменено ADR-NNNN
-- Дата: YYYY-MM-DD
+- Status: Proposed | Accepted | Superseded by ADR-NNNN
+- Date: YYYY-MM-DD
 
-## Контекст
-Какая проблема, какие ограничения.
+## Context
+The problem and constraints.
 
-## Решение
-Что решили.
+## Decision
+What was decided.
 
-## Альтернативы
-Что рассматривали и почему отказались.
+## Alternatives
+What was considered and why it was rejected.
 
-## Последствия
-Что становится проще, что сложнее, какие задачи появляются.
+## Consequences
+What becomes easier or harder, and what tasks arise.
 ```

@@ -1,44 +1,44 @@
-# Папки (FLD)
+# Folders (FLD)
 
-Только для ПК (решение B5): Windows и Linux. На телефонах — `n/a`.
+Desktop only (decision B5): Windows and Linux. On phones — `n/a`.
 
-### FLD-001 Блокировка открытия папки
-Во время сессии открытие папки, запрещённой правилами профиля (PRF-002), блокируется.
+### FLD-001 Blocking folder opening
+During a session, opening a folder forbidden by the profile's rules (PRF-002) is blocked.
 
-Платформы: Android — n/a · Windows — partial (только белый список) · Linux — research · iOS — n/a
+Platforms: Android — n/a · Windows — partial (allowlist only) · Linux — research · iOS — n/a
 
-### FLD-002 Совпадение папки
-Папка совпадает с записью списка, если совпадает её путь (Windows — без учёта регистра;
-без завершающего разделителя).
+### FLD-002 Folder matching
+A folder matches a list entry if its path matches (Windows — case insensitive;
+without a trailing separator).
 
-Платформы: Android — n/a · Windows — done · Linux — research · iOS — n/a
+Platforms: Android — n/a · Windows — done · Linux — research · iOS — n/a
 
-### FLD-003 Вложенные папки
-У записи есть флаг «включая вложенные папки». Если он установлен — правило действует и на все подпапки;
-если нет — только на саму папку.
+### FLD-003 Subfolders
+An entry has an “include subfolders” flag. When set, the rule also applies to all subfolders;
+otherwise, it applies only to the folder itself.
 
-Платформы: Android — n/a · Windows — done · Linux — research · iOS — n/a
+Platforms: Android — n/a · Windows — done · Linux — research · iOS — n/a
 
-### FLD-004 Корень системного диска всегда разрешён
-Корень системного диска (`C:\`, без вложенных папок) всегда присутствует в белом списке
-и не может быть удалён.
+### FLD-004 The system drive root is always allowed
+The system drive root (`C:\`, without subfolders) is always present in the allowlist
+and cannot be removed.
 
-Платформы: Android — n/a · Windows — done · Linux — n/a · iOS — n/a
-Примечание: подтверждено решением I2.
+Platforms: Android — n/a · Windows — done · Linux — n/a · iOS — n/a
+Note: confirmed by decision I2.
 
-### FLD-005 Действие при блокировке
-При открытии запрещённой папки окно (вкладка) возвращается назад к ближайшей разрешённой папке;
-если это невозможно — окно закрывается; если и это невозможно — окно перенаправляется в первую
-разрешённую папку.
+### FLD-005 Action on blocking
+When a forbidden folder is opened, the window (tab) navigates back to the nearest allowed folder;
+if that is impossible, the window closes; if that is also impossible, the window is redirected to the first
+allowed folder.
 
-Платформы: Android — n/a · Windows — done · Linux — research · iOS — n/a
+Platforms: Android — n/a · Windows — done · Linux — research · iOS — n/a
 
-### FLD-006 Виртуальные папки не блокируются
-Виртуальные расположения оболочки (например, «Этот компьютер», `shell:`-пути) не блокируются.
+### FLD-006 Virtual folders are not blocked
+Virtual shell locations (for example, “This PC”, `shell:` paths) are not blocked.
 
-Платформы: Android — n/a · Windows — done · Linux — research · iOS — n/a
+Platforms: Android — n/a · Windows — done · Linux — research · iOS — n/a
 
-### FLD-007 Несколько вкладок
-Правила применяются к каждой вкладке окна файлового менеджера отдельно.
+### FLD-007 Multiple tabs
+Rules apply separately to each tab in a file manager window.
 
-Платформы: Android — n/a · Windows — done · Linux — research · iOS — n/a
+Platforms: Android — n/a · Windows — done · Linux — research · iOS — n/a

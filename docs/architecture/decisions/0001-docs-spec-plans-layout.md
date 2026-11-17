@@ -1,33 +1,39 @@
-# ADR-0001: Спецификация, планы и задачи хранятся в репозитории
+# ADR-0001: Keep Specifications, Plans, and Tasks in the Repository
 
-- Статус: Принято
-- Дата: 2026-09-30
+- Status: Accepted; task layout and workflow superseded by [ADR-0008](0008-adopt-ai-development-infrastructure.md) (2026-11-16)
+- Date: 2026-09-30
 
-## Контекст
+## Context
 
-Разработка ведётся в основном ИИ-агентами. Агенту нужно из репозитория понять: что должна делать
-система, как устроен код, что делать дальше. Существующая текущая реализация будет и дополняться,
-и меняться, поэтому нужно место, где зафиксировано *целевое* поведение, и понятный процесс его изменения.
+Development is carried out mainly by AI agents. An agent needs to understand from the repository
+what the system should do, how the code is structured, and what to do next. The existing implementation
+will be both extended and changed, so a place to record the *target* behavior and a clear process for changing it are needed.
 
-## Решение
+## Decision
 
-- `docs/spec/` — спецификация поведения, требования с неизменяемыми ID и статусом по платформам.
-- `docs/architecture/` — описание архитектуры и ADR.
-- `docs/plans/roadmap.md` — этапы; `docs/plans/tasks/NNNN-*.md` — задачи, по одной на файл,
-  статус в YAML front matter.
-- `AGENTS.md` в корне — точка входа для агентов; `CLAUDE.md` импортирует его.
-- Изменение поведения = задача + правка спецификации + код в одном PR.
+The following records the original decision. Its `docs/plans/` layout and task workflow are historical;
+ADR-0008 replaces them with root-level `ROADMAP.md`, `STATUS.md`, and `tasks/T<NNN>-<slug>.md`,
+following [TASK_FORMAT.md](../../engineering/TASK_FORMAT.md). The specification and architecture locations remain current.
 
-## Альтернативы
+- `docs/spec/` — behavior specification, requirements with immutable IDs and per-platform statuses.
+- `docs/architecture/` — architecture description and ADRs.
+- `docs/plans/roadmap.md` — milestones; `docs/plans/tasks/NNNN-*.md` — tasks, one per file,
+  with a status in YAML front matter.
+- Root `AGENTS.md` — entry point for agents; `CLAUDE.md` imports it.
+- A behavior change = a task + specification changes + code in one PR.
 
-- **GitHub Issues/Projects для задач.** Удобно людям, но агент в изолированном окружении не всегда
-  имеет к ним доступ, а задачи не версионируются вместе с кодом. Можно использовать дополнительно
-  (ссылка на issue в поле задачи).
-- **Одна большая таблица задач (backlog.md).** Постоянные merge-конфликты при параллельной работе агентов.
-- **Папки по статусам (`todo/`, `done/`).** Перемещение файлов ломает ссылки и тоже конфликтует;
-  статус в front matter ищется через `grep`.
+## Alternatives
 
-## Последствия
+- **GitHub Issues/Projects for tasks.** Convenient for people, but an agent in an isolated environment
+  may not have access, and tasks are not versioned alongside the code. They can be used additionally
+  (an issue link in a task field).
+- **One large task table (backlog.md).** Frequent merge conflicts when agents work in parallel.
+- **Folders by status (`todo/`, `done/`).** Moving files breaks links and also causes conflicts;
+  a front-matter status can be found with `grep`.
 
-- Каждый PR, меняющий поведение, должен трогать `docs/spec/`.
-- Номера задач могут конфликтовать при параллельном создании — правило разрешения в `docs/plans/README.md`.
+## Consequences
+
+- Every PR that changes behavior must change `docs/spec/`.
+- In the original workflow, task numbers could conflict when created in parallel; the resolution rule
+  was in `docs/plans/README.md`. The current task format and lifecycle are defined by ADR-0008 and
+  [TASK_FORMAT.md](../../engineering/TASK_FORMAT.md).

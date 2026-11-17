@@ -1,51 +1,51 @@
-# Приложения (APP)
+# Applications (APP)
 
-Идентификатор приложения зависит от платформы: Windows — путь к `.exe`; Linux — путь к исполняемому
-файлу (уточняется для Flatpak/Snap, см. `platforms/linux.md`); Android — имя пакета (`com.example.app`);
-iOS — непрозрачный токен системы.
+Application identifiers depend on the platform: Windows — path to an `.exe`; Linux — path to the executable
+(to be clarified for Flatpak/Snap, see `platforms/linux.md`); Android — package name (`com.example.app`);
+iOS — an opaque system token.
 
-### APP-001 Блокировка запуска
-Во время сессии запуск приложения, запрещённого правилами профиля (PRF-002), блокируется:
-в режиме белого списка — всё, чего нет в списке; в режиме чёрного — всё, что есть в списке.
+### APP-001 Blocking launch
+During a session, launching an application forbidden by the profile's rules (PRF-002) is blocked:
+in allowlist mode — anything absent from the list; in blocklist mode — anything present in the list.
 
-Платформы: Android — planned · Windows — partial (только белый список) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (allowlist only) · Linux — planned · iOS — deferred
 
-### APP-002 Совпадение по полному идентификатору
-Приложение совпадает с записью списка, если совпадает его идентификатор
-(Windows: полный путь, без учёта регистра, после нормализации пути).
+### APP-002 Matching the full identifier
+An application matches a list entry if its identifier matches
+(Windows: full path, case insensitive, after path normalization).
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
 
-### APP-003 Совпадение по имени файла
-**Удалено (2026-11-16, решение I1):** приложения сравниваются только по полному идентификатору (APP-002).
+### APP-003 Matching by filename
+**Removed (2026-11-16, decision I1):** applications are compared only by their full identifier (APP-002).
 
-Платформы: Android — n/a · Windows — partial (совпадение по имени ещё работает — нужна задача `change`) · Linux — n/a · iOS — n/a
+Platforms: Android — n/a · Windows — partial (filename matching still works — a `change` task is needed) · Linux — n/a · iOS — n/a
 
-### APP-004 Пустой список
-Если список приложений профиля пуст, приложения **не ограничиваются** (PRF-004, решение E7).
+### APP-004 Empty list
+If the profile's application list is empty, applications are **not restricted** (PRF-004, decision E7).
 
-Платформы: Android — planned · Windows — partial · Linux — planned · iOS — deferred
-Примечание: **изменение поведения.** Сейчас на Windows пустой белый список приложений блокирует все
-новые приложения (кроме системных) — требуется задача типа `change`.
+Platforms: Android — planned · Windows — partial · Linux — planned · iOS — deferred
+Note: **behavior change.** Currently on Windows, an empty application allowlist blocks all
+new applications (except system applications) — a task of type `change` is required.
 
-### APP-005 Системные приложения не блокируются
-Системные процессы и компоненты ОС, без которых устройство не работает, а также сам FocusManager,
-никогда не блокируются. Конкретный список — платформенный (WIN-003, AND-003, LNX-*).
+### APP-005 System applications are not blocked
+System processes and OS components required for the device to work, and FocusManager itself,
+are never blocked. The specific list is platform dependent (WIN-003, AND-003, LNX-*).
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
 
-### APP-006 Редактирование списка
-Приложение добавляется выбором из установленных приложений (на ПК — также выбором файла)
-и удаляется из списка. Нельзя добавить несуществующее приложение и дубликат.
+### APP-006 Editing the list
+An application is added by selecting it from installed applications (on desktop, also by choosing a file)
+and can be removed from the list. Nonexistent applications and duplicates cannot be added.
 
-Платформы: Android — planned · Windows — done · Linux — planned · iOS — deferred
-Примечание: на Windows путь должен оканчиваться на `.exe` и файл должен существовать.
+Platforms: Android — planned · Windows — done · Linux — planned · iOS — deferred
+Note: on Windows, the path must end in `.exe` and the file must exist.
 
-### APP-007 Базовые необходимые приложения
-В режиме белого списка, помимо списка профиля, всегда разрешены базовые необходимые приложения,
-которые не отвлекают (решение E6). Звонки и экстренные вызовы разрешены всегда и без исключений.
+### APP-007 Basic essential applications
+In allowlist mode, basic essential applications that are not distracting are always allowed in addition to the profile's list
+(decision E6). Calls and emergency calls are always allowed, without exception.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-> ❓ Вопрос: точный список по умолчанию (предложение для телефона: звонки, SMS, часы/будильник,
-> калькулятор, карты; для ПК — проводник/файловый менеджер, калькулятор) и может ли пользователь
-> его менять.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+> ❓ Question: the exact default list (proposal for phones: calls, SMS, clock/alarm,
+> calculator, maps; for desktop — Explorer/file manager, calculator), and whether the user
+> can change it.

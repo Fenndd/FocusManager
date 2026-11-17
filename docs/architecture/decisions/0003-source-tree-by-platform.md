@@ -1,31 +1,31 @@
-# ADR-0003: Исходники разделены на Shared / Windows / Android
+# ADR-0003: Split Sources into Shared / Windows / Android
 
-- Статус: Принято; дополнено ADR-0007 (целевая структура с Linux, Tauri и Android на Kotlin). Хранилище — ADR-0006
-- Дата: 2026-09-30
+- Status: Accepted; extended by ADR-0007 (target layout with Linux, Tauri, and Android in Kotlin). Storage: ADR-0006
+- Date: 2026-09-30
 
-## Контекст
+## Context
 
-Раньше все проекты лежали плоско в `src/`, а `FocusManager.Infrastructure` смешивал кроссплатформенное
-хранилище (SQLite) и Windows-интеграции (WMI, COM Проводника, реестр Chrome). С появлением Android
-нужно явно видеть, какой код общий, а какой платформенный, и собирать платформы независимо.
+Previously all projects sat directly in `src/`, and `FocusManager.Infrastructure` mixed cross-platform
+storage (SQLite) with Windows integrations (WMI, File Explorer COM, Chrome registry). With Android coming,
+it must be clear which code is shared and which is platform-specific, and platforms must build independently.
 
-## Решение
+## Decision
 
-- `src/Shared`, `src/Windows`, `src/Android`; `tests/` зеркалит ту же структуру.
-- `FocusManager.Infrastructure` разделён:
+- `src/Shared`, `src/Windows`, `src/Android`; `tests/` mirrors the same layout.
+- `FocusManager.Infrastructure` was split into:
   - `src/Shared/FocusManager.Persistence.Sqlite` (namespace `FocusManager.Persistence.Sqlite`);
   - `src/Windows/FocusManager.Platform.Windows` (namespace `FocusManager.Platform.Windows`, TFM `net8.0-windows`).
-- `FocusManager.Contracts` перенесён в `src/Windows`: это IPC между Windows-UI и Windows-агентом,
-  на Android IPC не нужен (UI и сервис в одном приложении). Если DTO понадобятся на Android
-  (например, импорт/экспорт настроек) — перенести в `Shared` отдельным решением.
-- Имена `FocusManager.App`/`FocusManager.Agent` сохранены: от них зависят имена exe и скрипты.
-- Решения-фильтры `FocusManager.Shared.slnf`, `FocusManager.Windows.slnf` (и позже `FocusManager.Android.slnf`)
-  позволяют собирать платформу без чужих SDK/workload.
-- Общие настройки проектов вынесены в `Directory.Build.props`, общие пакеты тестов — в `tests/Directory.Build.props`.
-- Скрипты разработчика — `scripts/<platform>/`.
+- `FocusManager.Contracts` moved to `src/Windows`: it provides IPC between the Windows UI and Windows agent;
+  Android does not need IPC (the UI and service are in one application). If Android needs the DTOs
+  (for example, to import/export settings), move them to `Shared` through a separate decision.
+- The names `FocusManager.App` / `FocusManager.Agent` are preserved: executable names and scripts depend on them.
+- Solution filters `FocusManager.Shared.slnf`, `FocusManager.Windows.slnf` (and later `FocusManager.Android.slnf`)
+  allow a platform to build without other platforms' SDKs/workloads.
+- Shared project settings moved to `Directory.Build.props`, and shared test packages to `tests/Directory.Build.props`.
+- Developer scripts live in `scripts/<platform>/`.
 
-## Последствия
+## Consequences
 
-- Перенос выполнен без изменения поведения; семантические рефакторинги (вынос Windows-умолчаний
-  из хранилища, вынос оркестрации в Shared) оформлены задачами `0001`–`0005`.
-- Пути сборки изменились: `src/Windows/FocusManager.Agent/bin/...` — скрипты обновлены.
+- The move did not change behavior; semantic refactorings (moving Windows defaults out of storage,
+  moving orchestration to Shared) were recorded as tasks `T001`–`T005`.
+- Build paths changed: `src/Windows/FocusManager.Agent/bin/...`; scripts were updated.

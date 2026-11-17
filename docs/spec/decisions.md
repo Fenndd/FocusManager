@@ -1,507 +1,507 @@
-# Решения по продукту
+# Product decisions
 
-Список вопросов, по которым решение принимает владелец продукта. После ответа решение записывается
-в поле **Решение** (с датой), а спецификация, ADR и дорожная карта приводятся в соответствие.
+A list of questions decided by the product owner. After an answer, the decision is recorded
+in the **Decision** field (with a date), and the specification, ADRs, and roadmap are aligned with it.
 
-**Приоритет:**
-- 🔴 — нужно сейчас, без этого нельзя планировать дальше;
-- 🟡 — до начала разработки Android MVP;
-- 🟢 — можно позже, до релиза.
+**Priority:**
+- 🔴 — needed now; further planning is blocked without it;
+- 🟡 — before Android MVP development begins;
+- 🟢 — can wait until later, before release.
 
-**Статус на 2026-11-16:** все вопросы отвечены. Новые вопросы — в требованиях спецификации (`> ❓`).
+**Status as of 2026-11-16:** all questions have been answered. New questions belong in specification requirements (`> ❓`).
 
-**Как отвечать:** в чате, например «A1: b, A2: как рекомендовано, E1: a+b+c», или «со всеми рекомендациями
-согласен, кроме …». Можно и прямо вписать в этот файл.
+**How to answer:** in chat, for example “A1: b, A2: as recommended, E1: a+b+c”, or “I agree with all recommendations
+except …”. Answers can also be entered directly in this file.
 
-«Рекомендация» — мнение ИИ-помощника. Это не решение.
-
----
-
-## A. Продукт и позиционирование
-
-### A1. Целевая аудитория 🔴
-- a) Студенты и школьники (самоконтроль во время учёбы)
-- b) Все, кто хочет сосредоточиться: учёба, работа, сон
-- c) Родители, ограничивающие детей (parental control)
-
-Рекомендация: **a, с расширением до b**. Учёба — понятная ниша и отличие от общих блокировщиков.
-Parental control (c) — другой продукт: другие требования магазинов, другая модель защиты (на iOS — `.child`).
-
-Решение: **a + b** — студенты и школьники, а также все, кто хочет сосредоточиться. (2026-10-02)
-
-### A2. Основная концепция 🔴
-- a) Белый список: в сессии разрешено только выбранное (как сейчас на Windows)
-- b) Чёрный список: блокируется выбранное (как Stay Focused)
-- c) Оба режима, белый список — главный
-
-Рекомендация: **c**. Белый список — ваше отличие; чёрный нужен, потому что так привыкли пользователи.
-
-Решение: **c** — оба режима, белый список главный. (2026-10-02)
-
-### A3. Какие отличия развивать в первую очередь (можно несколько) 🟡
-- a) Учебные сессии: предметы, наборы правил под предмет, режим экзаменов
-- b) Партнёр по контролю: код разблокировки у друга или родителя, уведомление ему при обходе
-- c) Одна сессия на всех устройствах (телефон + ПК)
-- d) Разные уровни сложности снятия блокировки
-- e) Мягкое трение вместо жёсткого запрета (пауза, «зачем открываешь?»)
-- f) Игровая механика: серии дней, достижения
-
-Рекомендация: **a + d для MVP**, затем b. Вариант c требует облака — позже.
-
-Решение: **Все варианты** (a–f) в итоге должны быть в приложении; порядок — по дорожной карте. (2026-10-02)
-
-Уточнение: направление b (партнёр по контролю) **отложено** — функционал с партнёром пока не планируется. (2026-11-16)
-
-### A4. Название и бренд 🟢
-«FocusManager» — рабочее название, это словосочетание широко используется.
-Нужно ли подбирать уникальное имя до релиза (проверка в магазинах, домен)?
-
-Рекомендация: **да, до первого публичного релиза**. Пока работаем с рабочим названием.
-
-Решение: Пока рабочее название «FocusManager». (2026-10-02)
-
-### A5. Языки интерфейса на старте 🟡
-Варианты: английский; русский; словацкий; украинский; другие.
-
-Рекомендация: **английский + русский** на старте. Локализацию закладывать в архитектуру с первого дня.
-
-Решение: **Английский + русский** на старте; в перспективе — все популярные языки. (2026-10-02)
-
-### A6. Регионы публикации 🟢
-- a) Весь мир
-- b) Сначала ЕС, потом весь мир
-
-Рекомендация: **a**. Для бесплатного приложения ограничивать регионы незачем.
-
-Решение: **Весь мир, кроме Китая.** (2026-10-02)
+“Recommendation” is the AI assistant's opinion. It is not a decision.
 
 ---
 
-## B. Платформы и порядок разработки
+## A. Product and positioning
 
-### B1. Порядок платформ 🔴
-- a) Android → iOS → Windows (поддержка)
-- b) Android и iOS параллельно
-- c) Windows (доделать) → Android → iOS
+### A1. Target audience 🔴
+- a) University and school students (self-control while studying)
+- b) Anyone who wants to concentrate: studying, work, sleep
+- c) Parents restricting children (parental control)
 
-Рекомендация: **a**. Android даёт больше возможностей, вы сами им пользуетесь. iOS — вторым, после
-проверки ограничений прототипом.
+Recommendation: **a, expanding to b**. Studying is a clear niche and a differentiator from general blockers.
+Parental control (c) is a different product: different store requirements and a different protection model (on iOS — `.child`).
 
-Решение: Основные платформы — **Android + Windows + Linux**. iOS — после финализации основных. (2026-10-02)
+Decision: **a + b** — university and school students, and anyone who wants to concentrate. (2026-10-02)
 
-### B2. Что делать с Windows-версией сейчас 🔴
-- a) Заморозить: только исправление ошибок до релиза мобильных
-- b) Развивать параллельно
+### A2. Primary concept 🔴
+- a) Allowlist: only selected items are allowed during a session (as currently on Windows)
+- b) Blocklist: selected items are blocked (as in Stay Focused)
+- c) Both modes, with the allowlist as the primary mode
 
-Рекомендация: **a**.
+Recommendation: **c**. The allowlist is your differentiator; the blocklist is needed because users are accustomed to it.
 
-Решение: **b** — Windows развивается параллельно. (2026-10-02)
+Decision: **c** — both modes, with the allowlist as the primary mode. (2026-10-02)
+
+### A3. Which differentiators to develop first (multiple choices allowed) 🟡
+- a) Study sessions: subjects, rule sets per subject, exam mode
+- b) Accountability partner: a friend or parent holds the unlock code and is notified on circumvention
+- c) One session across all devices (phone + desktop)
+- d) Different levels of difficulty for removing blocking
+- e) Gentle friction instead of a hard prohibition (a pause, “why are you opening this?”)
+- f) Gamification: daily streaks, achievements
+
+Recommendation: **a + d for the MVP**, then b. Option c requires cloud — later.
+
+Decision: **All options** (a–f) must eventually be in the application; their order follows the roadmap. (2026-10-02)
+
+Clarification: direction b (accountability partner) is **deferred** — partner functionality is not currently planned. (2026-11-16)
+
+### A4. Name and brand 🟢
+“FocusManager” is a working name; the phrase is widely used.
+Should a unique name be chosen before release (store and domain checks)?
+
+Recommendation: **yes, before the first public release**. Use the working name for now.
+
+Decision: Keep “FocusManager” as the working name for now. (2026-10-02)
+
+### A5. UI languages at launch 🟡
+Options: English; Russian; Slovak; Ukrainian; others.
+
+Recommendation: **English + Russian** at launch. Build localization into the architecture from day one.
+
+Decision: **English + Russian** at launch; in the longer term — all popular languages. (2026-10-02)
+
+### A6. Publication regions 🟢
+- a) Worldwide
+- b) EU first, then worldwide
+
+Recommendation: **a**. There is no reason to restrict regions for a free application.
+
+Decision: **Worldwide except China.** (2026-10-02)
+
+---
+
+## B. Platforms and development order
+
+### B1. Platform order 🔴
+- a) Android → iOS → Windows (maintenance)
+- b) Android and iOS in parallel
+- c) Windows (finish) → Android → iOS
+
+Recommendation: **a**. Android offers more capabilities, and you use it yourself. iOS second, after
+checking its limitations with a prototype.
+
+Decision: The primary platforms are **Android + Windows + Linux**. iOS follows after the primary platforms are finalized. (2026-10-02)
+
+### B2. What to do with the Windows version now 🔴
+- a) Freeze: bug fixes only until the mobile versions are released
+- b) Develop in parallel
+
+Recommendation: **a**.
+
+Decision: **b** — Windows is developed in parallel. (2026-10-02)
 
 ### B3. macOS 🟢
-- a) Не планируем
-- b) Когда-нибудь после Windows
+- a) Not planned
+- b) Eventually, after Windows
 
-Рекомендация: **a** пока.
+Recommendation: **a** for now.
 
-Решение: **a** — macOS не планируем. (2026-10-02)
+Decision: **a** — macOS is not planned. (2026-10-02)
 
-### B4. Условия для iOS 🟡
-Есть ли Mac и готовы ли платить Apple $99/год? Без Mac — облачный Mac (платно) или откладываем iOS.
+### B4. Prerequisites for iOS 🟡
+Is a Mac available, and are you willing to pay Apple $99/year? Without a Mac — a cloud Mac (paid), or defer iOS.
 
-Решение: Пока **нет** (ни Mac, ни аккаунта Apple). (2026-10-02)
+Decision: **No** for now (neither a Mac nor an Apple account). (2026-10-02)
 
-### B5. Одинаковый функционал на всех платформах? 🔴
-- a) Одинаковый: делаем только то, что можно везде (функции ограничены возможностями iOS)
-- b) Общее ядро + функции, специфичные для платформ (на Android больше)
+### B5. Identical functionality on all platforms? 🔴
+- a) Identical: implement only what is possible everywhere (features limited by iOS capabilities)
+- b) Shared core + platform-specific features (more on Android)
 
-Рекомендация: **b**. На iOS без уведомлений, ключевых слов и строгого режима — честно указано в описании.
+Recommendation: **b**. On iOS, no notifications, keywords, or strict mode — stated honestly in the description.
 
-Решение: **Одинаковый функционал на основных платформах** (Android, Windows, Linux); на ПК дополнительно — блокировка папок. iOS — позже: реализуем то, что возможно, остальное не делаем. (2026-10-02)
+Decision: **Identical functionality on the primary platforms** (Android, Windows, Linux); desktop additionally has folder blocking. iOS comes later: implement what is possible and omit the rest. (2026-10-02)
 
-### B6. Минимальные версии ОС 🟡
+### B6. Minimum OS versions 🟡
 - Android: 8.0 (API 26) / 10 (API 29) / 12 (API 31)
-- iOS: 16 (минимум для Screen Time API для себя) / 17
+- iOS: 16 (minimum for the Screen Time API for individual use) / 17
 
-Рекомендация: **Android 8.0, iOS 16**. Охватывают почти все устройства.
+Recommendation: **Android 8.0, iOS 16**. They cover almost all devices.
 
-Решение: Охватить **большинство текущих устройств** (конкретные версии — в `platforms/*.md`). (2026-10-02)
+Decision: Cover **the majority of current devices** (specific versions are in `platforms/*.md`). (2026-10-02)
 
 ---
 
-## C. Технологии
+## C. Technologies
 
-### C1. Язык Android-версии 🔴
+### C1. Android version language 🔴
 - a) Kotlin + Jetpack Compose
-- b) C# (.NET for Android) — ради общего кода с Windows
+- b) C# (.NET for Android) — to share code with Windows
 
-Рекомендация: **a**. Блокировщики пишут на Kotlin; общего кода с Windows мало (см. ADR-0002 — будет пересмотрен).
+Recommendation: **a**. Blockers are written in Kotlin; there is little shared code with Windows (see ADR-0002 — to be revised).
 
-Решение: **a** — Kotlin + Jetpack Compose. (2026-10-02)
+Decision: **a** — Kotlin + Jetpack Compose. (2026-10-02)
 
-### C2. Язык iOS-версии 🟡
-Фактически безальтернативно: **Swift + SwiftUI** (расширения Screen Time — только на Swift).
+### C2. iOS version language 🟡
+Effectively no alternative: **Swift + SwiftUI** (Screen Time extensions are Swift only).
 
-Решение: **Swift + SwiftUI.** (2026-10-02)
+Decision: **Swift + SwiftUI.** (2026-10-02)
 
-### C3. Технология интерфейса ПК-версии (Windows + Linux) 🔴
-Язык логики агента — C#/.NET (остаётся). Интерфейс — отдельный процесс, связь с агентом по JSON,
-поэтому стек интерфейса может быть любым (владелец: «стек можно расширить для интерфейса»).
+### C3. Desktop UI technology (Windows + Linux) 🔴
+The agent's logic language remains C#/.NET. The UI is a separate process communicating with the agent through JSON,
+so any UI stack is possible (owner: “the stack can be extended for the UI”).
 
-Варианты (подробный разбор — в чате 2026-11-16):
-- a) **Tauri 2 + веб-интерфейс** (TypeScript + React): лёгкий, официальный Firebase JS SDK, общий стек с сайтом
-- b) **Electron + веб-интерфейс**: то же, но тяжелее; одинаковый Chromium на всех ОС
-- c) **Compose Multiplatform** (Kotlin): общий интерфейс с Android, но Java-машина и нет Firebase SDK для ПК
-- d) **Flutter** (Dart): красиво, но новый язык и неполная поддержка Firebase на ПК
-- e) **Avalonia** (C#): один язык с агентом, но слабее для «продающего» дизайна и Firebase
-- f) Оставить WinUI 3 + отдельный интерфейс для Linux — два интерфейса
+Options (detailed discussion — in the 2026-11-16 chat):
+- a) **Tauri 2 + web UI** (TypeScript + React): lightweight, official Firebase JS SDK, shared stack with the website
+- b) **Electron + web UI**: the same, but heavier; identical Chromium on every OS
+- c) **Compose Multiplatform** (Kotlin): shared UI with Android, but a JVM and no desktop Firebase SDK
+- d) **Flutter** (Dart): attractive, but a new language and incomplete desktop Firebase support
+- e) **Avalonia** (C#): the same language as the agent, but weaker for conversion-focused design and Firebase
+- f) Keep WinUI 3 + a separate Linux UI — two UIs
 
-Рекомендация: **a**, запасной вариант с тем же кодом интерфейса — **b**.
+Recommendation: **a**; fallback with the same UI code — **b**.
 
-Решение: **a** — Tauri 2 + веб-интерфейс. Фреймворк — React + TypeScript (по рекомендации, см. ADR-0007). (2026-11-16)
+Decision: **a** — Tauri 2 + web UI. Framework — React + TypeScript (as recommended, see ADR-0007). (2026-11-16)
 
-### C4. Общий код между платформами 🔴
-- a) Не делить код; общими остаются спецификация + тестовые примеры (JSON), которые прогоняет каждая платформа
-- b) Kotlin Multiplatform для Android + iOS
-- c) Общий C# (текущий ADR-0002)
+### C4. Shared code across platforms 🔴
+- a) Do not share code; share the specification + test vectors (JSON), run by each platform
+- b) Kotlin Multiplatform for Android + iOS
+- c) Shared C# (current ADR-0002)
 
-Рекомендация: **a**. К b вернуться, только если дублирование между Android и iOS начнёт реально мешать.
+Recommendation: **a**. Revisit b only if duplication between Android and iOS starts causing real problems.
 
-Решение: **a** — общий код не делаем; общие — спецификация и тестовые примеры (JSON). (2026-10-02)
+Decision: **a** — no shared code; share the specification and test vectors (JSON). (2026-10-02)
 
-### C5. Репозиторий 🟡
-- a) Один репозиторий: `windows/`, `android/`, `ios/`, `docs/`
-- b) Отдельный репозиторий на платформу
+### C5. Repository 🟡
+- a) One repository: `windows/`, `android/`, `ios/`, `docs/`
+- b) A separate repository per platform
 
-Рекомендация: **a**. Спецификация и задачи в одном месте — агентам проще.
+Recommendation: **a**. Keeping specifications and tasks together makes agents' work easier.
 
-Решение: **a** — один репозиторий. (2026-10-02)
+Decision: **a** — one repository. (2026-10-02)
 
-### C6. Хранилище на ПК 🔴
-- a) Вернуть SQLite (локальный файл, ничего не надо устанавливать)
-- b) Оставить PostgreSQL (пользователь должен установить сервер БД)
+### C6. Desktop storage 🔴
+- a) Return to SQLite (local file, nothing to install)
+- b) Keep PostgreSQL (the user must install a database server)
 
-Рекомендация: **a**. PostgreSQL на компьютере пользователя — непреодолимый барьер для обычного человека.
+Recommendation: **a**. PostgreSQL on the user's computer is an insurmountable barrier for an ordinary person.
 
-Решение: **ПК — SQLite** (PostgreSQL убрать), **Android — Room (SQLite)**, облако — Firebase. (2026-11-16)
+Decision: **Desktop — SQLite** (remove PostgreSQL), **Android — Room (SQLite)**, cloud — Firebase. (2026-11-16)
 
-История: владелец предложил Firebase для мобильных и спросил про ПК. Уточнение: Firebase — это **облако** (решение D2); локальное хранилище нужно на каждом устройстве в любом случае. Рекомендация: **ПК — SQLite** (PostgreSQL убрать), **Android — Room (SQLite)**, синхронизация — через Firebase.
-
----
-
-## D. Облако, аккаунты, данные
-
-### D1. Облако в первой версии 🔴
-- a) Нет: все данные на устройстве
-- b) Да: аккаунты и синхронизация сразу
-
-Рекомендация: **a**. Блокировка должна работать без интернета; облако — когда появится синхронизация.
-
-Решение: **a** — первая версия без облака, все данные на устройстве. (2026-10-02)
-
-### D2. Облачная платформа, когда понадобится 🟢
-- a) Supabase (PostgreSQL, бесплатный проект засыпает после недели без активности)
-- b) Firebase (не засыпает, лучшая поддержка Android/iOS)
-- c) Решим позже
-
-Рекомендация: **c**. Модель данных проектируем так, чтобы синхронизацию можно было добавить.
-
-Решение: **b** — Firebase. (2026-10-02)
-
-### D3. Синхронизация и «одна сессия на всех устройствах» — платная функция? 🟢
-Рекомендация: **да, премиум**. Требует облака и стоит денег на сервер.
-
-Решение: Минимальный базовый функционал бесплатен, **включая синхронизацию**. Премиум — с **пробным периодом 3 дня**. (2026-10-02)
-
-Уточнение: пробный период — 7 дней (см. G1). (2026-11-16)
-
-### D4. Сбор аналитики и отчётов о сбоях 🟡
-- a) Ничего не собирать
-- b) Только отчёты о сбоях (Crashlytics / Sentry)
-- c) Сбои + анонимная аналитика использования с согласия пользователя
-
-Рекомендация: **b**, а c — с явным согласием (GDPR). Для блокировщика доверие — ключевое.
-
-Решение: **Подробная техническая аналитика** + **статистика для пользователя** (просмотр своих успехов). (2026-10-02)
-
-### D5. Экспорт и импорт настроек в файл 🟢
-Что это: сохранить профили, списки и настройки в файл и загрузить их обратно — без аккаунта и облака.
-
-Зачем может понадобиться:
-- перенести настройки на другое устройство той же платформы без аккаунта;
-- сделать резервную копию перед переустановкой ОС или приложения;
-- поделиться профилем (например, «Подготовка к экзамену») с другом или одногруппниками.
-
-Варианты:
-- a) Не нужно: для переноса и резервной копии хватает бесплатной синхронизации через аккаунт (D3)
-- b) Экспорт/импорт всех настроек в файл
-- c) b + обмен отдельными профилями (файлом или ссылкой) как шаблонами
-
-Рекомендация: **c, с низким приоритетом** (после MVP). Ограничение: во время сессии строгого уровня
-импорт не должен ослаблять защиту (PROT-004).
-
-**a** — экспорта в файл нет. Синхронизация и резервная копия настроек — **только через аккаунт**, данные хранятся на бэкенде. Локальная копия на устройстве остаётся для работы без интернета (D1, GEN-005). (2026-11-16)
+History: the owner proposed Firebase for mobile and asked about desktop. Clarification: Firebase is **cloud** (decision D2); local storage is needed on every device regardless. Recommendation: **desktop — SQLite** (remove PostgreSQL), **Android — Room (SQLite)**, synchronization — through Firebase.
 
 ---
 
-## E. Функции блокировки
+## D. Cloud, accounts, data
 
-### E1. Что блокируем в Android MVP (можно несколько) 🔴
-- a) Приложения
-- b) Сайты
-- c) Уведомления заблокированных приложений
-- d) Ключевые слова (в адресе, поиске)
-- e) Части приложений (Shorts, Reels)
+### D1. Cloud in the first version 🔴
+- a) No: all data on the device
+- b) Yes: accounts and synchronization immediately
 
-Рекомендация: **a + b** в MVP, затем c и d. e — дорого поддерживать: ломается при обновлениях этих приложений.
+Recommendation: **a**. Blocking must work without internet access; cloud comes when synchronization is introduced.
 
-Решение: **Всё перечисленное** (a–e). (2026-10-02)
+Decision: **a** — the first version has no cloud; all data is on the device. (2026-10-02)
 
-### E2. Как запускается блокировка (можно несколько) 🔴
-- a) Вручную: сессия на N минут
-- b) По расписанию
-- c) Лимит времени в день на приложение
-- d) Лимит количества запусков
-- e) По месту или Wi-Fi
+### D2. Cloud platform when needed 🟢
+- a) Supabase (PostgreSQL; a free project sleeps after a week of inactivity)
+- b) Firebase (does not sleep; better Android/iOS support)
+- c) Decide later
 
-Рекомендация: **a + b** в MVP, c — следующим. d — только Android, e — позже.
+Recommendation: **c**. Design the data model so synchronization can be added.
 
-Решение: **Много способов** (a–e), пользователь выбирает удобный. (2026-10-02)
+Decision: **b** — Firebase. (2026-10-02)
 
-### E3. Профили (несколько наборов правил: «Учёба», «Сон», «Работа») 🟡
-Рекомендация: **да, с MVP**. Поздно добавлять — дорого менять модель данных.
+### D3. Synchronization and “one session across all devices” — a paid feature? 🟢
+Recommendation: **yes, premium**. Requires cloud and costs money for the server.
 
-Решение: **Да.** (2026-10-02)
+Decision: Minimal basic functionality is free, **including synchronization**. Premium has a **3-day trial period**. (2026-10-02)
 
-### E4. Блокировка сайтов на Android — способ 🟡
-- a) Чтение адресной строки поддерживаемых браузеров через специальные возможности
-- b) Локальный VPN с DNS-фильтром (занимает VPN-слот, конфликтует с обычным VPN пользователя)
-- c) Оба, на выбор
+Clarification: the trial period is 7 days (see G1). (2026-11-16)
 
-Рекомендация: **a** в MVP, b — исследовать. Окончательно — после прототипа (задача 0008).
+### D4. Collecting analytics and crash reports 🟡
+- a) Collect nothing
+- b) Crash reports only (Crashlytics / Sentry)
+- c) Crashes + anonymous usage analytics with user consent
 
-Решение: **c** — оба способа. (2026-10-02)
+Recommendation: **b**; c only with explicit consent (GDPR). Trust is key for a blocker.
 
-### E5. Неподдерживаемые браузеры 🟡
-Если браузер не умеем фильтровать — блокировать его целиком во время сессии?
+Decision: **Detailed technical analytics** + **user statistics** (viewing personal progress). (2026-10-02)
 
-Рекомендация: **да** в режиме белого списка (иначе обход через любой другой браузер).
+### D5. Exporting and importing settings to/from a file 🟢
+What this means: saving profiles, lists, and settings to a file and loading them back — without an account or cloud.
 
-Решение: **Да.** (2026-10-02)
+Why it might be needed:
+- transfer settings to another device on the same platform without an account;
+- make a backup before reinstalling the OS or application;
+- share a profile (for example, “Exam preparation”) with a friend or classmates.
 
-### E6. Что всегда разрешено 🟡
-Звонки и экстренные вызовы — всегда. Что ещё: SMS, будильник, карты, калькулятор?
-Список задаёт пользователь или фиксированный?
+Options:
+- a) Unnecessary: free synchronization through an account is enough for transfer and backup (D3)
+- b) Export/import all settings to/from a file
+- c) b + sharing individual profiles (as a file or link) as templates
 
-Рекомендация: **звонки и экстренные — всегда**, остальное — настраиваемый список «всегда разрешено» с разумными умолчаниями.
+Recommendation: **c, with low priority** (after the MVP). Restriction: during a strict-level session,
+import must not weaken protection (PROT-004).
 
-Решение: В режиме белого списка по умолчанию разрешены **базовые необходимые приложения**, которые не отвлекают. (2026-10-02)
-
-### E7. Пустой белый список 🟡
-Сейчас пустой список приложений блокирует всё, а пустой список сайтов не ограничивает ничего.
-- a) Нельзя начать сессию, пока список пуст (предупреждение)
-- b) Пустой = разрешено только «всегда разрешённое»
-- c) Оставить как есть
-
-Рекомендация: **a**: явное поведение лучше неожиданного.
-
-Решение: Пустой список — **нет ограничений**. (2026-10-02)
-
-### E8. Уведомления о блокировке 🟢
-Сейчас на Windows выключены. Достаточно экрана блокировки, или нужны ещё системные уведомления?
-
-Рекомендация: **экрана блокировки достаточно**; уведомления — опция в настройках.
-
-Решение: Уведомления о блокировке есть, **в настройках их можно отключить**. (2026-10-02)
-
-### E9. Статистика использования 🟢
-- a) Не нужна в MVP
-- b) Простая: сколько сессий, сколько блокировок
-- c) Подробная: время по приложениям, графики (на iOS — только системный отчёт)
-
-Рекомендация: **b** в MVP.
-
-Решение: **c** — подробная статистика. (2026-10-02)
+**a** — no file export. Synchronization and settings backups are **only through an account**; data is stored on the backend. A local copy remains on the device for offline operation (D1, GEN-005). (2026-11-16)
 
 ---
 
-## F. Защита от обхода
+## E. Blocking features
 
-### F1. Уровни защиты 🔴
-Предложение (от мягкого к жёсткому), можно убрать или добавить:
-1. **Обычный** — снять можно в любой момент
-2. **С трением** — пауза N секунд и/или ввод фразы перед снятием
-3. **Пароль / партнёр** — снять можно только по коду (код может быть у друга)
-4. **Строгий** — до конца сессии снять нельзя, изменить настройки и удалить приложение нельзя
+### E1. What to block in the Android MVP (multiple choices allowed) 🔴
+- a) Applications
+- b) Websites
+- c) Notifications from blocked applications
+- d) Keywords (in addresses, searches)
+- e) Parts of applications (Shorts, Reels)
 
-Рекомендация: **все четыре**. На iOS уровень 4 — с честной оговоркой (обход через Настройки возможен).
+Recommendation: **a + b** in the MVP, then c and d. e is expensive to maintain: it breaks when these applications update.
 
-Решение: **Все четыре уровня**, пользователь выбирает. (2026-11-16)
+Decision: **All of the above** (a–e). (2026-10-02)
 
-### F2. Аварийный выход из строгого режима 🔴
-- a) Нет вообще
-- b) Ограниченный: например, раз в неделю, с задержкой 10–15 минут
-- c) Через партнёра
+### E2. How blocking starts (multiple choices allowed) 🔴
+- a) Manually: a session for N minutes
+- b) On a schedule
+- c) Daily time limit per application
+- d) Launch count limit
+- e) By location or Wi-Fi
 
-Рекомендация: **b + c**. Без аварийного выхода пользователи удаляют приложение и пишут плохие отзывы;
-магазины тоже не любят «запертые» устройства.
+Recommendation: **a + b** in the MVP, c next. d — Android only; e — later.
 
-Решение: **b + c** — ограниченный аварийный выход и выход через партнёра; способ и параметры выбираются и настраиваются заранее. (2026-11-16)
+Decision: **Many methods** (a–e); users choose what suits them. (2026-10-02)
 
-Уточнение: вариант c (через партнёра) отложен. Аварийный выход **по умолчанию доступен**; его можно отключить совсем — опция при выборе строгого уровня. (2026-11-16)
+### E3. Profiles (multiple rule sets: “Study”, “Sleep”, “Work”) 🟡
+Recommendation: **yes, from the MVP**. Adding them late requires expensive data model changes.
 
-### F3. Защита от удаления на Android (права администратора устройства) 🟡
-Рекомендация: **да, только в строгом режиме и с явным согласием**.
+Decision: **Yes.** (2026-10-02)
 
-Решение: **Да**, только в строгом режиме и с явным согласием. (2026-11-16)
+### E4. Website blocking on Android — method 🟡
+- a) Reading supported browsers' address bars through accessibility services
+- b) A local VPN with DNS filtering (occupies the VPN slot, conflicts with the user's regular VPN)
+- c) Both, with a choice
 
-### F4. Блокировать экраны Настроек на Android в строгом режиме 🟡
-Какие: настройки специальных возможностей, страницу нашего приложения, дату и время?
+Recommendation: **a** in the MVP; investigate b. Finalize after the prototype (task T008).
 
-Рекомендация: **да, точечно эти три**, а не все Настройки (иначе пользователь не сможет, например, подключить Wi-Fi).
+Decision: **c** — both methods. (2026-10-02)
 
-Решение: **Точечно**, не все Настройки; опцию можно включить или отключить. (2026-11-16)
+### E5. Unsupported browsers 🟡
+If a browser cannot be filtered, should it be blocked entirely during a session?
 
-### F5. iOS: принимаем, что строгий режим обходится через Настройки 🟡
-- a) Да, честно предупреждаем в интерфейсе
-- b) Да, и уведомляем партнёра при обходе (если технически возможно)
+Recommendation: **yes** in allowlist mode (otherwise any other browser provides a bypass).
 
-Рекомендация: **b**.
+Decision: **Yes.** (2026-10-02)
 
-Решение: **b** — предупреждаем в интерфейсе и уведомляем партнёра при обходе. (2026-11-16)
+### E6. What is always allowed 🟡
+Calls and emergency calls — always. What else: SMS, alarm, maps, calculator?
+Is the list user-defined or fixed?
 
-Уточнение: уведомление партнёра отложено вместе с функционалом партнёра; предупреждение в интерфейсе остаётся. (2026-11-16)
+Recommendation: **calls and emergency calls — always**; everything else — a configurable “always allowed” list with sensible defaults.
 
-### F6. Смена времени на устройстве как способ обхода 🟢
-Рекомендация: **учитывать**: таймеры сессий считать по времени, которое пользователь не может перевести.
+Decision: In allowlist mode, **basic essential applications** that are not distracting are allowed by default. (2026-10-02)
 
-Решение: **Да** — таймер сессии считается по времени, которое пользователь не может перевести. (2026-11-16)
+### E7. Empty allowlist 🟡
+Currently, an empty application list blocks everything, while an empty website list restricts nothing.
+- a) A session cannot start while the list is empty (warning)
+- b) Empty = only “always allowed” items are permitted
+- c) Leave it as is
 
----
+Recommendation: **a**: explicit behavior is better than surprising behavior.
 
-## G. Монетизация
+Decision: An empty list means **no restrictions**. (2026-10-02)
 
-### G1. Модель 🔴
-- a) Полностью бесплатно
-- b) Freemium: базовое бесплатно, премиум — подписка
-- c) Freemium: подписка + вариант «навсегда» (разовая покупка)
-- d) Платное приложение
+### E8. Blocking notifications 🟢
+Currently disabled on Windows. Is a blocking screen sufficient, or are system notifications also needed?
 
-Рекомендация: **c**. Многие пользователи блокировщиков не любят подписки; вариант «навсегда» снимает возражение.
+Recommendation: **a blocking screen is sufficient**; notifications are an option in settings.
 
-Решение: Бесплатная часть + **пробный период неделя с автопродлением** в подписку. Варианта «навсегда» нет. Подписки: **1, 3, 6, 12 месяцев**. (2026-11-16)
+Decision: Blocking notifications exist and **can be disabled in settings**. (2026-10-02)
 
-Уточнение: пробный период — **7 дней** (заменяет «3 дня» из D3). (2026-11-16)
+### E9. Usage statistics 🟢
+- a) Not needed in the MVP
+- b) Basic: number of sessions, number of blocks
+- c) Detailed: time per application, charts (on iOS — system report only)
 
-### G2. Что бесплатно, что платно 🟡
-Предложение:
-- Бесплатно: блокировка приложений и сайтов, ручные сессии, 1–2 профиля, уровни защиты 1–2
-- Премиум: расписания без ограничений, все профили, уровни защиты 3–4, статистика, (позже) синхронизация
+Recommendation: **b** in the MVP.
 
-Рекомендация: **как в предложении**; уточнять по ходу.
-
-Решение: Решим по ходу; бесплатная часть — **минимальная**. Упор на пробный период, где пользователь полностью проверяет приложение, а затем оформляет подписку. (2026-11-16)
-
-### G3. Реклама 🟢
-Рекомендация: **нет**. Реклама в приложении для концентрации противоречит его смыслу.
-
-Решение: **Нет рекламы.** (2026-11-16)
-
-### G4. Покупка на разных платформах 🟢
-- a) Каждая платформа покупается отдельно
-- b) Одна подписка на все платформы (нужны аккаунты; можно через RevenueCat)
-
-Рекомендация: **a** на старте, **b** — вместе с синхронизацией.
-
-Решение: **Одна подписка даёт доступ на всех платформах.** (2026-11-16)
-
-### G5. Когда включать платные функции 🟡
-- a) С первого публичного релиза
-- b) Сначала бесплатно, премиум — после набора пользователей
-
-Рекомендация: **a**, но с щедрой бесплатной версией. Добавлять оплату позже сложнее (пользователи воспринимают это как «отняли»).
-
-Решение: **С первого публичного релиза.** (2026-11-16)
-
-> Связано с G6: для продаж, скорее всего, понадобится юридическая форма. Решение владельца: вопрос оставлен
-> до первого платного релиза. (2026-11-16)
-
-### G6. Юридическая форма для продаж (Словакия) 🟢
-Когда оформлять живность (živnosť) или компанию? В ЕС у платного приложения в магазине будут видны имя
-и контакты продавца.
-
-Рекомендация: **перед первым платным релизом**; уточнить у бухгалтера.
-
-Решение: **Пока не оформляем.** (2026-11-16)
+Decision: **c** — detailed statistics. (2026-10-02)
 
 ---
 
-## H. Релиз и распространение
+## F. Protection against circumvention
 
-### H1. Каналы для Android 🟢
-- a) Только Google Play
-- b) Google Play + APK на своём сайте
+### F1. Protection levels 🔴
+Proposal (from gentle to strict); levels may be removed or added:
+1. **Normal** — blocking can be removed at any time
+2. **With friction** — a pause of N seconds and/or entering a phrase before removal
+3. **Password / partner** — removal requires a code (a friend may hold it)
+4. **Strict** — blocking cannot be removed before the session ends; settings cannot be changed and the application cannot be uninstalled
 
-Рекомендация: **a**. Учитывать: новый личный аккаунт разработчика Google Play обязан перед выпуском
-провести закрытое тестирование минимум с 12 тестировщиками в течение 14 дней.
+Recommendation: **all four**. On iOS, level 4 comes with an honest caveat (circumvention through Settings is possible).
 
-Решение: **a** — только Google Play. (2026-11-16)
+Decision: **All four levels**; the user chooses. (2026-11-16)
 
-### H2. Каналы для Windows 🟢
-- a) Свой сайт (установщик) — нужен платный сертификат подписи кода, иначе SmartScreen пугает пользователей
-- b) Microsoft Store — подпись решается магазином, но агент с правами администратора может не пройти требования
-- c) Оба
+### F2. Emergency exit from strict mode 🔴
+- a) None at all
+- b) Limited: for example, once a week, with a delay of 10–15 minutes
+- c) Through a partner
 
-Рекомендация: **решить позже**, после заморозки Windows (B2) это не срочно.
+Recommendation: **b + c**. Without emergency exit, users uninstall the application and write bad reviews;
+stores also dislike “locked” devices.
 
-Решение: **c** — свой сайт и Microsoft Store. (2026-11-16)
+Decision: **b + c** — limited emergency exit and exit through a partner; the method and parameters are chosen and configured in advance. (2026-11-16)
 
-### H3. Сайт / лендинг и политика конфиденциальности 🟡
-Магазины требуют политику конфиденциальности (особенно при использовании специальных возможностей).
+Clarification: option c (through a partner) is deferred. Emergency exit is **available by default**; it can be disabled entirely — an option when choosing the strict level. (2026-11-16)
 
-Рекомендация: **простой статический сайт** (бесплатно, например GitHub Pages).
+### F3. Android uninstall protection (device administrator privileges) 🟡
+Recommendation: **yes, only in strict mode and with explicit consent**.
 
-Решение: **Простой сайт.** (2026-11-16)
+Decision: **Yes**, only in strict mode and with explicit consent. (2026-11-16)
 
-### H4. Цель по срокам первого релиза 🟢
-Есть ли желаемая дата или ориентир (например, «до сессии»)?
+### F4. Blocking Android Settings screens in strict mode 🟡
+Which ones: accessibility settings, our application's page, date and time?
 
-Решение: **Цели по срокам нет.** (2026-11-16)
+Recommendation: **yes, specifically those three**, rather than all of Settings (otherwise the user cannot, for example, connect to Wi-Fi).
+
+Decision: **Targeted screens**, not all of Settings; the option can be enabled or disabled. (2026-11-16)
+
+### F5. iOS: accepting that strict mode can be bypassed through Settings 🟡
+- a) Yes, with an honest warning in the UI
+- b) Yes, and notify a partner on circumvention (if technically possible)
+
+Recommendation: **b**.
+
+Decision: **b** — warn in the UI and notify a partner on circumvention. (2026-11-16)
+
+Clarification: partner notifications are deferred together with partner functionality; the UI warning remains. (2026-11-16)
+
+### F6. Changing device time as a bypass 🟢
+Recommendation: **account for this**: session timers must use time that the user cannot adjust.
+
+Decision: **Yes** — the session timer uses time that the user cannot adjust. (2026-11-16)
 
 ---
 
-## I. Текущая Windows-версия (открытые вопросы из спецификации)
+## G. Monetization
 
-### I1. Разрешение приложения только по имени `.exe` (APP-003) 🟢
-Сейчас любой `code.exe` из любой папки считается разрешённым.
-Рекомендация: **оставить совпадение только по полному пути**.
+### G1. Model 🔴
+- a) Completely free
+- b) Freemium: basic features free, premium via subscription
+- c) Freemium: subscription + a “lifetime” option (one-time purchase)
+- d) Paid application
 
-Решение: **Да** — только по полному пути (APP-003 удаляется). (2026-11-16)
+Recommendation: **c**. Many blocker users dislike subscriptions; a “lifetime” option addresses that objection.
 
-### I2. Корень `C:\` всегда разрешён (FLD-004) 🟢
-Рекомендация: **оставить, если это нужно Проводнику для возврата**; иначе убрать. Требует проверки.
+Decision: Free tier + **a one-week trial that automatically renews** into a subscription. No “lifetime” option. Subscriptions: **1, 3, 6, 12 months**. (2026-11-16)
 
-Решение: **Оставить** `C:\` всегда разрешённым. (2026-11-16)
+Clarification: the trial period is **7 days** (replaces the “3 days” in D3). (2026-11-16)
 
-### I3. Совпадение сайтов (SITE-002) 🟢
-`example.com` — только этот домен или с поддоменами?
-Рекомендация: **с поддоменами** — так ожидают пользователи и так работает Chrome.
+### G2. What is free and what is paid 🟡
+Proposal:
+- Free: application and website blocking, manual sessions, 1–2 profiles, protection levels 1–2
+- Premium: unlimited schedules, all profiles, protection levels 3–4, statistics, (later) synchronization
 
-Решение: **С поддоменами.** (2026-11-16)
+Recommendation: **as proposed**; refine along the way.
 
-### I4. Браузеры на Windows (SITE-005) 🟢
-Сейчас ограничивается только Chrome.
-Рекомендация: **добавить Edge** (тот же механизм политик), остальные браузеры блокировать как приложения в режиме белого списка.
+Decision: Decide along the way; the free tier is **minimal**. Emphasis on the trial period, when the user fully tests the application and then subscribes. (2026-11-16)
 
-Решение: **Все браузеры с тем же механизмом политик**; остальные блокировать в режиме белого списка. (2026-11-16)
+### G3. Advertising 🟢
+Recommendation: **none**. Advertising in a concentration application contradicts its purpose.
 
-Уточнение: браузеры делятся на две группы — **на базе Chromium** (общий механизм политик) и **Firefox** (свой механизм политик, поддерживается отдельно). Отдельная система выбора браузера пользователем не нужна. (2026-11-16)
+Decision: **No advertising.** (2026-11-16)
 
-Уточнение: поддерживаются **самые используемые браузеры по статистике**; все остальные автоматически блокируются как неподдерживаемые. (2026-11-16)
+### G4. Purchases across platforms 🟢
+- a) Each platform purchased separately
+- b) One subscription for all platforms (requires accounts; RevenueCat is an option)
 
-Уточнение: **Opera тоже поддерживается** (она не читает корпоративные политики — нужен свой способ фильтрации, задача 0011). (2026-11-16)
+Recommendation: **a** at launch; **b** together with synchronization.
 
-### I5. Защита на Windows (WIN-005, WIN-007) 🟢
-Политика сайтов в `HKCU` легко снимается; «Выход» из трея снимает режим.
-Рекомендация: **в строгом режиме — убрать «Выход», политики в `HKLM`, агент как служба Windows**.
+Decision: **One subscription grants access on all platforms.** (2026-11-16)
 
-Решение: **Да** (в строгом режиме — без «Выхода», политики в `HKLM`, агент как служба Windows). Для ПК тоже действуют уровни защиты; в строгом режиме нужна опция, усложняющая выход. (2026-11-16)
+### G5. When to enable paid features 🟡
+- a) From the first public release
+- b) Free initially; premium after gaining users
+
+Recommendation: **a**, but with a generous free version. Adding payment later is harder (users perceive it as something being “taken away”).
+
+Decision: **From the first public release.** (2026-11-16)
+
+> Related to G6: sales will most likely require a legal business structure. Owner's decision: the question is deferred
+> until the first paid release. (2026-11-16)
+
+### G6. Legal business structure for sales (Slovakia) 🟢
+When should a sole trade (živnosť) or company be registered? In the EU, the seller's name
+and contact information will be visible for a paid application in the store.
+
+Recommendation: **before the first paid release**; clarify with an accountant.
+
+Decision: **Do not register one yet.** (2026-11-16)
+
+---
+
+## H. Release and distribution
+
+### H1. Android channels 🟢
+- a) Google Play only
+- b) Google Play + an APK on the product's own website
+
+Recommendation: **a**. Account for the following: a new personal Google Play developer account must conduct
+closed testing with at least 12 testers for 14 days before release.
+
+Decision: **a** — Google Play only. (2026-11-16)
+
+### H2. Windows channels 🟢
+- a) The product's own website (installer) — requires a paid code signing certificate; otherwise SmartScreen scares users
+- b) Microsoft Store — the store handles signing, but an agent with administrator privileges may not meet the requirements
+- c) Both
+
+Recommendation: **decide later**; after freezing Windows (B2), this is not urgent.
+
+Decision: **c** — the product's own website and Microsoft Store. (2026-11-16)
+
+### H3. Website / landing page and privacy policy 🟡
+Stores require a privacy policy (especially when accessibility services are used).
+
+Recommendation: **a simple static website** (free, for example GitHub Pages).
+
+Decision: **A simple website.** (2026-11-16)
+
+### H4. Target date for the first release 🟢
+Is there a desired date or milestone (for example, “before the exam period”)?
+
+Decision: **No target date.** (2026-11-16)
+
+---
+
+## I. Current Windows version (open questions from the specification)
+
+### I1. Allowing an application by `.exe` filename alone (APP-003) 🟢
+Currently, any `code.exe` in any folder is considered allowed.
+Recommendation: **keep full-path matching only**.
+
+Decision: **Yes** — full path only (APP-003 is removed). (2026-11-16)
+
+### I2. The `C:\` root is always allowed (FLD-004) 🟢
+Recommendation: **keep it if Explorer needs it for navigating back**; otherwise remove it. Requires verification.
+
+Decision: **Keep** `C:\` always allowed. (2026-11-16)
+
+### I3. Website matching (SITE-002) 🟢
+Does `example.com` mean only that domain, or its subdomains too?
+Recommendation: **with subdomains** — users expect this, and Chrome works this way.
+
+Decision: **With subdomains.** (2026-11-16)
+
+### I4. Browsers on Windows (SITE-005) 🟢
+Currently only Chrome is restricted.
+Recommendation: **add Edge** (the same policy mechanism), and block other browsers as applications in allowlist mode.
+
+Decision: **All browsers with the same policy mechanism**; block the rest in allowlist mode. (2026-11-16)
+
+Clarification: browsers fall into two groups — **Chromium-based** (a shared policy mechanism) and **Firefox** (its own policy mechanism, supported separately). A separate user-facing browser selection system is not needed. (2026-11-16)
+
+Clarification: support **the most used browsers according to statistics**; all others are automatically blocked as unsupported. (2026-11-16)
+
+Clarification: **Opera is also supported** (it does not read enterprise policies — it needs its own filtering method, task T011). (2026-11-16)
+
+### I5. Protection on Windows (WIN-005, WIN-007) 🟢
+Website policy in `HKCU` is easily removed; “Exit” in the tray disables the mode.
+Recommendation: **in strict mode — remove “Exit”, put policies in `HKLM`, run the agent as a Windows service**.
+
+Decision: **Yes** (in strict mode — no “Exit”, policies in `HKLM`, agent as a Windows service). Protection levels also apply on desktop; strict mode needs an option that makes exit more difficult. (2026-11-16)

@@ -1,38 +1,38 @@
-# Способы запуска блокировки (TRG)
+# Ways to start blocking (TRG)
 
-Пользователь сам выбирает удобные способы; у профиля их может быть несколько (решение E2).
+Users choose the ways that suit them; a profile can have several (decision E2).
 
-### TRG-001 Вручную
-Пользователь вручную начинает сессию по профилю — на заданное время (таймер) или до ручного завершения.
-Завершение раньше срока зависит от уровня защиты (`protection.md`).
+### TRG-001 Manual
+The user manually starts a session under a profile — for a specified duration (timer) or until manually ended.
+Ending it early depends on the protection level (`protection.md`).
 
-Платформы: Android — planned · Windows — partial (вкл/выкл без таймера) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (on/off without a timer) · Linux — planned · iOS — deferred
 
-### TRG-002 По расписанию
-Сессия начинается и заканчивается автоматически по расписанию: дни недели и интервалы времени
-(например, будни 9:00–13:00).
+### TRG-002 Scheduled
+A session starts and ends automatically according to a schedule: days of the week and time intervals
+(for example, weekdays 9:00–13:00).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### TRG-003 Лимит времени
-Для приложения, сайта или группы задаётся лимит времени в день. После исчерпания лимита они
-блокируются до конца дня (или до сброса лимита).
+### TRG-003 Time limit
+A daily time limit is set for an application, website, or group. After the limit is exhausted, they
+are blocked until the end of the day (or until the limit resets).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-Примечание: на iOS лимиты есть в Screen Time API, но работают ненадёжно (см. `platforms/ios.md`).
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Note: iOS has limits in the Screen Time API, but they work unreliably (see `platforms/ios.md`).
 
-### TRG-004 Лимит количества запусков
-Для приложения задаётся максимум запусков в день; после него приложение блокируется до конца дня.
+### TRG-004 Launch count limit
+A maximum daily launch count is set for an application; after it is reached, the application is blocked until the end of the day.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — n/a (нет системного способа)
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — n/a (no system mechanism)
 
-### TRG-005 По месту или сети
-Сессия активна, пока устройство находится в заданном месте (геозона) или подключено к заданной Wi-Fi-сети
-(например, «в университете»).
+### TRG-005 Location or network
+A session is active while the device is in a specified location (geofence) or connected to a specified Wi-Fi network
+(for example, “at university”).
 
-Платформы: Android — planned · Windows — planned (только Wi-Fi) · Linux — planned (только Wi-Fi) · iOS — deferred
+Platforms: Android — planned · Windows — planned (Wi-Fi only) · Linux — planned (Wi-Fi only) · iOS — deferred
 
-### TRG-006 Комбинация способов
-У одного профиля может быть несколько способов запуска; профиль активен, если сработал любой из них.
+### TRG-006 Combining methods
+A profile can have several ways to start; the profile is active if any of them triggers.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred

@@ -1,16 +1,16 @@
-# Уведомления FocusManager (NTF)
+# FocusManager notifications (NTF)
 
-Уведомления, которые показывает сам FocusManager. Скрытие уведомлений других приложений — CNT-003.
+Notifications displayed by FocusManager itself. Hiding other applications' notifications — CNT-003.
 
-### NTF-001 Уведомление о блокировке
-При блокировке пользователь получает уведомление: что заблокировано и почему.
-Уведомления включены по умолчанию и отключаются в настройках (решение E8).
+### NTF-001 Blocking notification
+When something is blocked, the user receives a notification stating what was blocked and why.
+Notifications are enabled by default and can be disabled in settings (decision E8).
 
-Платформы: Android — planned · Windows — partial · Linux — planned · iOS — deferred
-Примечание: на Windows есть уведомление через значок в трее (`TrayNotifier`), но в агенте
-зарегистрирован `SilentNotifier` — уведомления выключены, настройки нет. Требуется задача типа `change`.
+Platforms: Android — planned · Windows — partial · Linux — planned · iOS — deferred
+Note: on Windows, a tray icon notification exists (`TrayNotifier`), but the agent
+registers `SilentNotifier` — notifications are disabled and there is no setting. A task of type `change` is required.
 
-### NTF-002 Подавление повторов
-Повторная блокировка того же объекта в течение 2 секунд не порождает повторного уведомления/записи в лог.
+### NTF-002 Suppressing repeats
+Blocking the same item again within 2 seconds does not produce another notification/log entry.
 
-Платформы: Android — planned · Windows — partial (только для папок) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (folders only) · Linux — planned · iOS — deferred

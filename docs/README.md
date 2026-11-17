@@ -1,56 +1,65 @@
-# Документация FocusManager
+# FocusManager Documentation
 
 ```
 docs/
-├── spec/                     ← ЧТО делает система (источник истины о поведении)
-│   ├── README.md             ← правила ведения спецификации, ID, статусы, платформы
-│   ├── decisions.md          ← решения владельца продукта (вопросы → ответы)
-│   ├── product.md            ← цель, аудитория, глоссарий, общие требования (GEN-*)
-│   ├── profiles.md           ← профили и режимы белого/чёрного списка (PRF-*)
-│   ├── triggers.md           ← способы запуска: вручную, расписание, лимиты, место (TRG-*)
-│   ├── study-mode.md         ← сессии (SM-*)
-│   ├── apps.md               ← приложения (APP-*)
-│   ├── sites.md              ← сайты (SITE-*)
-│   ├── folders.md            ← папки, только ПК (FLD-*)
-│   ├── content.md            ← ключевые слова, разделы приложений, чужие уведомления (CNT-*)
-│   ├── notifications.md      ← уведомления FocusManager (NTF-*)
-│   ├── stats.md              ← статистика для пользователя (STAT-*)
-│   ├── sync.md               ← аккаунт и синхронизация (SYNC-*)
-│   ├── telemetry.md          ← техническая аналитика и приватность (TEL-*)
-│   ├── protection.md         ← уровни защиты от обхода (PROT-*)
-│   ├── monetization.md       ← монетизация (PAY-*)
+├── spec/                     ← WHAT the system does (source of truth for behavior)
+│   ├── README.md             ← specification rules, IDs, statuses, platforms
+│   ├── decisions.md          ← product-owner decisions (questions → answers)
+│   ├── product.md            ← purpose, audience, glossary, general requirements (GEN-*)
+│   ├── profiles.md           ← profiles and allowlist/blocklist modes (PRF-*)
+│   ├── triggers.md           ← activation: manual, schedule, limits, location (TRG-*)
+│   ├── study-mode.md         ← sessions (SM-*)
+│   ├── apps.md               ← applications (APP-*)
+│   ├── sites.md              ← sites (SITE-*)
+│   ├── folders.md            ← folders, desktop only (FLD-*)
+│   ├── content.md            ← keywords, application sections, other apps' notifications (CNT-*)
+│   ├── notifications.md      ← FocusManager notifications (NTF-*)
+│   ├── stats.md              ← user statistics (STAT-*)
+│   ├── sync.md               ← account and synchronization (SYNC-*)
+│   ├── telemetry.md          ← technical analytics and privacy (TEL-*)
+│   ├── protection.md         ← levels of protection against circumvention (PROT-*)
+│   ├── monetization.md       ← monetization (PAY-*)
 │   └── platforms/
 │       ├── windows.md        ← Windows (WIN-*)
-│       ├── linux.md          ← Linux, черновик (LNX-*)
+│       ├── linux.md          ← Linux, draft (LNX-*)
 │       ├── android.md        ← Android (AND-*)
-│       └── ios.md            ← iOS, отложена (IOS-*)
-├── architecture/             ← КАК устроен код
-│   ├── README.md             ← слои, проекты, правила зависимостей, куда класть код
-│   └── decisions/            ← ADR — зафиксированные архитектурные решения
-└── plans/                    ← ЧТО и В КАКОМ ПОРЯДКЕ делать
-    ├── README.md             ← жизненный цикл задач, правила для агентов
-    ├── roadmap.md            ← этапы (milestones) и задачи в них
-    └── tasks/                ← одна задача = один файл
-        └── _template.md
+│       └── ios.md            ← iOS, deferred (IOS-*)
+├── architecture/             ← HOW the code is structured
+│   ├── README.md             ← layers, projects, dependency rules, code placement
+│   └── decisions/            ← ADRs: recorded architectural decisions
+└── engineering/              ← development processes and task format
+
+ROADMAP.md                    ← milestones in order, goals, exit criteria, task index
+STATUS.md                     ← current state, obstacles, next step
+tasks/T<NNN>-<slug>.md         ← one task per file
 ```
 
-## Как связаны спецификация, архитектура и планы
+`ROADMAP.md`, `STATUS.md`, and `tasks/` are at the repository root.
+[ADR-0008](architecture/decisions/0008-adopt-ai-development-infrastructure.md) supersedes the original
+`docs/plans/` layout recorded in ADR-0001.
 
-- **Спецификация** описывает *целевое* поведение продукта, независимо от кода.
-  Каждое требование имеет ID (`APP-003`) и статус реализации по каждой платформе.
-- **Архитектура** описывает, как код разложен по проектам и почему (ADR).
-- **Задача** — единица работы. Она ссылается на требования спецификации (`spec:`)
-  и, если нужно, на ADR. Задача не заменяет спецификацию: всё, что задача меняет в поведении,
-  должно оказаться в `docs/spec/`.
+## How the Specification, Architecture, and Plans Relate
 
-## Процесс изменения поведения (в т. ч. уже реализованного)
+- The **specification** describes the product's *target* behavior independently of the code.
+  Each requirement has an ID (`APP-003`) and an implementation status for each platform.
+- The **architecture** describes how code is organized into projects and why (ADRs).
+- A **task** is a unit of work. Its Sources section links to specification requirements
+  and, where needed, ADRs. A task does not replace the specification: every behavior change it makes
+  must be recorded in `docs/spec/`.
+- [ROADMAP.md](../ROADMAP.md) owns milestone order and the task index;
+  [STATUS.md](../STATUS.md) records the current state.
+  [TASK_FORMAT.md](engineering/TASK_FORMAT.md) defines task fields, sections, statuses, and lifecycle.
 
-1. Создать задачу в `docs/plans/tasks/` (тип `change` или `feature`).
-2. В той же ветке изменить требования в `docs/spec/`:
-   - новое требование — новый ID;
-   - изменённое — правка текста **с сохранением ID**, статус платформ → `planned`/`partial`;
-   - удалённое — не удалять ID, а пометить `Удалено (YYYY-MM-DD, задача NNNN)`, чтобы ID не переиспользовался.
-3. Реализовать, обновить тесты, выставить статусы платформ в спецификации в `done`.
-4. Закрыть задачу (`status: done`, раздел «Результат»).
+## Changing Behavior (Including Existing Behavior)
 
-Историю изменений требования смотрим через `git log -p docs/spec/<файл>.md`.
+1. Create a task in `tasks/T<NNN>-<slug>.md` using [TASK_FORMAT.md](engineering/TASK_FORMAT.md).
+   Resolve its dependencies and open questions before marking it `ready`; mark it `in_progress` when work starts.
+2. In the same branch, update requirements in `docs/spec/`:
+   - a new requirement gets a new ID;
+   - an existing requirement keeps its ID when edited; reset affected platform statuses to `planned` / `partial`;
+   - a removed requirement keeps its ID and is marked `Removed (YYYY-MM-DD, task TNNN)` so that the ID is never reused.
+3. Implement the behavior, update tests, and set the specification's platform statuses to `done` when verified.
+4. Record the result, changed files, checks, and limitations in the task's Result section.
+   Use `review` while awaiting acceptance and `done` when accepted; update the roadmap status in the same change.
+
+Requirement history is available through `git log -p docs/spec/<file>.md`.

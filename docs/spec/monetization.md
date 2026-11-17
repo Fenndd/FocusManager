@@ -1,45 +1,45 @@
-# Монетизация (PAY)
+# Monetization (PAY)
 
-Решения D3, G1–G6. Состав бесплатной и платной частей уточняется по ходу (решение G2).
+Decisions D3, G1–G6. The contents of the free and paid tiers will be refined along the way (decision G2).
 
-### PAY-001 Бесплатная часть
-Бесплатно доступен минимальный базовый функционал, включая синхронизацию между устройствами (решения D3, G2).
-Главная цель бесплатной части — дать попробовать приложение и подвести к пробному периоду.
+### PAY-001 Free tier
+Minimal basic functionality is available for free, including synchronization between devices (decisions D3, G2).
+The main purpose of the free tier is to let users try the application and lead them to the trial period.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-> ❓ Вопрос (решение G2): точный состав бесплатной части.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+> ❓ Question (decision G2): the exact contents of the free tier.
 
-### PAY-002 Пробный период
-Пробный период — **7 дней** с полным доступом ко всем функциям. После него подписка продлевается
-автоматически, если пользователь не отменил её (решение G1).
+### PAY-002 Trial period
+The trial period is **7 days**, with full access to all features. Afterward, the subscription renews
+automatically unless the user cancels it (decision G1).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-> ❓ Вопрос: пробный период — один раз на аккаунт?
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+> ❓ Question: is the trial period available once per account?
 
-### PAY-003 Подписки
-Подписки на 1, 3, 6 и 12 месяцев. Покупки «навсегда» нет (решение G1).
+### PAY-003 Subscriptions
+Subscriptions for 1, 3, 6, and 12 months. There is no “lifetime” purchase (decision G1).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-Примечание: цены не решены.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Note: prices have not been decided.
 
-### PAY-004 Без рекламы
-В приложении нет рекламы ни в бесплатной, ни в платной части (решение G3).
+### PAY-004 No advertising
+The application has no advertising in either the free or paid tier (decision G3).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### PAY-005 Одна подписка на все платформы
-Подписка, купленная на любой платформе, даёт доступ к платным функциям на всех платформах пользователя
-(решение G4). Для этого пользователь входит в аккаунт (SYNC-002).
+### PAY-005 One subscription for all platforms
+A subscription purchased on any platform grants access to paid features on all the user's platforms
+(decision G4). The user signs into an account for this (SYNC-002).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-Примечание: на Android покупка проходит через Google Play; на ПК — через свой сайт или Microsoft Store
-(решение H2). Учёт подписок между платформами нужно решить архитектурно (например, RevenueCat или
-собственный учёт в Firebase).
-> ❓ Вопрос: способ оплаты на ПК (платёжный сервис для своего сайта) и на Linux.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Note: on Android, purchases go through Google Play; on desktop, through the product's own website or Microsoft Store
+(decision H2). Cross-platform subscription tracking needs an architectural solution (for example, RevenueCat or
+custom tracking in Firebase).
+> ❓ Question: payment method on desktop (a payment service for the product's own website) and on Linux.
 
-### PAY-006 Платная часть с первого релиза
-Платные функции и пробный период доступны с первого публичного релиза (решение G5).
+### PAY-006 Paid tier from the first release
+Paid features and the trial period are available from the first public release (decision G5).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-Примечание: для продаж может понадобиться юридическая форма (решение G6 — пока не оформлять);
-вопрос отложен до первого платного релиза.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Note: sales may require a legal business structure (decision G6 — do not register one yet);
+the question is deferred until the first paid release.

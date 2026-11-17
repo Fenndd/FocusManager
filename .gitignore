@@ -19,3 +19,53 @@ preprocessed*.xml
 
 # IDE
 .vs/
+.vscode/
+.idea/
+_ReSharper*/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+
+# Coverage output
+coverage/
+*.coverage
+*.coveragexml
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Operating system files
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Local AI contributor instructions
+AGENTS.md
+CLAUDE.md
+.agents/
+.codex/
+
+# Shared AI development infrastructure (exceptions to personal AI ignores above).
+!/AGENTS.md
+!/CLAUDE.md
+!/GEMINI.md
+!/.agents/
+/.agents/*
+!/.agents/skills/
+!/.agents/skills/**
+
+# Personal Claude Code overrides and temporary isolated worktrees.
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/worktrees/
+
+# Personal notes.
+.obsidian/
+
+# Generated Python caches from documentation tooling.
+__pycache__/
+*.py[cod]

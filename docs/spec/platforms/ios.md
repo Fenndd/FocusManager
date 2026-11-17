@@ -1,38 +1,38 @@
-# Платформа iOS (IOS) — отложена
+# iOS platform (IOS) — deferred
 
-Разработка — после финализации основных платформ (решение B1). Сейчас нет Mac и аккаунта
-разработчика Apple (решение B4). Язык — Swift + SwiftUI (решение C2).
-На iOS реализуется то, что позволяет платформа; невозможное не делается (решение B5).
+Development follows after the primary platforms are finalized (decision B1). There is currently no Mac or
+Apple developer account (decision B4). Language — Swift + SwiftUI (decision C2).
+iOS implements what the platform allows; impossible features are omitted (decision B5).
 
-## Возможности iOS (анализ от 2026-10-01, проверить прототипом)
+## iOS capabilities (analysis dated 2026-10-01; verify with a prototype)
 
-Блокировка на iOS возможна только через Screen Time API (FamilyControls, ManagedSettings,
-DeviceActivity): приложение передаёт правила системе, исполняет их iOS.
+Blocking on iOS is possible only through the Screen Time API (FamilyControls, ManagedSettings,
+DeviceActivity): the application passes rules to the system; iOS enforces them.
 
-| Функция | iOS | Комментарий |
+| Feature | iOS | Comment |
 |---------|-----|-------------|
-| Блокировка выбранных приложений | ✅ | Приложения — непрозрачные токены, выбор в системном окне |
-| Белый список «всё, кроме…» | ✅ | Основной режим продукта возможен |
-| Блокировка сайтов | ⚠️ | Поведение в Safari и других браузерах различается; лимит около 50 записей |
-| Ключевые слова, разделы приложений | ❌ | Нет доступа к содержимому экрана |
-| Уведомления других приложений | ❌ | Нет доступа к чужим уведомлениям |
-| Расписание | ✅ | |
-| Лимит времени | ⚠️ | Есть, но разработчики сообщают об ошибках подсчёта |
-| Лимит запусков | ❌ | Нет системного способа |
-| Статистика | ⚠️ | Только системный отчёт, данные нельзя выгрузить |
-| Экран блокировки | ⚠️ | Системный шаблон: иконка, текст, цвета, до двух кнопок |
-| Защита от удаления и отключения | ⚠️ | Пользователь может отозвать доступ к Экранному времени в Настройках |
-| Синхронизация списков приложений | ❌ | Токены нельзя переносить между устройствами |
+| Blocking selected applications | ✅ | Applications are opaque tokens, selected in a system dialog |
+| “Everything except…” allowlist | ✅ | The product's primary mode is possible |
+| Blocking websites | ⚠️ | Behavior differs in Safari and other browsers; a limit of about 50 entries |
+| Keywords, application sections | ❌ | No access to screen content |
+| Other applications' notifications | ❌ | No access to other applications' notifications |
+| Schedule | ✅ | |
+| Time limit | ⚠️ | Available, but developers report counting errors |
+| Launch limit | ❌ | No system mechanism |
+| Statistics | ⚠️ | System report only; data cannot be exported |
+| Blocking screen | ⚠️ | System template: icon, text, colors, up to two buttons |
+| Protection against uninstalling and disabling | ⚠️ | The user can revoke Screen Time access in Settings |
+| Synchronizing application lists | ❌ | Tokens cannot be transferred between devices |
 
-## Требования
+## Requirements
 
-### IOS-001 Условия начала разработки
-Нужны: Mac (или облачный Mac), аккаунт Apple Developer ($99/год), одобрение Apple на использование
-Family Controls (entitlement) для публикации.
+### IOS-001 Prerequisites for starting development
+Required: a Mac (or cloud Mac), an Apple Developer account ($99/year), and Apple's approval to use
+Family Controls (entitlement) for publication.
 
-Платформы: iOS — deferred
+Platforms: iOS — deferred
 
-### IOS-002 Минимальная версия
-iOS 16 и новее (минимум для Screen Time API в режиме «для себя»).
+### IOS-002 Minimum version
+iOS 16 and later (minimum for the Screen Time API in individual authorization mode).
 
-Платформы: iOS — deferred
+Platforms: iOS — deferred

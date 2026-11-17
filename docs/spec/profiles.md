@@ -1,48 +1,48 @@
-# Профили и режимы (PRF)
+# Profiles and modes (PRF)
 
-Профиль — именованный набор правил. Сессия всегда идёт по какому-то профилю (решение E3).
+A profile is a named set of rules. Every session runs under a profile (decision E3).
 
-### PRF-001 Несколько профилей
-Пользователь может создать несколько профилей (например, «Учёба», «Сон», «Работа»), переименовать,
-изменить и удалить их. При первом запуске доступен готовый профиль «Учёба».
+### PRF-001 Multiple profiles
+The user can create multiple profiles (for example, “Study”, “Sleep”, “Work”), rename,
+edit, and delete them. A ready-made “Study” profile is available on first launch.
 
-Платформы: Android — planned · Windows — planned (сейчас один неявный набор правил) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned (currently one implicit rule set) · Linux — planned · iOS — deferred
 
-### PRF-002 Режим профиля
-У профиля есть режим (решение A2):
-- **белый список** (по умолчанию) — разрешено только то, что в списках профиля, плюс базовые
-  необходимые приложения (APP-007);
-- **чёрный список** — блокируется только то, что в списках профиля.
+### PRF-002 Profile mode
+A profile has a mode (decision A2):
+- **allowlist** (default) — only items in the profile's lists are allowed, plus basic
+  essential applications (APP-007);
+- **blocklist** — only items in the profile's lists are blocked.
 
-Режим действует на все категории профиля (приложения, сайты, папки).
+The mode applies to all profile categories (applications, websites, folders).
 
-Платформы: Android — planned · Windows — partial (только белый список) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (allowlist only) · Linux — planned · iOS — deferred
 
-### PRF-003 Содержимое профиля
-Профиль содержит:
-- списки приложений, сайтов, папок (папки — только ПК);
-- ключевые слова и блокируемые разделы приложений (`content.md`);
-- включена ли блокировка уведомлений заблокированных приложений (CNT-003);
-- способы запуска (`triggers.md`);
-- уровень защиты и его параметры (`protection.md`).
+### PRF-003 Profile contents
+A profile contains:
+- lists of applications, websites, and folders (folders — desktop only);
+- keywords and blocked application sections (`content.md`);
+- whether notification blocking for blocked applications is enabled (CNT-003);
+- ways to start sessions (`triggers.md`);
+- the protection level and its parameters (`protection.md`).
 
-Платформы: Android — planned · Windows — partial (только списки приложений/сайтов/папок) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (application/website/folder lists only) · Linux — planned · iOS — deferred
 
-### PRF-004 Пустой список — без ограничений
-Если список какой-то категории в профиле пуст, эта категория **не ограничивается** — в обоих режимах
-(решение E7). Например, профиль белого списка только со списком сайтов ограничивает сайты, но не приложения.
+### PRF-004 Empty list means no restrictions
+If a category's list in a profile is empty, that category is **not restricted** — in either mode
+(decision E7). For example, an allowlist profile containing only a website list restricts websites but not applications.
 
-Платформы: Android — planned · Windows — partial (для сайтов так; для приложений сейчас наоборот — см. APP-004) · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — partial (true for websites; applications currently behave the opposite way — see APP-004) · Linux — planned · iOS — deferred
 
-### PRF-005 Несколько активных профилей
-Одновременно могут быть активны несколько профилей (например, расписание «Сон» и ручная сессия «Учёба»).
+### PRF-005 Multiple active profiles
+Multiple profiles can be active simultaneously (for example, a “Sleep” schedule and a manual “Study” session).
 
-Платформы: Android — planned · Windows — n/a сейчас · Linux — planned · iOS — deferred
-> ❓ Вопрос: как совмещать правила? Предложение: объект блокируется, если его блокирует **хотя бы один**
-> активный профиль (самое строгое правило побеждает).
+Platforms: Android — planned · Windows — n/a currently · Linux — planned · iOS — deferred
+> ❓ Question: how should rules be combined? Proposal: an item is blocked if **at least one**
+> active profile blocks it (the strictest rule wins).
 
-### PRF-006 Профили синхронизируются
-Профили одного пользователя одинаковы на всех его устройствах, если включена синхронизация (`sync.md`).
-Платформенные части профиля (папки ПК, приложения конкретной ОС) хранятся раздельно по платформам.
+### PRF-006 Profiles are synchronized
+A user's profiles are identical across all their devices when synchronization is enabled (`sync.md`).
+Platform-specific profile parts (desktop folders, applications for a particular OS) are stored separately by platform.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred

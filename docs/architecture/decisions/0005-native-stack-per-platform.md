@@ -1,44 +1,45 @@
-# ADR-0005: Свой стек на каждой платформе, общий код — только где он реально общий
+# ADR-0005: A Stack per Platform, Sharing Code Only Where It Is Truly Shared
 
-- Статус: Принято
-- Дата: 2026-11-16
-- Заменяет: ADR-0002
+- Status: Accepted
+- Date: 2026-11-16
+- Supersedes: ADR-0002
 
-## Контекст
+## Context
 
-ADR-0002 предлагал писать Android на .NET ради общего C#-кода с Windows. Владелец решил иначе
-(решения B1, C1, C2, C4 в `docs/spec/decisions.md`): основные платформы — Android, Windows, Linux;
-iOS — позже; общий код — только там, где это действительно лучше разделения. Блокировщик держится
-на системных механизмах (Accessibility/VPN на Android, WMI/COM/реестр на Windows, root-службы на Linux),
-поэтому общего кода между мобильными и ПК почти нет.
+ADR-0002 proposed Android on .NET to share C# code with Windows. The owner decided otherwise
+(decisions B1, C1, C2, C4 in `docs/spec/decisions.md`): the primary platforms are Android, Windows, and Linux;
+iOS comes later; code should be shared only where that is genuinely better than separating it. Blocking relies
+on system mechanisms (Accessibility/VPN on Android, WMI/COM/registry on Windows, root services on Linux),
+so there is little shared code between mobile and desktop.
 
-## Решение
+## Decision
 
-| Платформа | Логика | Интерфейс |
+| Platform | Logic | UI |
 |-----------|--------|-----------|
 | Android | Kotlin | Jetpack Compose |
-| Windows | C#/.NET (агент) | Tauri 2 + TypeScript/React (ADR-0007) |
-| Linux | C#/.NET (агент, общий код с Windows) | то же Tauri-приложение |
-| iOS (позже) | Swift | SwiftUI |
+| Windows | C#/.NET (agent) | Tauri 2 + TypeScript/React (ADR-0007) |
+| Linux | C#/.NET (agent, code shared with Windows) | The same Tauri application |
+| iOS (later) | Swift | SwiftUI |
 
-Общее между **всеми** платформами — не код, а:
-- спецификация (`docs/spec/`);
-- **тестовые примеры** в JSON (`test-vectors/`): входные данные и ожидаемый результат правил
-  (совпадение сайтов, приложений, путей). Каждая платформа прогоняет их своими тестами (задача 0022);
-- формат данных для синхронизации через Firebase (задача 0021).
+What **all** platforms share is not code but:
 
-Общий **код** есть там, где он реально общий: C#-агент Windows и Linux (`src/Shared`) и
-интерфейс ПК (одно Tauri-приложение для Windows и Linux).
+- the specification (`docs/spec/`);
+- **test vectors** in JSON (`test-vectors/`): inputs and expected rule results
+  (site, application, and path matching). Each platform runs them through its own tests (task T022);
+- the data format for synchronization through Firebase (task T021).
 
-## Альтернативы
+Shared **code** exists where it is truly shared: the Windows and Linux C# agent (`src/Shared`) and
+the desktop UI (one Tauri application for Windows and Linux).
 
-- **.NET for Android** (ADR-0002) — мало общего кода, а системные механизмы Android проще на Kotlin.
-- **Kotlin Multiplatform для Android + iOS** — вернуться, если дублирование между ними начнёт мешать.
-- **Compose Multiplatform для ПК** — общий UI с Android, но Java-машина, нет Firebase SDK для ПК
-  и противоречит решению C4.
+## Alternatives
 
-## Последствия
+- **.NET for Android** (ADR-0002): little shared code, while Android system mechanisms are easier in Kotlin.
+- **Kotlin Multiplatform for Android + iOS:** reconsider if duplication between them becomes a problem.
+- **Compose Multiplatform for desktop:** a UI shared with Android, but it requires a Java VM, lacks a desktop Firebase SDK,
+  and contradicts decision C4.
 
-- Проекты `src/Shared/*` (C#) — общий код **агентов ПК** (Windows + Linux), а не всех платформ.
-- Android-проект — Gradle/Kotlin в `src/Android/`, без .NET.
-- Правила, которые есть на нескольких платформах, обязаны покрываться общими тестовыми примерами.
+## Consequences
+
+- `src/Shared/*` projects (C#) contain shared **desktop-agent** code (Windows + Linux), not code for all platforms.
+- The Android project uses Gradle/Kotlin in `src/Android/`, without .NET.
+- Rules present on several platforms must be covered by shared test vectors.

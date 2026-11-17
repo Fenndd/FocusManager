@@ -1,65 +1,67 @@
-# ADR-0007: Архитектура ПК-версии — фоновый агент на C# + интерфейс на Tauri
+# ADR-0007: Desktop Architecture — Background C# Agent + Tauri UI
 
-- Статус: Принято
-- Дата: 2026-11-16
-- Дополняет: ADR-0003 (структура исходников)
+- Status: Accepted
+- Date: 2026-11-16
+- Extends: ADR-0003 (source layout)
 
-## Контекст
+## Context
 
-ПК-версия должна работать на Windows и Linux одинаково (решения B1, B5). Сейчас на Windows есть
-агент (C#, со значком в трее на WinForms) и интерфейс на WinUI 3 (только Windows). Владелец выбрал
-для интерфейса Tauri 2 + веб-технологии (решение C3); логика остаётся на C#.
+The desktop version must work the same way on Windows and Linux (decisions B1, B5). Windows currently has
+an agent (C#, with a WinForms tray icon) and a WinUI 3 UI (Windows only). The owner chose
+Tauri 2 + web technologies for the UI (decision C3); the logic stays in C#.
 
-## Решение
+## Decision
 
-### Компоненты
+### Components
 
-| Компонент | Технология | Где работает | Отвечает за |
+| Component | Technology | Runs as | Responsible for |
 |-----------|-----------|--------------|-------------|
-| **Агент** | C#/.NET, без UI | Служба Windows / служба systemd (права администратора/root) | Мониторинг, блокировки, локальное хранилище (SQLite), применение правил |
-| **Интерфейс** | Tauri 2 (Rust-оболочка) + TypeScript + React | Процесс пользователя, значок в трее | Экраны, трей, уведомления, вход в аккаунт и синхронизация через Firebase JS SDK, оплата |
-| **Контракты** | JSON Schema → сгенерированные типы C# и TypeScript | — | Формат сообщений интерфейс ↔ агент |
+| **Agent** | C#/.NET, no UI | Windows service / systemd service (administrator/root privileges) | Monitoring, blocking, local storage (SQLite), applying rules |
+| **UI** | Tauri 2 (Rust shell) + TypeScript + React | User process, tray icon | Screens, tray, notifications, account sign-in and sync through Firebase JS SDK, payments |
+| **Contracts** | JSON Schema → generated C# and TypeScript types | — | UI ↔ agent message format |
 
-### Связь интерфейса и агента
-- Windows — named pipe (как сейчас), Linux — Unix domain socket; доступ только текущему пользователю.
-- Сообщения — JSON по схеме из `contracts/`; типы для C# и TypeScript генерируются из схемы (задача 0005).
-- Если интерфейс не запущен, агент продолжает блокировать по последним сохранённым правилам.
+### UI–Agent Communication
 
-### Структура исходников (цель)
+- Windows: named pipe (as now); Linux: Unix domain socket; access limited to the current user.
+- Messages use JSON conforming to the schema in `contracts/`; C# and TypeScript types are generated from the schema (task T005).
+- When the UI is not running, the agent continues blocking according to the last saved rules.
+
+### Source Layout (Target)
 
 ```
 src/
-├── Shared/            C# — общий код агентов Windows и Linux (Core, Persistence.Sqlite, логика сессий)
-├── Windows/           C# — Platform.Windows, хост агента для Windows
-├── Linux/             C# — Platform.Linux, хост агента для Linux (задача 0020)
-├── Desktop/           Tauri 2 + TypeScript + React — интерфейс ПК (задача 0017)
-├── Android/           Kotlin + Compose, Gradle (задача 0009)
-└── iOS/               позже
-contracts/             JSON Schema сообщений интерфейс ↔ агент и документов синхронизации
-test-vectors/          общие тестовые примеры правил (JSON) для всех платформ
+├── Shared/            C# — code shared by Windows and Linux agents (Core, Persistence.Sqlite, session logic)
+├── Windows/           C# — Platform.Windows, Windows agent host
+├── Linux/             C# — Platform.Linux, Linux agent host (task T020)
+├── Desktop/           Tauri 2 + TypeScript + React — desktop UI (task T017)
+├── Android/           Kotlin + Compose, Gradle (task T009)
+└── iOS/               later
+contracts/             JSON Schema for UI ↔ agent messages and sync documents
+test-vectors/          shared rule test vectors (JSON) for all platforms
 ```
 
-`FocusManager.App` (WinUI 3) и значок в трее на WinForms удаляются после переноса экранов в Tauri
-(задачи 0016, 0018).
+`FocusManager.App` (WinUI 3) and the WinForms tray icon are removed after the screens are migrated to Tauri
+(tasks T016, T018).
 
-### Фреймворк интерфейса
-React + TypeScript: самая большая экосистема (графики, локализация) и лучше всего знаком ИИ-агентам.
-Можно пересмотреть при создании каркаса (задача 0017), если найдутся веские причины.
+### UI Framework
 
-## Альтернативы
+React + TypeScript: the largest ecosystem (charts, localization) and the most familiar to AI agents.
+This may be revisited during bootstrap (task T017) if compelling reasons emerge.
 
-Разобраны в чате с владельцем 2026-11-16 и в `docs/spec/decisions.md` (C3): Electron (запасной вариант —
-тот же код интерфейса), Compose Multiplatform, Flutter, Avalonia, WinUI 3 + отдельный интерфейс для Linux.
+## Alternatives
 
-## Риски
+Discussed in the chat with the owner on 2026-11-16 and in `docs/spec/decisions.md` (C3): Electron (fallback,
+using the same UI code), Compose Multiplatform, Flutter, Avalonia, WinUI 3 + a separate Linux UI.
 
-- **WebKitGTK на Linux** может отображать и работать иначе, чем WebView2 на Windows — проверить на каркасе;
-  при серьёзных проблемах — переход на Electron с тем же кодом интерфейса.
-- **Вход через Google** во встроенном окне запрещён Google — вход через системный браузер с возвратом
-  в приложение (deep link или loopback).
-- **Microsoft Store** и служба с правами администратора — проверить требования магазина (GEN-006).
+## Risks
 
-## Последствия
+- **WebKitGTK on Linux** may render and behave differently from WebView2 on Windows: check during bootstrap;
+  if problems are severe, switch to Electron using the same UI code.
+- **Google sign-in** is prohibited by Google in an embedded window: use the system browser and return
+  to the application (deep link or loopback).
+- **Microsoft Store** and an administrator-privileged service: check store requirements (GEN-006).
 
-- В стеке ПК появляются Rust (тонкая оболочка Tauri), TypeScript и Node.js-инструменты сборки.
-- CI собирает интерфейс и агент для Windows и Linux (задача 0006).
+## Consequences
+
+- The desktop stack gains Rust (a thin Tauri shell), TypeScript, and Node.js build tooling.
+- CI builds the UI and agent for Windows and Linux (task T006).

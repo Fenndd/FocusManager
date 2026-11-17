@@ -1,35 +1,35 @@
-# Техническая аналитика и приватность (TEL)
+# Technical analytics and privacy (TEL)
 
-Подробная техническая аналитика для разработчика (решение D4). Разработчик находится в ЕС —
-действует GDPR.
+Detailed technical analytics for the developer (decision D4). The developer is based in the EU —
+GDPR applies.
 
-### TEL-001 Отчёты о сбоях
-Приложение отправляет отчёты о сбоях и ошибках (стек, версия приложения и ОС, модель устройства).
+### TEL-001 Crash reports
+The application sends crash and error reports (stack trace, application and OS versions, device model).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### TEL-002 Аналитика использования
-Приложение собирает подробную техническую аналитику: какие функции используются, ошибки блокировки,
-производительность, воронка первичной настройки (выдача разрешений и т. п.).
+### TEL-002 Usage analytics
+The application collects detailed technical analytics: which features are used, blocking errors,
+performance, and the initial setup funnel (granting permissions, etc.).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 
-### TEL-003 Согласие пользователя
-Аналитика использования (TEL-002) собирается только с явного согласия; согласие можно отозвать
-в настройках. Необходимость согласия для отчётов о сбоях (TEL-001) — уточнить.
+### TEL-003 User consent
+Usage analytics (TEL-002) are collected only with explicit consent; consent can be withdrawn
+in settings. Whether consent is required for crash reports (TEL-001) needs clarification.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-> ❓ Вопрос: нужна юридическая проверка (GDPR, ePrivacy) перед релизом.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+> ❓ Question: a legal review (GDPR, ePrivacy) is needed before release.
 
-### TEL-004 Содержимое списков не уходит в аналитику
-Названия приложений, адреса сайтов, ключевые слова и пути к папкам пользователя не отправляются
-в аналитику.
+### TEL-004 List contents are not sent to analytics
+The user's application names, website addresses, keywords, and folder paths are not sent
+to analytics.
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-> ❓ Вопрос: допустимо ли собирать обезличенную статистику популярных блокируемых сайтов/приложений
-> (полезно для готовых шаблонов профилей)? Только с отдельного согласия.
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+> ❓ Question: is collecting anonymized statistics on commonly blocked websites/applications acceptable
+> (useful for ready-made profile templates)? Only with separate consent.
 
-### TEL-005 Политика конфиденциальности
-У приложения есть политика конфиденциальности, описывающая собираемые данные (требуется магазинами).
+### TEL-005 Privacy policy
+The application has a privacy policy describing the data collected (required by stores).
 
-Платформы: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
