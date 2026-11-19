@@ -1,0 +1,214 @@
+{
+  "version": 1,
+  "suite": "windows-path-compat",
+  "description": "Windows path matching inputs changed by T054. Expected results are those of the pre-T001 evaluator (Path.GetFullPath based) on Windows / .NET 8.",
+  "cases": [
+    {
+      "id": "folder-drive-root-saved-without-separator",
+      "requirement": "FLD-002",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "hostContext": { "currentDrive": "C:", "currentDirectories": { "D:": "D:\\" } },
+      "allowed": [{ "path": "D:", "includeSubfolders": false }],
+      "input": "D:\\",
+      "expected": "allow",
+      "note": "The UI stores a selected D:\\ as D:; the drive-relative value means the current directory of drive D:, here its root."
+    },
+    {
+      "id": "folder-drive-root-saved-without-separator-subfolder",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "hostContext": { "currentDrive": "C:", "currentDirectories": { "D:": "D:\\" } },
+      "allowed": [{ "path": "D:", "includeSubfolders": true }],
+      "input": "D:\\Study",
+      "expected": "allow"
+    },
+    {
+      "id": "folder-drive-root-saved-without-separator-no-subfolders",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "hostContext": { "currentDrive": "C:", "currentDirectories": { "D:": "D:\\" } },
+      "allowed": [{ "path": "D:", "includeSubfolders": false }],
+      "input": "D:\\Study",
+      "expected": "deny"
+    },
+    {
+      "id": "folder-root-relative-uses-current-drive",
+      "requirement": "FLD-002",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "hostContext": { "currentDrive": "C:", "currentDirectories": {} },
+      "allowed": [{ "path": "\\Study", "includeSubfolders": false }],
+      "input": "C:\\Study",
+      "expected": "allow",
+      "note": "A leading single backslash belongs to the host's current drive."
+    },
+    {
+      "id": "folder-trailing-dot-is-ignored",
+      "requirement": "FLD-002",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "C:\\Study.", "includeSubfolders": false }],
+      "input": "C:\\Study",
+      "expected": "allow"
+    },
+    {
+      "id": "folder-child-control",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "C:\\Study", "includeSubfolders": true }],
+      "input": "C:\\Study\\Math",
+      "expected": "allow"
+    },
+    {
+      "id": "app-colon-in-final-component-is-not-a-filename-boundary",
+      "requirement": "APP-002",
+      "kind": "app",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "C:\\Apps\\Code.exe" }],
+      "input": "C:\\Apps\\evil.exe:Code.exe",
+      "expected": "deny",
+      "note": "Only a drive-prefix colon is a boundary; the retained file-name fallback must not match 'Code.exe' here."
+    },
+    {
+      "id": "app-unc-server-component-is-not-a-filename",
+      "requirement": "APP-002",
+      "kind": "app",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "C:\\Apps\\Code.exe" }],
+      "input": "\\\\server\\Code.exe",
+      "expected": "deny",
+      "note": "Path.GetFileName skips the root: in a UNC path the server and share are never a file name."
+    },
+    {
+      "id": "app-device-root-component-is-not-a-filename",
+      "requirement": "APP-002",
+      "kind": "app",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "C:\\Apps\\Code.exe" }],
+      "input": "\\\\.\\Code.exe",
+      "expected": "deny"
+    },
+    {
+      "id": "folder-device-path-dotdot-cannot-escape",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\.\\C:\\Study", "includeSubfolders": true }],
+      "input": "\\\\.\\C:\\Study\\..\\..\\Windows",
+      "expected": "deny",
+      "note": "A device prefix is only the four-character root; the volume is an ordinary segment that '..' can remove, so the candidate resolves to \\\\.\\Windows."
+    },
+    {
+      "id": "folder-device-path-child-control",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\.\\C:\\Study", "includeSubfolders": true }],
+      "input": "\\\\.\\C:\\Study\\Math",
+      "expected": "allow"
+    },
+    {
+      "id": "folder-unc-dotdot-in-server-slot-is-literal",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\srv\\share", "includeSubfolders": true }],
+      "input": "\\\\srv\\..\\share\\x",
+      "expected": "deny",
+      "note": "The first two segments of a UNC path are the server and share, taken literally: here the share is '..', so the candidate is not under \\\\srv\\share."
+    },
+    {
+      "id": "folder-unc-dot-in-share-slot-is-literal",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\srv\\share", "includeSubfolders": true }],
+      "input": "\\\\srv\\.\\share\\x",
+      "expected": "deny"
+    },
+    {
+      "id": "folder-unc-dotdot-as-server-is-literal",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\srv\\share", "includeSubfolders": true }],
+      "input": "\\\\..\\srv\\share\\x",
+      "expected": "deny"
+    },
+    {
+      "id": "folder-unc-dotdot-after-share-cannot-leave-it-control",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\srv\\share", "includeSubfolders": true }],
+      "input": "\\\\srv\\share\\..\\x",
+      "expected": "allow",
+      "note": "Control: '..' after the share cannot remove the share, so the candidate resolves to \\\\srv\\share\\x."
+    },
+    {
+      "id": "folder-unc-share-trailing-dot-is-trimmed",
+      "requirement": "FLD-002",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "\\\\srv\\share.", "includeSubfolders": true }],
+      "input": "\\\\srv\\share\\x",
+      "expected": "allow",
+      "note": "Win32 trims trailing dots and spaces of the final component, including a UNC share."
+    },
+    {
+      "id": "app-full-path-control",
+      "requirement": "APP-002",
+      "kind": "app",
+      "pathStyle": "windows",
+      "allowed": [{ "path": "C:\\Apps\\Code.exe" }],
+      "input": "c:\\apps\\CODE.exe",
+      "expected": "allow"
+    },
+    {
+      "id": "folder-unc-extra-leading-separator-candidate-empty-server",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [
+        {
+          "path": "\\\\srv\\share",
+          "includeSubfolders": true
+        }
+      ],
+      "input": "\\\\\\srv\\share\\x",
+      "expected": "deny"
+    },
+    {
+      "id": "folder-unc-extra-leading-separator-stored-empty-server",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [
+        {
+          "path": "\\\\\\srv\\share",
+          "includeSubfolders": true
+        }
+      ],
+      "input": "\\\\srv\\share\\x",
+      "expected": "deny"
+    },
+    {
+      "id": "folder-unc-extra-leading-separator-ordinary-child-control",
+      "requirement": "FLD-003",
+      "kind": "folder",
+      "pathStyle": "windows",
+      "allowed": [
+        {
+          "path": "\\\\srv\\share",
+          "includeSubfolders": true
+        }
+      ],
+      "input": "\\\\srv\\share\\x",
+      "expected": "allow"
+    }
+  ]
+}

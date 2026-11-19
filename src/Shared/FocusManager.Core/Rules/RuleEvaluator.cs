@@ -1,10 +1,19 @@
 using System.Globalization;
+using FocusManager.Core.Abstractions;
 using FocusManager.Core.Models;
 
 namespace FocusManager.Core.Rules;
 
 public sealed class RuleEvaluator
 {
+    private readonly IPathRules _pathRules;
+
+    /// <summary>Creates an evaluator with explicit path semantics for the platform that hosts it.</summary>
+    public RuleEvaluator(IPathRules pathRules)
+    {
+        _pathRules = pathRules ?? throw new ArgumentNullException(nameof(pathRules));
+    }
+
     public RuleDecision EvaluateApplicationStart(string executablePath, WhitelistConfig config)
     {
         if (config.AllowedApps.Count == 0)
@@ -12,21 +21,21 @@ public sealed class RuleEvaluator
             return RuleDecision.Deny("Applications whitelist is empty.");
         }
 
-        var candidatePath = NormalizePath(executablePath);
-        var candidateFileName = Path.GetFileName(candidatePath);
+        var candidatePath = _pathRules.Normalize(executablePath);
+        var candidateFileName = _pathRules.GetFileName(candidatePath);
 
         foreach (var app in config.AllowedApps)
         {
-            var allowedPath = NormalizePath(app.ExecutablePath);
+            var allowedPath = _pathRules.Normalize(app.ExecutablePath);
 
-            if (string.Equals(candidatePath, allowedPath, StringComparison.OrdinalIgnoreCase))
+            if (_pathRules.AreEqual(candidatePath, allowedPath))
             {
                 return RuleDecision.Allow();
             }
 
             // Fallback for events where only process name is available.
             if (!string.IsNullOrWhiteSpace(candidateFileName) &&
-                string.Equals(candidateFileName, Path.GetFileName(allowedPath), StringComparison.OrdinalIgnoreCase))
+                _pathRules.AreEqual(candidateFileName, _pathRules.GetFileName(allowedPath)))
             {
                 return RuleDecision.Allow();
             }
@@ -42,17 +51,17 @@ public sealed class RuleEvaluator
             return RuleDecision.Deny("Folders whitelist is empty.");
         }
 
-        var candidatePath = NormalizePath(folderPath);
+        var candidatePath = _pathRules.Normalize(folderPath);
 
         foreach (var folder in config.AllowedFolders)
         {
-            var allowedPath = NormalizePath(folder.FolderPath);
-            if (string.Equals(candidatePath, allowedPath, StringComparison.OrdinalIgnoreCase))
+            var allowedPath = _pathRules.Normalize(folder.FolderPath);
+            if (_pathRules.AreEqual(candidatePath, allowedPath))
             {
                 return RuleDecision.Allow();
             }
 
-            if (folder.AllowSubfolders && IsChildPath(candidatePath, allowedPath))
+            if (folder.AllowSubfolders && _pathRules.IsChild(candidatePath, allowedPath))
             {
                 return RuleDecision.Allow();
             }
@@ -83,33 +92,6 @@ public sealed class RuleEvaluator
         }
 
         return RuleDecision.Deny("Site is not present in whitelist.");
-    }
-
-    private static string NormalizePath(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return string.Empty;
-        }
-
-        var cleaned = path.Trim().Trim('"');
-
-        try
-        {
-            cleaned = Path.GetFullPath(cleaned);
-        }
-        catch
-        {
-            // Keep best-effort raw path when full-path resolution fails.
-        }
-
-        return cleaned.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-    }
-
-    private static bool IsChildPath(string candidatePath, string allowedPath)
-    {
-        var allowedPrefix = allowedPath + Path.DirectorySeparatorChar;
-        return candidatePath.StartsWith(allowedPrefix, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ExtractHost(string urlOrHost)

@@ -192,7 +192,7 @@ public sealed class FolderEnforcerTests
     private static FolderEnforcer CreateSut(RecordingNotifier notifier, IExplorerNavigator? navigator = null)
     {
         return new FolderEnforcer(
-            new RuleEvaluator(),
+            new RuleEvaluator(PathRules.Windows),
             navigator ?? new FakeExplorerNavigator(),
             notifier,
             NullLogger<FolderEnforcer>.Instance);

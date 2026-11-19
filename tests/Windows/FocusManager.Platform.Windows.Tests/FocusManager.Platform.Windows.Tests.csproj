@@ -6,4 +6,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Windows\FocusManager.Platform.Windows\FocusManager.Platform.Windows.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared rule test vectors (JSON), copied next to the test assembly. -->
+    <None Include="..\..\..\test-vectors\**\*.json" Link="test-vectors\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

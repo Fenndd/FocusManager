@@ -15,7 +15,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_DoesNothing_WhenProcessIdIsExempt()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         await sut.EnforceAsync(
             new ProcessStartedEventArgs(123456, @"C:\\Apps\\blocked.exe"),
@@ -29,7 +29,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_Ignores_KnownSystemProcessName()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         await sut.EnforceAsync(
             new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Windows\\explorer.exe"),
@@ -42,7 +42,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_Ignores_NonRootedExecutablePath()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         await sut.EnforceAsync(
             new ProcessStartedEventArgs(Environment.ProcessId, "svchost.exe"),
@@ -55,7 +55,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_Ignores_AnyProcessUnderWindowsDirectory()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         await sut.EnforceAsync(
             new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Windows\\System32\\calc.exe"),
@@ -68,7 +68,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_Ignores_AnyProcessUnderWindowsAppsDirectory()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         await sut.EnforceAsync(
             new ProcessStartedEventArgs(Environment.ProcessId, @"C:\\Program Files\\WindowsApps\\SomeApp\\App.exe"),
@@ -81,7 +81,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_DoesNothing_WhenApplicationIsAllowed()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         var config = new WhitelistConfig
         {
@@ -99,7 +99,7 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_DoesNotNotify_WhenProcessCannotBeTerminated()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
         await sut.EnforceAsync(
             new ProcessStartedEventArgs(-1, @"C:\\Apps\\blocked.exe"),
@@ -112,14 +112,20 @@ public sealed class AppEnforcerTests
     public async Task EnforceAsync_Notifies_WhenDeniedProcessWasKilled()
     {
         var notifier = new RecordingNotifier();
-        var sut = new AppEnforcer(new RuleEvaluator(), notifier, NullLogger<AppEnforcer>.Instance);
+        var sut = new AppEnforcer(new RuleEvaluator(PathRules.Windows), notifier, NullLogger<AppEnforcer>.Instance);
 
+        // Use a fully qualified system executable that neither depends on PATH resolution
+        // (Git Bash puts GNU timeout first) nor on stdin/console (timeout.exe fails when input is redirected).
+        // ping.exe -n 30 against loopback stays alive for roughly 29 seconds.
         using var process = Process.Start(new ProcessStartInfo
         {
-            FileName = "cmd.exe",
-            Arguments = "/c timeout /t 30 >nul",
+            FileName = Path.Combine(Environment.SystemDirectory, "ping.exe"),
+            Arguments = "-n 30 127.0.0.1",
             UseShellExecute = false,
-            CreateNoWindow = true
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            RedirectStandardInput = true
         });
 
         Assert.NotNull(process);

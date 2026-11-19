@@ -6,27 +6,50 @@ namespace FocusManager.Core.Tests;
 
 public sealed class RuleEvaluatorTests
 {
-    private readonly RuleEvaluator _sut = new();
+    private readonly RuleEvaluator _sut = new(PathRules.Windows);
+
+    public static TheoryData<string> Styles => PathStyleFixture.Names;
+
+    private static WhitelistConfig Apps(params AllowedApp[] apps) => new() { AllowedApps = [.. apps] };
+
+    private static WhitelistConfig Folders(params AllowedFolder[] folders) => new() { AllowedFolders = [.. folders] };
 
     [Fact]
-    public void EvaluateApplicationStart_Denies_WhenWhitelistIsEmpty()
+    public void Constructor_Throws_WhenPathRulesAreMissing()
     {
-        var decision = _sut.EvaluateApplicationStart(@"C:\Apps\Code.exe", new WhitelistConfig());
+        Assert.Throws<ArgumentNullException>(() => new RuleEvaluator(null!));
+    }
+
+    // ---- Applications: run for both Windows and Unix path styles --------------------------------
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateApplicationStart_Denies_WhenWhitelistIsEmpty(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+
+        var decision = fx.CreateEvaluator().EvaluateApplicationStart(fx.AbsolutePath("Apps", "Code.exe"), new WhitelistConfig());
 
         Assert.False(decision.IsAllowed);
         Assert.Contains("empty", decision.Reason, StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
-    public void EvaluateApplicationStart_Allows_ExactExecutablePathMatch_IgnoringCase()
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateApplicationStart_Allows_ExactExecutablePathMatch(string style)
     {
-        var config = new WhitelistConfig
-        {
-            AllowedApps =
-            [
-                new AllowedApp("Code", @"C:\Program Files\Microsoft VS Code\Code.exe")
-            ]
-        };
+        var fx = PathStyleFixture.For(style);
+        var path = fx.AbsolutePath("Program Files", "Microsoft VS Code", "Code.exe");
+
+        var decision = fx.CreateEvaluator().EvaluateApplicationStart(path, Apps(new AllowedApp("Code", path)));
+
+        Assert.True(decision.IsAllowed);
+    }
+
+    [Fact]
+    public void EvaluateApplicationStart_Allows_ExactExecutablePathMatch_IgnoringCase_OnWindows()
+    {
+        var config = Apps(new AllowedApp("Code", @"C:\Program Files\Microsoft VS Code\Code.exe"));
 
         var decision = _sut.EvaluateApplicationStart(@"c:\program files\microsoft vs code\CODE.exe", config);
 
@@ -34,109 +57,181 @@ public sealed class RuleEvaluatorTests
     }
 
     [Fact]
-    public void EvaluateApplicationStart_Allows_ByFileNameFallback_WhenFullPathUnavailable()
+    public void EvaluateApplicationStart_Denies_CaseDifference_OnUnix()
     {
-        var config = new WhitelistConfig
-        {
-            AllowedApps =
-            [
-                new AllowedApp("Notepad", @"C:\Windows\System32\notepad.exe")
-            ]
-        };
+        var fx = PathStyleFixture.For(PathStyleFixture.UnixName);
+        var config = Apps(new AllowedApp("Code", "/opt/code/Code"));
 
-        var decision = _sut.EvaluateApplicationStart("notepad.exe", config);
+        // Neither the full path nor the file name matches on a case-sensitive style.
+        var decision = fx.CreateEvaluator().EvaluateApplicationStart("/OPT/code/CODE", config);
+
+        Assert.False(decision.IsAllowed);
+    }
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateApplicationStart_Allows_ByFileNameFallback_WhenFullPathUnavailable(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+        var config = Apps(new AllowedApp("Notepad", fx.AbsolutePath("Windows", "System32", "notepad.exe")));
+
+        var decision = fx.CreateEvaluator().EvaluateApplicationStart("notepad.exe", config);
 
         Assert.True(decision.IsAllowed);
     }
 
-    [Fact]
-    public void EvaluateApplicationStart_Denies_WhenApplicationIsNotWhitelisted()
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateApplicationStart_Denies_WhenApplicationIsNotWhitelisted(string style)
     {
-        var config = new WhitelistConfig
-        {
-            AllowedApps =
-            [
-                new AllowedApp("Code", @"C:\Program Files\Microsoft VS Code\Code.exe")
-            ]
-        };
+        var fx = PathStyleFixture.For(style);
+        var config = Apps(new AllowedApp("Code", fx.AbsolutePath("Program Files", "Microsoft VS Code", "Code.exe")));
 
-        var decision = _sut.EvaluateApplicationStart(@"C:\Apps\Discord.exe", config);
+        var decision = fx.CreateEvaluator().EvaluateApplicationStart(fx.AbsolutePath("Apps", "Discord.exe"), config);
 
         Assert.False(decision.IsAllowed);
     }
 
     [Fact]
-    public void EvaluateFolderOpen_Denies_WhenWhitelistIsEmpty()
+    public void EvaluateApplicationStart_NormalizesQuotesForwardSlashesAndDotSegments_OnWindows()
     {
-        var decision = _sut.EvaluateFolderOpen(@"C:\Study", new WhitelistConfig());
+        var config = Apps(new AllowedApp("Code", @"C:\Apps\Code.exe"));
+
+        var decision = _sut.EvaluateApplicationStart("\"C:/Apps/./Tools/../Code.exe\"", config);
+
+        Assert.True(decision.IsAllowed);
+    }
+
+    // ---- Folders: run for both Windows and Unix path styles -------------------------------------
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Denies_WhenWhitelistIsEmpty(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("Study"), new WhitelistConfig());
 
         Assert.False(decision.IsAllowed);
         Assert.Contains("empty", decision.Reason, StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
-    public void EvaluateFolderOpen_Allows_SameFolderPath_IgnoringTrailingSeparator()
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Allows_SameFolderPath_IgnoringTrailingSeparator(string style)
     {
-        var config = new WhitelistConfig
-        {
-            AllowedFolders =
-            [
-                new AllowedFolder("Study", @"C:\Study")
-            ]
-        };
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Study", fx.AbsolutePath("Study")));
 
-        var decision = _sut.EvaluateFolderOpen(@"C:\Study\", config);
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("Study") + fx.Separator, config);
 
         Assert.True(decision.IsAllowed);
     }
 
-    [Fact]
-    public void EvaluateFolderOpen_Denies_ChildFolder_WhenSubfoldersNotAllowed()
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Denies_ChildFolder_WhenSubfoldersNotAllowed(string style)
     {
-        var config = new WhitelistConfig
-        {
-            AllowedFolders =
-            [
-                new AllowedFolder("Study", @"C:\Study")
-            ]
-        };
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Study", fx.AbsolutePath("Study")));
 
-        var decision = _sut.EvaluateFolderOpen(@"C:\Study\Math\Algebra", config);
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("Study", "Math", "Algebra"), config);
+
+        Assert.False(decision.IsAllowed);
+    }
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Allows_ChildFolder_WhenSubfoldersAllowed(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Study", fx.AbsolutePath("Study"), AllowSubfolders: true));
+
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("Study", "Math", "Algebra"), config);
+
+        Assert.True(decision.IsAllowed);
+    }
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Denies_SiblingFolder(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Study", fx.AbsolutePath("Study"), AllowSubfolders: true));
+
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("StudyOther"), config);
+
+        Assert.False(decision.IsAllowed);
+    }
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_AllowsOnlyTheRootItself_WhenRootEntryHasNoSubfolders(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Root", fx.Root, AllowSubfolders: false));
+        var sut = fx.CreateEvaluator();
+
+        Assert.True(sut.EvaluateFolderOpen(fx.Root, config).IsAllowed);
+        Assert.False(sut.EvaluateFolderOpen(fx.AbsolutePath("Study"), config).IsAllowed);
+    }
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Allows_ChildOfRoot_WhenSubfoldersAllowed(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Root", fx.Root, AllowSubfolders: true));
+
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("Study"), config);
+
+        Assert.True(decision.IsAllowed);
+    }
+
+    [Theory]
+    [MemberData(nameof(Styles))]
+    public void EvaluateFolderOpen_Denies_DotDotEscapeFromAllowedFolder(string style)
+    {
+        var fx = PathStyleFixture.For(style);
+        var config = Folders(new AllowedFolder("Study", fx.AbsolutePath("Study"), AllowSubfolders: true));
+
+        var decision = fx.CreateEvaluator().EvaluateFolderOpen(fx.AbsolutePath("Study", "..", "Games"), config);
 
         Assert.False(decision.IsAllowed);
     }
 
     [Fact]
-    public void EvaluateFolderOpen_Allows_ChildFolder_WhenSubfoldersAllowed()
+    public void EvaluateFolderOpen_Allows_IgnoringCaseAndSlashStyle_OnWindows()
     {
-        var config = new WhitelistConfig
-        {
-            AllowedFolders =
-            [
-                new AllowedFolder("Study", @"C:\Study", AllowSubfolders: true)
-            ]
-        };
+        var config = Folders(new AllowedFolder("Study", @"C:\Study", AllowSubfolders: true));
 
-        var decision = _sut.EvaluateFolderOpen(@"C:\Study\Math\Algebra", config);
-
-        Assert.True(decision.IsAllowed);
+        Assert.True(_sut.EvaluateFolderOpen("c:/STUDY/", config).IsAllowed);
+        Assert.True(_sut.EvaluateFolderOpen(@"C:\study\Math", config).IsAllowed);
     }
 
     [Fact]
-    public void EvaluateFolderOpen_Denies_SiblingFolder()
+    public void EvaluateFolderOpen_IsCaseSensitive_OnUnix()
     {
-        var config = new WhitelistConfig
-        {
-            AllowedFolders =
-            [
-                new AllowedFolder("Study", @"C:\Study")
-            ]
-        };
+        var fx = PathStyleFixture.For(PathStyleFixture.UnixName);
+        var config = Folders(new AllowedFolder("Study", "/home/user/Study", AllowSubfolders: true));
+        var sut = fx.CreateEvaluator();
 
-        var decision = _sut.EvaluateFolderOpen(@"C:\StudyOther", config);
-
-        Assert.False(decision.IsAllowed);
+        Assert.False(sut.EvaluateFolderOpen("/home/user/study", config).IsAllowed);
+        Assert.False(sut.EvaluateFolderOpen("/home/user/study/Math", config).IsAllowed);
+        Assert.True(sut.EvaluateFolderOpen("/home/user/Study/Math", config).IsAllowed);
     }
+
+    [Fact]
+    public void EvaluateFolderOpen_TreatsBackslashAsOrdinaryCharacter_OnUnix()
+    {
+        var fx = PathStyleFixture.For(PathStyleFixture.UnixName);
+        var config = Folders(new AllowedFolder("Study", "/home/user/Study", AllowSubfolders: true));
+
+        // On Unix a backslash is part of a file name, so this is a sibling entry, not a child.
+        Assert.False(fx.CreateEvaluator().EvaluateFolderOpen(@"/home/user/Study\Math", config).IsAllowed);
+    }
+
+    // ---- Sites: independent of the path style ----------------------------------------------------
 
     [Fact]
     public void EvaluateSiteOpen_Denies_WhenWhitelistIsEmpty()

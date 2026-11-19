@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- PostgreSQL implementation of Core storage abstractions. -->
+  <!-- SQLite implementation of Core storage abstractions, shared by the desktop agents (ADR-0006). -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Npgsql" Version="8.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.34" />
   </ItemGroup>
 
   <ItemGroup>
