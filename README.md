@@ -65,3 +65,7 @@ The installed skills are `model-routing`, `session-teacher`, `security-best-prac
 `security-threat-model`. Their own triggers define when to use them. The Claude presets are
 `sonnet-high`, `opus-medium`, `opus-high`, and `opus-max`; the orchestration policy owns model routing.
 These repository files do not install clients, enable permissions, or configure accounts.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Third-party skills in `.agents/skills/` keep their own licenses.
