@@ -26,7 +26,11 @@ When fixing a bug, where possible confirm the original failure and that it no lo
 
 Independent review is useful for significant or risky changes: provide the requirements, task boundaries, diff, and check results. The reviewer first analyzes the result without editing it. A finding must identify the affected location, evidence of the problem, its consequences, and a proposed fix. Do not create findings just to increase their number. If there was no independent review, do not call a self-review independent.
 
-A task is complete when its criteria have been met, applicable checks have passed, and related documents reflect the result. Any unchecked item remains an explicit limitation; do not record it as successful.
+Implementation is complete when its criteria have been met, applicable checks have passed, and related documents reflect the result. Record the evidence and move the task to `review`; implementation completion does not by itself mean acceptance. Any unchecked item remains an explicit limitation; do not record it as successful.
+
+User acceptance is the default gate from `review` to `done`. A user may explicitly authorize acceptance in advance, with a stated scope and conditions; record that authorization and the evidence that its conditions were met in the task's Result. A request to implement work does not by itself delegate acceptance. Independent review supplies evidence for acceptance and does not grant acceptance authority.
+
+Start dependent work only after the prerequisite is accepted, or under an explicit user instruction to continue before acceptance. Record such an instruction, its scope, and the prerequisite's actual state in the affected task records. Keep an unaccepted prerequisite in `review`; a continuation instruction does not make it `done`. Do not infer permission to continue all dependent work from a general implementation request. See [TASK_FORMAT.md](TASK_FORMAT.md) for the status and dependency rules.
 
 ## Context, Limits, and Handoff
 
@@ -35,6 +39,8 @@ Store durable information in documents and Git, not only in chat history. Before
 After finishing a task, you may start a new session; this is not required after every edit. When handing off unfinished work, record in `STATUS.md` what is done, remaining work, obstacles, check information, and the next concrete step. Refer to existing materials instead of repeating the entire history.
 
 `ROADMAP.md` answers “what is ahead” and individual task files hold each task (see [TASK_FORMAT.md](TASK_FORMAT.md)); `STATUS.md` answers “what is happening now.” Git preserves change history, and ADRs preserve the rationale for significant decisions. Do not maintain several identical logs in parallel. When a commit is authorized, group one logical task with the required checks and documentation.
+
+For delegated work, each worker edits only its assigned implementation area and any task file explicitly assigned to it. Each task file has one writer at a time. The main agent owns shared `ROADMAP.md` and `STATUS.md` updates, integrates workers' final facts, and keeps task and roadmap statuses consistent in the integration change. Workers return evidence and proposed status updates instead of editing these shared files concurrently. Shared bookkeeping therefore does not force otherwise independent implementation areas to overlap.
 
 ## Report
 

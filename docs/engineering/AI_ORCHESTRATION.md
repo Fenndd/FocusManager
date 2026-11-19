@@ -8,7 +8,7 @@ This project adaptation was added in T026. [AGENTS.md](../../AGENTS.md) defines 
 ### Start and Select Work
 
 1. Inspect Git status and relevant diffs before editing. Preserve unfinished work; read STATUS.md and ROADMAP.md, then the selected task and its linked specification/ADRs. Do not load all project documents by default.
-2. For a chat request, create its task first. Select a `ready` task with every dependency `done`; use roadmap order among eligible tasks. Research may collect evidence before its outcome is known, but may not implement an undecided outcome.
+2. For a chat request, create its task first. Select a `ready` task with every dependency accepted (`done`) or explicitly authorized for continuation under TASK_FORMAT.md; use roadmap order among eligible tasks. Research may collect evidence before its outcome is known, but may not implement an undecided outcome.
 3. Check task size and environment. Split work before execution if it cannot produce one independently verifiable result in one session. Planning gates create child implementation tasks; their completion never marks a feature implemented.
 4. Set the task, roadmap and STATUS.md to `in_progress` together. The main agent owns these shared coordination files. Worker results do not change lifecycle state independently.
 5. Update the owning specification before behavior changes. Product questions stay next to the requirement as `> ❓ Question:`; ask the owner when the answer is needed. A proposal, research result or model preference is not an accepted requirement/ADR.
@@ -19,7 +19,7 @@ This project adaptation was added in T026. [AGENTS.md](../../AGENTS.md) defines 
 - In FocusManager, Core/rule changes (T001/T012), storage migration, session extraction, contracts, service lifecycle and UI integration often share files. Recheck actual conflicts instead of launching a worker per roadmap row.
 - Android, Linux and payment research can gather evidence concurrently with PC work when useful, but often share ADR/specification/task indexes. Use read-only findings for those shared areas and let the main agent apply coordinated edits sequentially.
 - Give a writer exclusive ownership of named paths for the delegated interval. If unexpected overlap appears, stop the conflicting edit and report it; never overwrite another worker's changes. Do not reset or clean a dirty checkout to obtain isolation.
-- Keep dependent operations sequential. Contracts and accepted decisions precede their consumers; migration and service/IPC work require the risk tier selected below. Batch only independent reads or checks.
+- Keep dependent operations sequential. Contracts and accepted decisions precede their consumers; migration and service/IPC work require proportionate checks; choose the assignment tier under Choosing a Tier below, rather than escalating from the topic alone. Batch only independent reads or checks.
 
 ### Brief and Return Contract
 
@@ -32,46 +32,92 @@ Return: changed paths or findings with verified source locations; actual command
 - Choose checks from the task and actual tooling. Documentation: content, links, task schema/dependencies/readiness, roadmap/status agreement and diff. Shared C#: `dotnet test FocusManager.Shared.slnf`. Windows changes: `dotnet test FocusManager.Windows.slnf` on Windows plus relevant manual checks. Follow new platform READMEs only after those commands exist.
 - Report unavailable Linux/Windows/device/manual checks explicitly. A build is not proof of enforcement, session-0 behavior, reboot recovery, access isolation or live store lifecycle behavior. Do not silently dismiss a failure using a dated baseline.
 - Use independent read-only review when it adds value for significant integration, persisted data, privileged IPC or protection changes. This does not mandate a worker for every small edit. The main agent resolves findings and reruns affected checks.
-- Put the actual result/checks in the task and set it to `review`; only established owner acceptance permits `done`. Update roadmap and STATUS.md together. Do not start dependents while a prerequisite is in `review`.
-- Missing decisions/access/data go to the owner or owning task, not a stronger model. For reasoning failures use the escalation rule below; stop repeated ineffective attempts. Record a started task as `blocked` only with a concrete reason and the next action.
+- Put the actual result/checks in the task and set it to `review`; only established owner acceptance or explicit prior acceptance authority with its conditions met permits `done`. Update roadmap and STATUS.md together. Start dependents while a prerequisite is in `review` only under explicit scoped owner continuation authority recorded under TASK_FORMAT.md; keep the prerequisite in `review`.
+- Missing decisions/access/data go to the owner or owning task, not a stronger model. For reasoning failures use the tier gates below; stop repeated ineffective attempts. Record a started task as `blocked` only with a concrete reason and the next action.
 - Before ending, leave STATUS.md with the next eligible task, pending acceptance, unanswered decisions and unverified checks. Do not infer T025 acceptance from a new preparation request. Commits, pushes, account changes, publication and deployment follow explicit authorization.
 
 The model tables below are routing preferences, not enforced infrastructure. No scheduler, hook or external service is installed by this protocol.
 
-## When to Delegate
+## Operating Sequence
 
-Use a subagent for an independent part of a task, isolation of a large context, checking a separate hypothesis, or independent review if the benefit justifies the startup and coordination costs. Simple edits and tightly dependent sequential steps should usually be handled in the main session.
+For substantial work, use this sequence. Choose useful assignments, not an agent count; there are no policy quotas, target proportions, or artificial concurrency limits. Respect actual tool and session limits.
 
-Define roles and tasks for the current task. Do not create fixed profiles such as `explorer`, `worker`, `reviewer`, or similar in advance. Choose the number of agents based on useful independent tasks and environment constraints, rather than trying to use every available slot.
+1. Establish the requested result, confirmed requirements, dependencies, and observable checks. Use bounded investigation to discover facts; ask the user about material product decisions outside existing authorization.
+2. Identify coherent results to delegate: investigation, implementation, diagnosis, documentation, or verification. Assign substantive bounded results to working-default executors. Before retaining substantial execution in the main session, identify a concrete reason, such as an unavailable tool or inseparable context that makes handoff ineffective. Keep short actions and coordination in the main session; do not create an agent for every command or fragment a result into uncheckable pieces.
+3. Decide scheduling separately. Run independent assignments in parallel where supported; delegate dependent stages sequentially after checking the preceding output. A shared contract or sequential dependency does not require the orchestrator to implement everything itself.
+4. Start each assignment at tier 2. Use tier 1 for determined work, tier 3 for a documented reasoning gap, and tier 4 only through its gate. Choose for the assignment, not the parent task.
+5. Give the executor the brief below and explicitly apply the client's model and effort settings where supported. Do not inherit the orchestrator's settings accidentally.
+6. Inspect the result and evidence. Resolve missing checks or conflicting claims before accepting a significant conclusion, without repeating the executor's entire investigation.
+7. After a stronger agent resolves its question, return ordinary implementation, documentation, and checks to the working default. Integrate results and update the owning task/state documents.
+
+An orchestrator reads the common sections through Data Handling and its client's section before delegation. An executor reads the common sections before work; it needs launch details only if it will delegate. Do not reread unchanged policy during every step of the same assignment. This is advisory routing through existing tools, not an enforced router.
+
+## Orchestrator and Executors
+
+The selected main-session orchestrators are GPT-6.1 Terra at ultra effort in Codex and Sonnet 5.5 at high effort in ultracode mode in Claude. These are user-selected session settings; this repository does not switch the main session or establish client support for the ultracode label. The working executors are GPT-6.1 Sol medium and Sonnet 5.5 high respectively. Keep the model and effort set fixed unless the user changes it.
+
+The orchestrator interprets the request, coordinates dependencies, assigns work, checks evidence, and owns integration and the final report. It may delegate a bounded integration stage, contract analysis, planning question, or independent review when that requires reasoning it cannot reliably supply. Responsibility for concurrency, security, or cross-component correctness does not oblige it to personally implement those changes. Product behavior remains governed by confirmed requirements and the user's decision authority.
+
+Executors perform most substantive engineering work at the working default, including normal implementation judgment, multi-file changes, debugging, design comparisons, and review. They may choose implementation details within the brief and existing requirements. Report new product requirements or significant unapproved decisions as proposals. Define roles for the current task; do not pre-create permanent role profiles or bundle unrelated work into one stronger-model assignment.
 
 ## Choosing a Tier
 
-Every delegated task gets exactly one tier, 1–4. The client tables below map each tier to a model and effort; this rule is the same for every client. Rate only the delegated task itself, not the overall project.
+Every assignment has one tier. Tier 2 is the default, including ordinary uncertainty that bounded investigation can settle.
 
-Check the tiers from 4 down to 2. The first tier with any matching condition is the task's tier; if none matches, the tier is 1.
-
-| Tier | Choose it if any of these holds |
+| Tier | Use for the delegated task |
 | --- | --- |
-| 4 | An error would be costly, hard to detect, or hard to reverse: security, concurrency or ordering, data integrity or loss, changes to persisted data or its schema, irreversible operations. Or a tier-3 attempt at this task already failed and the cause was reasoning difficulty. |
-| 3 | The work spans several components whose interaction must be reasoned about together, or a contract between them changes or has to be inferred. Or the cause or the right approach is unknown and has to be found by comparing hypotheses or options. Or sources contradict each other. Or the planned checks can confirm only part of the result. |
-| 2 | The worker must make its own decisions — how to implement, where a defect is, what to test, whether code is correct — but within one bounded unit: the contract and expected behavior are given by the brief or existing code, the changes stay inside the assigned files without changing interfaces others use, and the checks named in the brief would catch a wrong result. |
-| 1 | None of the above: the result is fully determined by the brief. Either a factual question answered by locating and reading sources, or a change that applies an existing reference pattern to new places. No choice between reasonable approaches is left, and correctness is checked mechanically against the reference, a search, or existing checks. |
+| 1 — determined | Locate facts in named sources or apply an existing pattern with no meaningful choice between approaches. Direct comparison, search, or an existing check verifies the result. |
+| 2 — working default | Implement, diagnose, review, test, or document a bounded result. Expected behavior and meaningful checks are known or can be established through bounded investigation. Normal design choices and competing initial hypotheses belong here. |
+| 3 — targeted difficulty | Resolve one identified reasoning gap that tier 2 cannot adequately settle through ordinary bounded investigation. Before launching, record the question, specific difficulty and evidence, and limited output/check expected from the stronger agent. |
+| 4 — exceptional | Resolve a focused question only when every condition of the tier-4 gate holds. Do not assign an entire feature or broad audit. |
 
-Review and diagnosis are rated by applying the same conditions to the code or problem under examination.
+The topic's label (architecture, security, concurrency, persistence, migration), file count, context volume, consequences, parent model, or lack of confidence does not set the tier. High consequences require stronger checks and independent verification, not automatic escalation. Missing requirements, access, data, or a usable brief are not reasoning gaps. Diagnose a failed check first: improve the brief, environment, implementation, or verification as appropriate. Escalate only for remaining reasoning difficulty; do not repeat ineffective attempts indefinitely.
 
-Resolving doubt:
+For tier 3, "important architecture work" is insufficient. "Determine whether these two ordering guarantees can both hold under the documented interleaving; the available test cannot distinguish the candidate protocols" identifies a question and a verification limitation. A failed tier-2 attempt is useful evidence but is not mandatory when the difficulty is already concrete. If the justification is absent, use tier 2 for bounded investigation instead of selecting a stronger model as insurance.
 
-- These do not change the tier: the number of files, the size of input or output, the parent session's model, or the importance of the project as a whole. Large mechanical work stays tier 1.
-- If you cannot tell whether a condition holds, the brief is usually missing something: a reference, a contract, or a check. Add it first. If doubt remains after that, choose the higher of the two tiers.
-- A condition about contracts or interfaces applies only when the new contract or its effects must be worked out. A change that the brief fully specifies and that is applied everywhere by an existing reference, such as a mechanical rename including all callers, stays tier 1.
-- Tier 1 requires an existing reference pattern; tier 2 requires a defined contract. If these are missing, define them in the main session before delegating instead of raising the tier.
-- Raise the tier by one only after a failure caused by reasoning difficulty, not by missing requirements, data, or access. If tier 4 fails, return the problem to the main agent and the user instead of retrying.
+### The Tier-4 Gate
+
+Record all of the following in the brief before selecting tier 4:
+
+1. The narrow question or artifact and its boundaries.
+2. The concrete reasoning difficulty that makes tier 3 inadequate, supported by known interacting constraints or unresolved contradictory evidence. A failed tier-3 attempt is useful but not required when the difficulty is clear in advance.
+3. Why an incorrect answer would be costly or hard to detect **and** why available checks or independent review at tier 3 cannot adequately resolve that difficulty.
+4. How the orchestrator will obtain adequate verification before integration, including a bounded independent check if it cannot assess the reasoning itself.
+
+If a condition is absent, use tier 3 or below and improve verification. A tier-4 failure returns the unresolved issue and evidence to the orchestrator; it does not authorize repeating a broad request.
+
+### Return to the Working Default
+
+A tier-3 or tier-4 assignment ends at its stated deliverable. Usually it returns a conclusion, invariant, diagnosis, or proposed contract with evidence and uncertainty. Direct edits are allowed when the narrow implementation itself needs that reasoning and the brief assigns those paths. Do not automatically extend the stronger agent's assignment into surrounding code, routine tests, documentation, or follow-up work; give those steps to the working default. Reusing a stronger agent for another difficult question requires a fresh, specific justification. Do not resume it for routine work merely because it has context.
+
+## Brief and Coordination
+
+Each brief states the result or question, tier, required sources, relevant confirmed decisions, read-only mode or exact edit boundaries, completion criteria and checks, and the instruction to read the common policy sections. Include the tier-3 justification or all tier-4 conditions when applicable. Provide minimal sufficient context instead of copying the entire history. Clarify who owns a shared contract before dependent implementation; bounded proposals and investigation can be delegated at tier 2.
+
+Parallel editors own disjoint implementation areas. The orchestrator is the single writer/integrator of shared `ROADMAP.md` and `STATUS.md` facts; assign each task file to one writer. See [task areas and acceptance](TASK_FORMAT.md). Run dependent changes sequentially. Use an isolated checkout only when needed; do not create duplicate implementations without a concrete reason. Executors respect their boundary even when broader edits seem helpful.
+
+### Subagent Duties
+
+1. Read the common sections of this policy before starting, follow applicable repository instructions, and check that the brief supports its assigned tier.
+2. Stay within the brief and authorized requirements. Establish missing facts/checks through bounded investigation where possible. If a material decision or genuine higher-tier difficulty blocks progress, report the exact gap and evidence before affected changes. Do not silently select a stronger model. If work is simpler than expected, finish without restarting merely to change tiers.
+3. For reading work, return compact findings with source/file/symbol references, contradictions, and uncertainty. For writing work, edit assigned files directly and return paths and relevant behavior. Do not return whole files or a generic repository tour.
+4. Return the result, evidence against completion criteria, actual checks and outcomes (verified / not verified / failed), and unresolved issues. A successful command does not establish every criterion.
+
+## Verification and Integration
+
+The orchestrator inspects relevant original source sections, significant assumptions, diff, and checks proportionally to risk. A summary or "done" message alone is insufficient. Verify important cited locations; do not reread every file to reproduce the worker's effort. Reports should allow checking results without repeating the investigation.
+
+When the orchestrator cannot reliably assess a substantive claim, delegate a bounded independent review, normally at tier 2. Give the reviewer requirements, sources, result/diff and checks without treating the implementer's conclusion as established. Apply the same tier gates to reviews and implementation. Independence means a separate assessment, not a renamed self-review.
+
+When agents disagree, identify the conflicting factual claim, contract, or invariant; inspect its owning source or obtain a discriminating check. Disagreement alone does not justify escalation. Record unresolved uncertainty instead of accepting consensus or an unsupported stronger-model answer. New product decisions still require user authority. Implementation completion and acceptance are distinct; follow [the workflow](DEVELOPMENT_WORKFLOW.md) and task status rules.
+
+## Data Handling
+
+Do not send secrets, credentials, personal data, or other confidential content to development assistants or external services. Use permitted synthetic fixtures, source code without secrets, and content-free measurements. Routing does not expand permissions or authorize external sharing, publication, deployment, or destructive operations.
 
 ## Choosing a Model in Codex
 
-Assess reasoning difficulty, context volume, risk/reversibility, and expected output volume separately. A large input or output does not by itself require a stronger reasoning model. Delegate only when the expected benefit exceeds startup, context transfer, and verification costs; first consider targeted search and reading in the main session.
-
-Determine the tier with [Choosing a Tier](#choosing-a-tier), then use this table. The combinations below are project routing preferences, not launch settings, quality guarantees, or verified pricing rankings. Check the available models and effort values in the current session. They concern development assistants, not any model the product itself may use.
+These fixed combinations concern development executors, not product models. They are routing preferences, not verified price rankings or quality guarantees.
 
 | Tier | Model | Effort |
 | --- | --- | --- |
@@ -80,76 +126,30 @@ Determine the tier with [Choosing a Tier](#choosing-a-tier), then use this table
 | 3 | GPT-6.1 Sol (`gpt-6.1-sol`) | high |
 | 4 | GPT-6 Astra (`gpt-6-astra`) | high |
 
-In Codex (desktop app or CLI), the spawn call is the single mechanism: pass both `model` and `reasoning_effort` from the tier's row, with `fork_turns: "none"`, and never leave either to be inherited. A full-history fork (`"all"`) inherits the parent's settings and ignores overrides. Codex has no preset files, so the brief must carry the tier and the duties in [Subagent Duties](#subagent-duties); the task brief defines the role. The table guides subagents and does not change the main session's model or effort.
+When the collaboration tool supports per-agent overrides, pass both `model` and `reasoning_effort` from the selected row with `fork_turns: "none"`. In that interface a full-history fork inherits the parent and does not accept overrides; recheck the actual schema if it changes. Do not assume that fork behavior describes every Codex surface.
 
-The tier rule already selects the smallest adequate combination; do not go below the selected tier for economy, and do not go above it without a condition from the rule, subject to the user's explicit preferences. For Luna, always use `max`; do not lower it to `high`, `medium`, or `low`, even for very elementary tasks or under the economy rule. Use actual pricing/usage evidence when comparing monetary costs; the table alone does not establish which combination is cheapest. Consider uncertainty, the consequences of error, the context needed, and the ability to verify. The number of files and the parent session's settings do not by themselves determine the choice.
+Supporting Codex clients also offer `[agents]` defaults and project custom-agent files under `.codex/agents/`. The optional source template `presets/codex-config.toml` sets only the working-default executor; merge it into a destination's `.codex/config.toml` through the transfer procedure after checking support. It does not set the orchestrator, grant permissions, enable tools, or cap agents. Custom-agent settings can take precedence over requested settings; inspect applicable configuration if a mismatch appears. See [official subagent configuration](https://learn.chatgpt.com/docs/agent-configuration/subagents). Settings supplement explicit routing and do not prove what executed.
 
-The table guides subagent requests; it does not switch the main session's model. For models other than Luna, do not select `max` solely because a task involves large reads or mechanical work. Keep product decisions, resolution of ambiguous requirements, ownership of tightly coupled concurrency/security changes, and final integration with the main agent. A bounded independent review of such work can still be delegated to a suitable reasoning model.
-
-If the result is uncertain or a check fails, first determine the cause: requirements, data, or access may be missing. A stronger model will not remove such obstacles on its own. Increase the model level when the analysis complexity is actually the limiting factor; do not repeat ineffective attempts indefinitely.
+Do not change tier to match the parent or silently substitute another model. Luna always uses max. Sol high is reserved for its tier-3 question; Astra requires the tier-4 gate.
 
 ## Choosing a Model in Claude Code
 
-Determine the tier with [Choosing a Tier](#choosing-a-tier); only the model/effort set differs from Codex. Use Sonnet and Opus for subagents. Do not recommend Haiku. Do not use Fable. Delegate only as the session's tool rules allow.
+Tier 1 and the tier-2 working default both use Sonnet 5.5 high. Opus is reserved for a specific tier-3 or tier-4 question. Do not introduce other models or efforts.
 
-| Tier | Preset | Model | Effort |
-| --- | --- | --- | --- |
-| 1 | `sonnet-high` | Sonnet | high |
-| 2 | `opus-medium` | Opus | medium |
-| 3 | `opus-high` | Opus | high |
-| 4 | `opus-max` | Opus | max |
+| Tier | Preset | Model | Effort | Selection within tier |
+| --- | --- | --- | --- | --- |
+| 1 | `sonnet-high` | Sonnet 5.5 | high | Determined work. |
+| 2 | `sonnet-high` | Sonnet 5.5 | high | Working default. |
+| 3 | `opus-medium` | Opus 5.5 | medium | Targeted reasoning difficulty with meaningful checks. |
+| 3 | `opus-high` | Opus 5.5 | high | The same focused difficulty when an error has serious consequences or checks cover only part of the answer. State why medium is inadequate; consequences alone do not establish tier 3. |
+| 4 | `opus-max` | Opus 5.5 | max | Only after the tier-4 gate. |
 
-Claude Code's subagent tool accepts per-call `model` and `effort` overrides, but a per-call effort is allowed only when the user or instructions explicitly request it, and ad hoc values would drift between sessions. This project therefore uses one mechanism: each tier is a roleless preset in [.claude/agents/](../../.claude/agents/) that fixes its model and effort. Launch the preset by its agent type and pass neither `model` nor `effort`; either would replace the preset's value. These presets fix only model and effort; the task brief defines the role, so they are not the fixed role profiles prohibited above. Sonnet `max` is permitted by the user but has no preset because Opus `medium` covers its expected use; add one only when a task shows the need. The table guides subagents and does not change the main session's model or effort.
+The four roleless presets in [.claude/agents/](../../.claude/agents/) request fixed model versions and efforts; the brief defines the task. Launch the selected agent type without per-call `model` or `effort` overrides. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` can override preset models, and `CLAUDE_CODE_EFFORT_LEVEL` can override preset effort. Inspect only relevant non-secret settings when diagnosing a conflict; do not dump the environment. Where supported, `/tasks` shows a running agent's model and effort. See [official Claude subagent documentation](https://code.claude.com/docs/en/sub-agents). Presets request settings; client reporting is execution evidence.
 
-## Environment Capabilities
+## Environment and Reporting
 
-Before launching, check which models, effort values, and context handoff methods are actually available. Set the selected parameters explicitly when the interface supports it. Do not promise that an override will be applied if the tool only inherits the parent session's settings.
+Check models, efforts, launch methods and applicable overrides at the first launch, then recheck on capability changes or mismatches. Do not silently substitute unavailable combinations. Continue useful work that does not require the unavailable executor and report the limitation; do not move a large assignment into an unsuitable orchestrator to bypass it. Other clients, including Gemini, use common principles where supported, without invented model equivalencies.
 
-If a combination is unavailable, choose an appropriate available alternative within the session's permissions and report the difference. For Claude Code, use its own table above. For Gemini, use the same task-based selection principle, without inventing model equivalencies with Codex or carrying over unsupported parameters.
+The [model-routing skill](../../.agents/skills/model-routing/SKILL.md) and its [Claude adapter](../../.claude/skills/model-routing/SKILL.md) are entrypoints to this policy. This template configures no custom routing service, hook, MCP server, telemetry, or automatic global settings. Add enforcement only for demonstrated recurring failures and a tested integration.
 
-This document does not enable or configure the subagent mechanism. It does not expand tool permissions, authorize external data sharing, or override active session limitations.
-
-## Task Definition and Coordination
-
-Give the subagent the goal, required sources, editing boundaries or read-only mode, result criteria, expected checks, its tier, and the instruction to read this policy before starting. Add the last two in every client, even when a preset already states them. Provide enough context while avoiding unnecessary copying of the entire history.
-
-Use a short task-specific brief instead of a full-history fork when history is not necessary. Check the interface before selecting a model: in the current collaboration interface a full-history fork inherits the parent's settings and does not accept overrides. This interface-specific limitation must be rechecked when the tools change.
-
-For parallel edits, assign different file areas. Perform dependent changes sequentially; the main agent integrates shared files. Use a separate checkout only when isolation is genuinely needed. Do not create multiple workers for the same implementation without a reason.
-
-The main agent checks findings, integrates the result, and is responsible for the overall verification. A subagent's “done” message alone does not confirm that the task is complete.
-
-## Subagent Duties
-
-These apply to every subagent in every client (Claude Code, Codex, or another), whatever the model or preset.
-
-1. Before any other action, read this policy in full.
-2. Check the task against [Choosing a Tier](#choosing-a-tier). If a condition of a higher tier than your assigned one applies, or the brief lacks what your tier requires (a reference pattern for tier 1, a defined contract for tier 2), stop before making changes and report which condition applies and why. Do not continue at the wrong tier and do not fill the gap by guessing. A task that turns out to be simpler than its tier is completed as assigned.
-3. Do only the task in the brief, within its read-only mode or editing boundaries. Do not make product decisions.
-4. Follow [Data Handling](#data-handling) and the reading or writing mode below, and report in the form the brief and this policy require.
-
-## Reading and Writing with Bounded Context
-
-For context gathering, assign a concrete question and relevant paths in read-only mode. Ask for findings with file/symbol references, verified line locations where useful, contradictions, and remaining uncertainty. Do not return entire files or a generic repository summary. The main agent reads the necessary original sections before editing or accepting a significant conclusion; a summary may omit important conditions and line numbers must be checked.
-
-For repetitive generation, provide an existing reference, the target paths, behavior criteria, and meaningful checks. Have the subagent write directly to the assigned files and return the changed paths, a short explanation, actual check results, and unresolved issues. The main agent inspects the diff and relevant implementation without requiring the full generated text in the chat. If a pattern does not exist, define it first rather than asking a worker to invent architecture. Do not create boilerplate or tests merely to exercise delegation.
-
-These modes describe task shapes, not permanent agent roles or separate required skills. No file-size threshold forces delegation or blocks a necessary targeted read.
-
-## Data Handling
-
-Do not send secrets, credentials, personal data, or other confidential content to development assistants or external services. Use permitted synthetic fixtures, source code without secrets, and content-free measurements. Development routing does not change the product's own data-processing requirements.
-
-## Scope and Evidence
-
-The project-local [model-routing skill](../../.agents/skills/model-routing/SKILL.md) is a Codex entrypoint to this shared policy; [.claude/skills/model-routing](../../.claude/skills/model-routing/SKILL.md) is the Claude Code entrypoint to the same skill. Claude Code uses its own model table and the subagent presets in `.claude/agents/`; there is no one-to-one mapping between the Codex and Claude tables. Other clients use this document through the existing repository instructions; no global configuration is changed.
-
-This is advisory routing through existing subagent tools. Apart from the Claude Code model/effort presets, no Portal service, custom router plugin, hook, MCP server, API dependency, or telemetry system is configured. Reconsider enforced routing only after actual repeated inefficient operations and a tested integration justify it. Codex supports [plugin hooks](https://developers.openai.com/plugins/build/plugins), but that does not establish an installed or trusted hook in this checkout.
-
-The source idea is discussed in [Spotify's Shunt article](https://engineering.atspotify.com/2026/9/portal-by-spotify-cut-my-claude-code-token-usage-by-90): bounded reading and direct file generation reduce the primary agent's context. Its reported savings are specific to its benchmark, not a measured reduction in this project's total tokens, latency, or cost. A single shared policy and a small entrypoint follow [OpenAI's guidance on focused skills](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra).
-
-## Transparency
-
-In the final report on substantial delegation, state the task, selected model and effort, a brief reason for the choice, the result, and how it was checked. If the tool does not expose the actual execution parameters, say so; do not present requested parameters as confirmed.
-
-Include elapsed time and token usage only when the tool actually reports them. Mark unavailable metrics as unavailable; do not estimate savings from model names or present worker-only token counts as total workflow usage. Use the existing task report and `STATUS.md` for significant results rather than creating a parallel activity log.
+For substantial delegation, briefly report delegated results, requested model/effort and reason, verification, and any mismatch or unavailable execution evidence. Use reported time/usage only; do not infer savings from model names or confuse worker usage with total usage. Use existing task results and state documents instead of a parallel activity log. Test routing with [the evaluation procedure](AI_INFRASTRUCTURE_EVALUATION.md); static consistency cannot establish execution quality or quota savings.

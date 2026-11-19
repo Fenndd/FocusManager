@@ -72,7 +72,7 @@ Decisions this task needs from the user or from another document. Write "None" i
 
 ## Result
 
-Filled in when the task is finished: what was done, changed files, checks run and their outcome (verified / not verified / failed), limitations, and, if delegated, the tier, model, and effort used.
+Filled in when implementation is complete: what was done, changed files, checks run and their outcome (verified / not verified / failed), limitations, and, if delegated, the tier, model, and effort used. Record acceptance separately: who accepted the result and when, or the explicit prior authorization and the evidence that its conditions were met. Record any explicit instruction allowing dependent work before acceptance, with its scope and the prerequisite's actual state.
 ```
 
 ### Front Matter Fields
@@ -83,27 +83,31 @@ Filled in when the task is finished: what was done, changed files, checks run an
 | `title` | Short imperative title; matches the heading and the roadmap entry. |
 | `milestone` | The milestone the task belongs to. |
 | `status` | One of the statuses below. |
-| `depends_on` | Identifiers of tasks that must be `done` before this one can start. List only real dependencies: an output this task needs, or a change it builds on. |
-| `area` | Paths or glob patterns this task is expected to create or change, for example `src/auth/**`. It is the basis for deciding whether tasks may run in parallel, so state it as precisely as the plan allows. |
+| `depends_on` | Identifiers of tasks that must be accepted (`done`) before this one can start, unless an explicit user instruction permits continuation before acceptance as described below. List only real dependencies: an output this task needs, or a change it builds on. |
+| `area` | Implementation paths or glob patterns assigned to the task's worker, for example `src/auth/**`, plus its task file when that worker is assigned to edit it. State them precisely enough to check parallel editing boundaries. Shared `ROADMAP.md` and `STATUS.md` are owned by the main agent and are not automatically part of every worker's area. |
 
 ### Statuses
 
 | Status | Meaning |
 | --- | --- |
-| `planned` | Defined, but a dependency is not `done` or an open question is unresolved. |
-| `ready` | All dependencies are `done` and there are no open questions. |
+| `planned` | Defined, but a dependency is not accepted and has no explicit continuation instruction, or an open question is unresolved. |
+| `ready` | All dependencies are accepted (`done`), or explicitly authorized for continuation before acceptance, and there are no open questions. |
 | `in_progress` | Work has started. |
 | `blocked` | Work started but cannot continue; the reason is recorded in the task and in `STATUS.md`. |
-| `review` | Work is done and awaits acceptance by the user. |
-| `done` | Acceptance criteria met, checks recorded in Result, accepted. |
+| `review` | Implementation is complete, evidence and limitations are recorded, and acceptance is pending. User acceptance is the default. |
+| `done` | Acceptance criteria met, checks recorded in Result, and accepted by the user or under explicit prior acceptance authority whose conditions are met and recorded. |
 | `cancelled` | Will not be done; the reason is recorded in the task. The identifier stays reserved. |
 
-When a status changes, update the task's front matter and its roadmap entry in the same change.
+When a status changes, the main agent keeps the task's front matter and its roadmap entry consistent in the integration change. A worker may update its assigned task file or return a proposed status, but must not concurrently edit the shared roadmap. Each task file has one writer at a time; the main agent integrates final facts after the writer hands it back.
+
+Implementation completion moves a task to `review`, not automatically to `done`. A general request to implement work is not acceptance authority. Independent review is evidence, not acceptance. If acceptance was explicitly authorized in advance, record the user instruction, its scope and conditions, and how those conditions were met before marking `done`.
 
 ## Order and Parallelism
 
 - A task can start only when it is `ready`.
+- Starting dependent work before acceptance requires an explicit user continuation instruction. Record that instruction and its scope in the prerequisite and dependent task records; keep the prerequisite's actual status, such as `review`. This exception permits the stated continuation, not acceptance or blanket continuation of the backlog.
 - Two `ready` tasks may run in parallel only if neither depends on the other, directly or through other tasks, and their `area` patterns do not overlap. If either `area` is empty or unclear, run them sequentially.
+- Workers edit their assigned areas only. The main agent serializes shared roadmap and current-status updates, so those bookkeeping files do not create an artificial overlap between independent worker areas. Any other shared file still needs a single writer or sequential integration.
 - The order of tasks in `ROADMAP.md` is the default order among `ready` tasks. Dependencies, not list position, decide what is allowed.
 
 ## ROADMAP.md Layout
