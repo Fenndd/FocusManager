@@ -3,7 +3,7 @@ id: T017
 title: Bootstrap the Tauri 2 and React desktop UI
 milestone: M2
 status: planned
-depends_on: ["T005"]
+depends_on: ["T005", "T047"]
 area: ["src/Desktop/**", ".github/workflows/ci.yml", "AGENTS.md"]
 ---
 
@@ -38,6 +38,8 @@ In scope:
 
 Out of scope: list screens (T018), account sign-in, and Firebase (M10).
 
+Planning note (T027, 2026-11-18, from proposed ADR-0009; not accepted): this task now also depends on T047, which adds `protocolVersion`, `GetAgentInfo` and `errorCode` to the contract. The UI sends the version, calls `GetAgentInfo`, and reports unauthorized or incompatible-version states only as far as the owner decides (ADR-0009 Q9, Q16). IPC goes from the Rust core only, not from WebView JavaScript. The check that the pipe owner is LocalSystem is added by T052 and cannot hold in console mode. Until T051 exists, the real agent does not answer `GetAgentInfo`, so those paths are verified against a schema-conformant fake and the real-agent check is part of the T016 gate. The in-session checks depend on the self-exemption of FocusManager's own processes (T048, ADR-0009 Q12).
+
 ## Acceptance Criteria
 
 1. The application builds and starts on Windows and Linux; on Windows it controls sessions through the agent.
@@ -53,7 +55,7 @@ Out of scope: list screens (T018), account sign-in, and Firebase (M10).
 
 ## Open Questions
 
-None
+ADR-0009 owner questions that touch this task: Q4 (what tray "Exit" does in the service model, WIN-007), Q7 (whether the UI starts automatically at logon and is restarted), Q9 and Q16 (which agent states the UI distinguishes). The tray menu items are not final until Q4 is answered.
 
 ## Result
 

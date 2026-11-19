@@ -19,6 +19,7 @@ File name: `NNNN-kebab-case-title.md`, using the next sequential number.
 | [0006](0006-local-storage-and-firebase.md) | Local storage (SQLite/Room) + Firebase for the cloud | Accepted |
 | [0007](0007-desktop-agent-and-tauri-ui.md) | Desktop: background C# agent + Tauri 2 / React UI | Accepted |
 | [0008](0008-adopt-ai-development-infrastructure.md) | Adopt the transferred AI development infrastructure, English documentation, and root-level work tracking | Accepted |
+| [0009](0009-windows-service-and-user-session-boundary.md) | Windows: LocalSystem service, per-session helper, token-based IPC authorization. If accepted, amends ADR-0007 (UI–agent access "limited to the current user" is replaced by service-side per-user authorization) | Proposed; owner acceptance pending (T027) |
 
 ## Template
 

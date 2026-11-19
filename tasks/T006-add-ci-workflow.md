@@ -42,6 +42,11 @@ Planning change (T026, 2026-11-17): CI follows the SDK migration as well as stor
 
 ## Checks
 
+Owner scheduling hold (2026-11-18): the Linux-host job/checks described here are deferred until explicit
+owner resumption. Preserve their planned definition; do not create/run a Linux job as a workaround
+for the hold. Windows work can be scoped separately when this task becomes eligible, with deferred
+coverage reported explicitly. No existing CI success or full acceptance is established by this note.
+
 - Inspect workflow syntax, runner selection, SDK selection, and any test-category filters.
 - Run `dotnet test FocusManager.Shared.slnf` and run `dotnet test FocusManager.Windows.slnf` on Windows.
 - After an authorized push, inspect both GitHub Actions jobs on the main branch; record CI verification as unavailable until such a run exists.

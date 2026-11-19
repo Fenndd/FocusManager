@@ -5,6 +5,7 @@ schedules and limits, and protection levels against bypassing.
 
 - Main platforms: Android, Windows, Linux; iOS later (`docs/spec/product.md`).
 - Today only the Windows version exists: `src/Windows` (background agent + WinUI 3 UI, to be replaced by a Tauri UI).
+- Linux development is on [owner hold](docs/spec/decisions.md#j1-linux-development-hold) as of 2026-11-18; current work is conserved until the owner explicitly decides to resume.
 - Plan: [ROADMAP.md](ROADMAP.md). Current work: [STATUS.md](STATUS.md).
 - Architecture: [docs/architecture/README.md](docs/architecture/README.md).
 
@@ -32,23 +33,11 @@ dotnet test FocusManager.Shared.slnf    # shared code, any OS
 dotnet test FocusManager.Windows.slnf   # full Windows build, Windows only
 ```
 
-## Database (PostgreSQL — temporary)
+## Local data
 
-The agent will return to a local SQLite file (task T002, ADR-0006). Until then it stores settings and whitelists in PostgreSQL. Tables are created automatically on first start;
-the database and role must exist:
-
-```sql
-CREATE ROLE focusmanager LOGIN PASSWORD '<password>';
-CREATE DATABASE focusmanager OWNER focusmanager;
-```
-
-The connection string is `ConnectionStrings:FocusManager` in `src/Windows/FocusManager.Agent/appsettings.json`
-(no password there). Provide the password without committing it, e.g. via the
-`ConnectionStrings__FocusManager` environment variable (full connection string) or PostgreSQL's
-`%APPDATA%\postgresql\pgpass.conf`.
-
-Storage tests need a database too: set `FOCUSMANAGER_TEST_POSTGRES` to a connection string
-(tests are skipped otherwise). See `AGENTS.md`.
+The agent keeps settings and allow-lists in a local SQLite database and needs no database server or configuration.
+On Windows it is `%LOCALAPPDATA%\FocusManager\focusmanager.db` (the same file as before 2026-09-30), so a development
+launch uses the current user's real data. Storage tests use temporary files only.
 
 ## Dev launch (Windows)
 

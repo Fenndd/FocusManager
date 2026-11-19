@@ -1,0 +1,29 @@
+  Determining projects to restore...
+  Restored <HEAD_BASELINE_COPY>\src\Windows\FocusManager.Contracts\FocusManager.Contracts.csproj (in 105 ms).
+  Restored <HEAD_BASELINE_COPY>\src\Shared\FocusManager.Core\FocusManager.Core.csproj (in 105 ms).
+  Restored <HEAD_BASELINE_COPY>\src\Windows\FocusManager.Platform.Windows\FocusManager.Platform.Windows.csproj (in 424 ms).
+  Restored <HEAD_BASELINE_COPY>\src\Windows\FocusManager.App\FocusManager.App.csproj (in 424 ms).
+  Restored <HEAD_BASELINE_COPY>\tests\Shared\FocusManager.Core.Tests\FocusManager.Core.Tests.csproj (in 475 ms).
+  Restored <HEAD_BASELINE_COPY>\tests\Windows\FocusManager.Platform.Windows.Tests\FocusManager.Platform.Windows.Tests.csproj (in 446 ms).
+  Restored <HEAD_BASELINE_COPY>\src\Shared\FocusManager.Persistence.Postgres\FocusManager.Persistence.Postgres.csproj (in 1,69 sec).
+  Restored <HEAD_BASELINE_COPY>\tests\Shared\FocusManager.Persistence.Postgres.Tests\FocusManager.Persistence.Postgres.Tests.csproj (in 1,69 sec).
+  Restored <HEAD_BASELINE_COPY>\src\Windows\FocusManager.Agent\FocusManager.Agent.csproj (in 1,79 sec).
+  Restored <HEAD_BASELINE_COPY>\tests\Windows\FocusManager.Agent.Tests\FocusManager.Agent.Tests.csproj (in 1,79 sec).
+  FocusManager.Contracts -> <HEAD_BASELINE_COPY>\src\Windows\FocusManager.Contracts\bin\Debug\net8.0\FocusManager.Contracts.dll
+  FocusManager.Core -> <HEAD_BASELINE_COPY>\src\Shared\FocusManager.Core\bin\Debug\net8.0\FocusManager.Core.dll
+  FocusManager.Platform.Windows -> <HEAD_BASELINE_COPY>\src\Windows\FocusManager.Platform.Windows\bin\Debug\net8.0-windows\FocusManager.Platform.Windows.dll
+  FocusManager.Persistence.Postgres -> <HEAD_BASELINE_COPY>\src\Shared\FocusManager.Persistence.Postgres\bin\Debug\net8.0\FocusManager.Persistence.Postgres.dll
+  FocusManager.Core.Tests -> <HEAD_BASELINE_COPY>\tests\Shared\FocusManager.Core.Tests\bin\Debug\net8.0\FocusManager.Core.Tests.dll
+  FocusManager.Platform.Windows.Tests -> <HEAD_BASELINE_COPY>\tests\Windows\FocusManager.Platform.Windows.Tests\bin\Debug\net8.0-windows\FocusManager.Platform.Windows.Tests.dll
+  FocusManager.Persistence.Postgres.Tests -> <HEAD_BASELINE_COPY>\tests\Shared\FocusManager.Persistence.Postgres.Tests\bin\Debug\net8.0\FocusManager.Persistence.Postgres.Tests.dll
+  FocusManager.Agent -> <HEAD_BASELINE_COPY>\src\Windows\FocusManager.Agent\bin\Debug\net8.0-windows\FocusManager.Agent.dll
+  FocusManager.Agent.Tests -> <HEAD_BASELINE_COPY>\tests\Windows\FocusManager.Agent.Tests\bin\Debug\net8.0-windows\FocusManager.Agent.Tests.dll
+<USER_NUGET>\packages\microsoft.windowsappsdk\1.5.240802000\buildTransitive\MrtCore.PriGen.targets(913,5): error MSB4062: The "Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent" task could not be loaded from the assembly C:\Program Files\dotnet\sdk\8.0.419\\Microsoft\VisualStudio\v17.0\AppxPackage\\Microsoft.Build.Packaging.Pri.Tasks.dll. Could not load file or assembly 'C:\Program Files\dotnet\sdk\8.0.419\Microsoft\VisualStudio\v17.0\AppxPackage\Microsoft.Build.Packaging.Pri.Tasks.dll'. The system cannot find the path specified. Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [<HEAD_BASELINE_COPY>\src\Windows\FocusManager.App\FocusManager.App.csproj]
+
+Build FAILED.
+
+<USER_NUGET>\packages\microsoft.windowsappsdk\1.5.240802000\buildTransitive\MrtCore.PriGen.targets(913,5): error MSB4062: The "Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent" task could not be loaded from the assembly C:\Program Files\dotnet\sdk\8.0.419\\Microsoft\VisualStudio\v17.0\AppxPackage\\Microsoft.Build.Packaging.Pri.Tasks.dll. Could not load file or assembly 'C:\Program Files\dotnet\sdk\8.0.419\Microsoft\VisualStudio\v17.0\AppxPackage\Microsoft.Build.Packaging.Pri.Tasks.dll'. The system cannot find the path specified. Confirm that the <UsingTask> declaration is correct, that the assembly and all its dependencies are available, and that the task contains a public class that implements Microsoft.Build.Framework.ITask. [<HEAD_BASELINE_COPY>\src\Windows\FocusManager.App\FocusManager.App.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:16.52

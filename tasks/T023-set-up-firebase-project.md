@@ -54,7 +54,12 @@ Planning change (T026, owner milestone request on 2026-11-17): moved from M6 to 
 
 ## Open Questions
 
-SYNC-002 sign-in methods must be decided in T037; do not assume email or Google. The owner must create/select the Firebase project in their Google account and grant the required access. Repository paths for configuration, rules, and emulator tests must then be established; do not guess them or change external account resources without the needed authorization.
+Google and email sign-in are selected by L2/SYNC-002; do not reopen that product choice. T037 still owns
+the versioned account/sync contract and technical details. The owner must create/select the Firebase project
+and provide the required access. Blaze is acceptable when needed within the EUR 5/month operating budget,
+but no external project/billing change is performed by recording that direction. Establish configuration,
+rules and emulator-test paths from the actual project and task; do not guess credentials or deploy without
+the required authorization. All local functions remain offline-capable and SYNC-004 remote control is removed.
 
 ## Result
 

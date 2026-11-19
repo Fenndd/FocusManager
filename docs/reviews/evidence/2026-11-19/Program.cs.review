@@ -1,0 +1,26 @@
+using FocusManager.Core.Models;
+using FocusManager.Core.Rules;
+using FocusManager.Platform.Windows;
+
+var oldEvaluator = new BaselineRuleEvaluator();
+var currentEvaluator = new RuleEvaluator(new WindowsHostPathRules());
+var cases = new[]
+{
+    (Candidate: @"\\\srv\share\x", Allowed: @"\\srv\share", ExpectedOld: false, ExpectedCurrent: true),
+    (Candidate: @"\\srv\share\x", Allowed: @"\\\srv\share", ExpectedOld: false, ExpectedCurrent: true),
+    (Candidate: @"\\srv\share\x", Allowed: @"\\srv\share", ExpectedOld: true, ExpectedCurrent: true)
+};
+foreach (var item in cases)
+{
+    var config = new WhitelistConfig
+    {
+        AllowedFolders = [new AllowedFolder("Synthetic", item.Allowed, AllowSubfolders: true)]
+    };
+    var oldAllowed = oldEvaluator.EvaluateFolderOpen(item.Candidate, config).IsAllowed;
+    var currentAllowed = currentEvaluator.EvaluateFolderOpen(item.Candidate, config).IsAllowed;
+    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { item.Candidate, item.Allowed, oldAllowed, currentAllowed }));
+    if (oldAllowed != item.ExpectedOld || currentAllowed != item.ExpectedCurrent)
+    {
+        throw new InvalidOperationException("Observed evaluator results differ from the reported finding.");
+    }
+}

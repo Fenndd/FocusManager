@@ -33,7 +33,7 @@ test-vectors/                ⏳ shared rule test vectors (JSON) for all platfor
 src/
 ├── Shared/                     ← C#, shared desktop-agent code (Windows + Linux), net8.0, no OS APIs
 │   ├── FocusManager.Core/                  models, rules, abstractions (ports)
-│   └── FocusManager.Persistence.Postgres/  temporary; to be replaced by Persistence.Sqlite (task T002)
+│   └── FocusManager.Persistence.Sqlite/    local SQLite storage; path and default folders come from the platform host (ADR-0006)
 ├── Windows/                    ← C#, Windows only
 │   ├── FocusManager.Platform.Windows/      WMI, File Explorer COM, browser-policy registry
 │   ├── FocusManager.Contracts/             IPC messages (to be generated from contracts/, task T005)

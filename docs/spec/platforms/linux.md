@@ -4,6 +4,8 @@ A primary platform (decision B1), with the same functionality as Windows (decisi
 Status: **draft**. The mechanisms below are hypotheses; feasibility must be confirmed through research
 (task T019). A C#/.NET agent shares code with the Windows agent; the UI is the same Tauri application as on Windows (ADR-0007).
 
+**Development hold (owner decision, 2026-11-18):** Linux work is conserved and must not continue until the owner explicitly decides to resume it. See [decision J1](../decisions.md#j1-linux-development-hold). This includes research, prototypes, implementation, environment/tool setup, platform tests, CI and packaging, including Linux-only portions of mixed tasks. Existing requirements, hypotheses, research and future Windows/Linux sharing remain preserved; this hold does not cancel the platform or verify any capability. Windows and shared-code work on Windows may continue within their own task gates, including tests of pure Unix-style path data without Linux platform implementation.
+
 ## Proposed mechanisms
 
 | Feature | Linux mechanism | Challenges |

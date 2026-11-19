@@ -16,7 +16,10 @@ Platforms: Android — planned · Windows — planned · Linux — planned · iO
 
 ### TEL-003 User consent
 Usage analytics (TEL-002) are collected only with explicit consent; consent can be withdrawn
-in settings. Whether consent is required for crash reports (TEL-001) needs clarification.
+in settings. Consent is requested during registration (owner [L4](decisions.md#l4-registration-consent-and-deferred-content-collection),
+2026-11-18), with crash reporting and usage analytics represented as distinct purposes. Creating an account
+does not itself grant consent. Unregistered use has no inferred telemetry consent; local client functions
+remain available without registration or internet. Withdrawal remains available in settings.
 
 Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
 > ❓ Question: a legal review (GDPR, ePrivacy) is needed before release.
@@ -26,8 +29,8 @@ The user's application names, website addresses, keywords, and folder paths are 
 to analytics.
 
 Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
-> ❓ Question: is collecting anonymized statistics on commonly blocked websites/applications acceptable
-> (useful for ready-made profile templates)? Only with separate consent.
+Owner decision L4: collection of popular blocked applications/sites is deferred. Do not collect these
+contents, including purportedly anonymized popular-item statistics, unless the owner revisits the decision.
 
 ### TEL-005 Privacy policy
 The application has a privacy policy describing the data collected (required by stores).

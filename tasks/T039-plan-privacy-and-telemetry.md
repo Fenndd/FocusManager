@@ -19,12 +19,23 @@ Produce a bounded, source-linked implementation backlog and identify the decisio
 
 ## Scope
 
-In scope: Create separate tasks for data inventory/privacy review, consent and withdrawal controls, crash reporting and usage-event instrumentation per platform, and checks preventing list content in telemetry. Obtain required legal/owner clarification for crash consent and anonymized popular-item analytics; do not provide an AI legal conclusion as approval. Feed reviewed data flows to T015 before privacy-policy publication.
+In scope: Create separate tasks for data inventory/privacy review, registration-time consent and withdrawal,
+crash reporting and usage-event instrumentation, and checks preventing list/notification content in telemetry.
+L4 defers popular blocked-item collection and does not infer guest consent. Review actual consent/data flows
+for release without treating the owner's product instruction as a legal conclusion. Include local blocked-
+notification inbox retention/clearing and sensitive content in the inventory. Feed reviewed flows to T015.
 Out of scope: production implementation, external resource changes, or deciding unspecified product behavior.
 
 Planning change (T026, owner milestone request on 2026-11-17): moved from M6 to M10 to give this feature area a separate acceptance milestone. Task ID and requirement meaning are unchanged.
 
 ## Acceptance Criteria
+
+Owner update (T061, 2026-11-18): [L4](../docs/spec/decisions.md#l4-registration-consent-and-deferred-content-collection)
+defers popular blocked-item analytics and requests consent at registration. Distinguish crash and usage
+purposes, preserve withdrawal and do not infer consent for guests/account creation. Local functions must
+not depend on registration, consent or network. Incorporate the local blocked-notification inbox data flow
+from CNT-003 into the privacy/storage review without authorizing content upload. Legal review remains a
+release gate; the owner answer is a product instruction, not a legal conclusion.
 
 1. Every capability in scope is assigned to a one-session implementation or research/decision task, with sources, dependencies, precise areas and observable acceptance checks.
 2. Open owner questions stay in the owning specification and gate affected implementation tasks; new tasks follow TASK_FORMAT.md.

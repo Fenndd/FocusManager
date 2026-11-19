@@ -1,0 +1,9 @@
+[xUnit.net 00:00:00.85]       Assert.Single() Failure: The collection was empty
+[xUnit.net 00:00:00.85]     FocusManager.Agent.Tests.AppEnforcerTests.EnforceAsync_Notifies_WhenDeniedProcessWasKilled [FAIL]
+[xUnit.net 00:00:00.85]         <REVIEW_COPY>\tests\Windows\FocusManager.Agent.Tests\AppEnforcerTests.cs(143,0): at FocusManager.Agent.Tests.AppEnforcerTests.EnforceAsync_Notifies_WhenDeniedProcessWasKilled()
+  Failed FocusManager.Agent.Tests.AppEnforcerTests.EnforceAsync_Notifies_WhenDeniedProcessWasKilled [514 ms]
+   Assert.Single() Failure: The collection was empty
+     at FocusManager.Agent.Tests.AppEnforcerTests.EnforceAsync_Notifies_WhenDeniedProcessWasKilled() in <REVIEW_COPY>\tests\Windows\FocusManager.Agent.Tests\AppEnforcerTests.cs:line 143
+Test Run Failed.
+Total tests: 1
+     Failed: 1

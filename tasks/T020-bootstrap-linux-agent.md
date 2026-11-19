@@ -37,6 +37,8 @@ Out of scope: production application/site enforcement (T042), folders/notificati
 
 Planning change (T026, 2026-11-17): Add the missing T017 dependency and separate host/IPC bootstrap from enforcement T042.
 
+Scheduling hold (T053, 2026-11-18): [Owner decision J1](../docs/spec/decisions.md#j1-linux-development-hold) conserves this `planned` task. Do not continue Linux research or prototypes, implementation, environment/tool setup, platform tests, CI or packaging until the owner explicitly decides to resume Linux work and the task's other gates are met. Dependency completion or a general request to continue the backlog does not lift the hold. Existing scope, sources, findings and future Windows/Linux sharing remain preserved; Linux-only portions of mixed future tasks are also deferred.
+
 ## Acceptance Criteria
 
 1. On the researched Linux environment, the host runs as a service; authorized-user UI control, reconnect and persisted state are verified.
@@ -51,7 +53,7 @@ Planning change (T026, 2026-11-17): Add the missing T017 dependency and separate
 
 ## Open Questions
 
-None
+When will the owner explicitly decide to resume Linux work? This scheduling gate remains unresolved independently of the listed dependencies; an agent may not resolve it on the owner's behalf.
 
 ## Result
 

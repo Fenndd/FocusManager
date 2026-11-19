@@ -34,6 +34,12 @@ In scope:
 
 Out of scope: TypeScript and Kotlin consumers belong to T018 and Android tasks.
 
+Review handoff (2026-11-18): [T054](T054-fix-windows-path-compatibility-after-review.md) creates the
+minimal regression examples required for its Windows compatibility fixes. Preserve/extend those examples
+when delivering this complete suite and loader; T054 does not complete T022. Linux-host execution in
+criterion 2 is deferred under the owner's explicit Linux hold, not waived or verified. Windows/shared
+examples may still be prepared and checked on Windows when this task's dependencies permit it.
+
 ## Acceptance Criteria
 
 1. The examples cover all rule branches in the referenced requirements.

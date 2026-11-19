@@ -1,0 +1,12 @@
+MSBuild version 18.3.0-release-26070-10+3972042b7 for .NET Framework
+
+  FocusManager.Core -> <isolated-review>\snapshot\src\Shared\FocusManager.Core\bin\Debug\net8.0\FocusManager.Core.dll
+  FocusManager.Persistence.Sqlite -> <isolated-review>\snapshot\src\Shared\FocusManager.Persistence.Sqlite\bin\Debug\net8.0\FocusManager.Persistence.Sqlite.dll
+  FocusManager.Contracts -> <isolated-review>\snapshot\src\Windows\FocusManager.Contracts\bin\Debug\net8.0\FocusManager.Contracts.dll
+  FocusManager.Platform.Windows -> <isolated-review>\snapshot\src\Windows\FocusManager.Platform.Windows\bin\Debug\net8.0-windows\FocusManager.Platform.Windows.dll
+  FocusManager.Agent -> <isolated-review>\snapshot\src\Windows\FocusManager.Agent\bin\Debug\net8.0-windows\FocusManager.Agent.dll
+  FocusManager.App -> <isolated-review>\snapshot\src\Windows\FocusManager.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FocusManager.App.dll
+  FocusManager.Core.Tests -> <isolated-review>\snapshot\tests\Shared\FocusManager.Core.Tests\bin\Debug\net8.0\FocusManager.Core.Tests.dll
+  FocusManager.Persistence.Sqlite.Tests -> <isolated-review>\snapshot\tests\Shared\FocusManager.Persistence.Sqlite.Tests\bin\Debug\net8.0\FocusManager.Persistence.Sqlite.Tests.dll
+  FocusManager.Platform.Windows.Tests -> <isolated-review>\snapshot\tests\Windows\FocusManager.Platform.Windows.Tests\bin\Debug\net8.0-windows\FocusManager.Platform.Windows.Tests.dll
+  FocusManager.Agent.Tests -> <isolated-review>\snapshot\tests\Windows\FocusManager.Agent.Tests\bin\Debug\net8.0-windows\FocusManager.Agent.Tests.dll

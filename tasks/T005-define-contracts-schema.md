@@ -36,6 +36,8 @@ In scope:
 
 Out of scope:
 - Changes to the message format or transport.
+
+Planning note (T027, 2026-11-18, from proposed ADR-0009): protocol versioning, `GetAgentInfo`, error codes, event framing and transport limits are not added here. If the ADR is accepted, T047 delivers them after this task; no scope or acceptance criterion of T005 changes.
 - Firebase synchronization documents (T021).
 
 ## Acceptance Criteria

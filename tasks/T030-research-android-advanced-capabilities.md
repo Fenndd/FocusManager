@@ -24,6 +24,11 @@ Out of scope: production feature implementation or weakening requirements withou
 
 ## Acceptance Criteria
 
+Owner constraint (T061, L4): general keyword scanning of visible on-screen/page text is deferred and not
+currently considered. Preserve separately requested address/search-query matching and section recognition;
+research for those features must stay within K2's per-purpose permission/policy boundaries. Do not treat the
+broader content title as authorization to restart the deferred screen-text feature.
+
 1. Each advanced capability has evidence or a named remaining research task; untested hypotheses retain research status.
 2. Accepted mechanisms have separate implementation tasks per capability, permission flow and checks; unresolved feasibility/owner choices remain explicit.
 

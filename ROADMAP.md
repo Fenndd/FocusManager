@@ -11,11 +11,14 @@ Follow [TASK_FORMAT.md](docs/engineering/TASK_FORMAT.md) and
 
 Milestones are acceptance checkpoints, not claims of implemented functionality or release dates.
 Their numeric order is the default development sequence; actual task dependencies govern what may start.
-PC, Android and Linux research may proceed in parallel under owner decisions B1/B2 and the orchestration
-file-ownership rules. Infrastructure adoption T025 and this roadmap preparation T026 await acceptance.
+Windows/shared and Android work follow the task and orchestration gates. Linux development, research,
+setup and Linux-host validation are on owner hold from 2026-11-18 until explicit owner resumption;
+preserve existing materials and defer Linux-only portions of mixed tasks. See
+[decision J1](docs/spec/decisions.md#j1-linux-development-hold). Infrastructure adoption T025 and
+roadmap preparation T026 await acceptance.
 
 T001–T025 retain their legacy numeric identities. T026 audits planning; T027–T044 split oversized work
-and add missing decision/research/decomposition gates. Milestones were refined at the owner's request
+and add missing decision/research/decomposition gates. T047–T052 were added on 2026-11-18 by T027 as proposed children of T016 (blocked on acceptance of ADR-0009). Milestones were refined at the owner's request
 on 2026-11-17; task IDs and requirement meanings are unchanged.
 
 Near-term M1/M2 tasks describe implementation. Later planning tasks explicitly create bounded child
@@ -25,8 +28,18 @@ milestone: all resulting implementation children and the observable exit criteri
 Do not invent platform mechanisms to make the distant backlog appear ready.
 
 See [requirement coverage](docs/engineering/REQUIREMENT_COVERAGE.md) for every functional area's
-implementation or preparation owner. The first local-only version versus first public paid release
-boundary is an open owner question in SYNC; T037 resolves it. No internal/public interpretation is assumed.
+implementation or preparation owner. K3 now permits cloud from the first version when needed, subject to
+zero/minimal expense priority; T037 retains detailed account/synchronization/release semantics and T060
+estimates costs before any paid activation. The previous mandatory no-cloud boundary is superseded.
+
+Current review closeout: read the [2026-11-19 rereview](docs/reviews/2026-11-19-uncommitted.md), retained by
+T062, before the historical [2026-11-18 report](docs/reviews/2026-11-18-uncommitted.md). T054 and T056 are
+submitted in `review`; T055 (isolated Windows SQLite startup/restart verification) is `blocked`.
+T063 is in progress in the owner-directed follow-up to correct the two P2 findings. This is rework/verification
+of unaccepted work, not permission to advance the feature
+backlog or accept ADR-0009. Completing the package does not complete M1: T007/T012/T022/T006 and owner
+acceptance remain separate gates. Linux criteria remain deferred and unverified; the hold does not
+silently waive them or change milestone exit criteria.
 
 ## M0 — Development foundation
 
@@ -41,6 +54,11 @@ Exit criteria:
 | --- | --- | --- | --- |
 | [T025](tasks/T025-install-ai-development-infrastructure.md) | Adopt the shared AI development infrastructure | — | review |
 | [T026](tasks/T026-review-roadmap-and-orchestration.md) | Prepare the roadmap and agent orchestration for development | — | review |
+| [T046](tasks/T046-update-shared-ai-agent-infrastructure.md) | Update the shared AI agent infrastructure | — | review |
+| [T053](tasks/T053-record-review-and-conserve-linux-work.md) | Record the review handoff and conserve Linux work | — | review |
+| [T057](tasks/T057-record-owner-service-android-and-cloud-decisions.md) | Record owner service Android and cloud decisions | — | review |
+| [T061](tasks/T061-record-profile-offline-billing-and-default-decisions.md) | Record profile offline billing and default decisions | — | review |
+| [T062](tasks/T062-record-uncommitted-rereview-and-handoff.md) | Record the uncommitted rereview and correction handoff | — | review |
 
 ## M1 — PC storage rules and repeatable checks
 
@@ -54,12 +72,16 @@ Exit criteria:
 
 | Task | Title | Depends on | Status |
 | --- | --- | --- | --- |
-| [T002](tasks/T002-restore-sqlite-storage.md) | Restore local SQLite storage without Windows defaults | — | ready |
+| [T002](tasks/T002-restore-sqlite-storage.md) | Restore local SQLite storage without Windows defaults | — | review |
+| [T054](tasks/T054-fix-windows-path-compatibility-after-review.md) | Fix Windows path compatibility after review | — | review |
+| [T063](tasks/T063-resolve-uncommitted-rereview-findings.md) | Resolve the uncommitted rereview findings | — | in_progress |
+| [T055](tasks/T055-verify-windows-sqlite-startup-and-restarts.md) | Verify Windows SQLite startup and restarts | — | blocked |
 | [T007](tasks/T007-migrate-to-dotnet-10.md) | Migrate to .NET 10 LTS | T002 | planned |
-| [T001](tasks/T001-make-core-path-rules-os-independent.md) | Make Core path rules independent of the host OS | — | ready |
+| [T001](tasks/T001-make-core-path-rules-os-independent.md) | Make Core path rules independent of the host OS | — | review |
 | [T012](tasks/T012-align-core-rules-with-spec.md) | Align Core rules with the new specification | T001 | planned |
 | [T022](tasks/T022-add-shared-test-vectors.md) | Create shared rule test vectors for all platforms | T012 | planned |
 | [T006](tasks/T006-add-ci-workflow.md) | Add GitHub Actions CI | T001, T002, T007 | planned |
+| [T045](tasks/T045-make-app-enforcer-kill-test-path-independent.md) | Make the AppEnforcer termination test independent of PATH | — | review |
 | [T004](tasks/T004-extract-whitelist-editing-logic-to-shared.md) | Extract whitelist input validation from WinUI into Shared | T001 | cancelled |
 | [T010](tasks/T010-migrate-data-from-sqlite.md) | Migrate legacy SQLite data to PostgreSQL | — | cancelled |
 
@@ -76,10 +98,18 @@ Exit criteria:
 | Task | Title | Depends on | Status |
 | --- | --- | --- | --- |
 | [T005](tasks/T005-define-contracts-schema.md) | Define UI-agent JSON Schema contracts and generate types | — | ready |
-| [T027](tasks/T027-design-windows-service-session-boundary.md) | Design the Windows service and user-session boundary | — | ready |
+| [T027](tasks/T027-design-windows-service-session-boundary.md) | Design the Windows service and user-session boundary | — | review |
+| [T056](tasks/T056-clarify-proposed-service-design-after-review.md) | Clarify the proposed service design after review | — | in_progress |
+| [T058](tasks/T058-reconcile-service-design-with-owner-decisions.md) | Reconcile the service design with confirmed owner decisions | T056 | planned |
 | [T003](tasks/T003-extract-study-mode-orchestration-to-shared.md) | Extract session orchestration from the Windows agent into Shared | T001 | planned |
-| [T017](tasks/T017-bootstrap-tauri-desktop-ui.md) | Bootstrap the Tauri 2 and React desktop UI | T005 | planned |
-| [T016](tasks/T016-run-agent-as-windows-service.md) | Run the Windows agent as a service without its own UI | T027, T003, T017 | planned |
+| [T017](tasks/T017-bootstrap-tauri-desktop-ui.md) | Bootstrap the Tauri 2 and React desktop UI | T005, T047 | planned |
+| [T016](tasks/T016-run-agent-as-windows-service.md) | Run the Windows agent as a service without its own UI | T027, T003, T017, T047–T052 | planned |
+| [T047](tasks/T047-add-contract-versioning-and-agent-info.md) | Add protocol versioning, GetAgentInfo and error codes to the UI-agent contract | T005, T027 | planned |
+| [T048](tasks/T048-make-windows-enforcement-session-aware.md) | Make Windows enforcement session-aware with a policy ledger | T003, T013, T027 | planned |
+| [T049](tasks/T049-add-windows-session-helper.md) | Add the Windows session helper for Explorer interaction | T048, T027 | planned |
+| [T050](tasks/T050-move-windows-storage-to-service-owned-partitions.md) | Move Windows storage to service-owned per-user partitions | T002, T048, T027 | planned |
+| [T051](tasks/T051-harden-agent-ipc-authorization.md) | Harden the agent IPC with token-based caller authorization | T047, T048, T050, T027 | planned |
+| [T052](tasks/T052-host-windows-agent-as-service.md) | Host the Windows agent as a LocalSystem service with session supervision | T049, T050, T051, T027 | planned |
 | [T018](tasks/T018-migrate-screens-and-remove-winui.md) | Migrate screens to Tauri and remove the WinUI application | T017, T016, T012, T022 | planned |
 | [T013](tasks/T013-support-major-browsers-on-windows.md) | Support major Windows browsers and block unsupported browsers | T012 | planned |
 | [T011](tasks/T011-research-opera-site-filtering.md) | Find a site-filtering mechanism for Opera | — | ready |
@@ -105,6 +135,10 @@ Exit criteria:
 
 ## M4 — Linux service and enforcement foundation
 
+Execution state: **on owner hold** from 2026-11-18. T019/T020/T042/T043 are conserved in `planned`;
+do not start them, their children, Linux-only mixed-task work or Linux-host checks until the owner
+explicitly resumes Linux development. Existing requirements, sources and research are preserved.
+
 Goal: The desktop UI controls a Linux service with verified core blocking on the owner-approved environment matrix.
 
 Exit criteria:
@@ -115,7 +149,7 @@ Exit criteria:
 
 | Task | Title | Depends on | Status |
 | --- | --- | --- | --- |
-| [T019](tasks/T019-research-linux-mechanisms.md) | Research Linux blocking mechanisms | — | ready |
+| [T019](tasks/T019-research-linux-mechanisms.md) | Research Linux blocking mechanisms | — | planned |
 | [T020](tasks/T020-bootstrap-linux-agent.md) | Bootstrap the Linux agent | T019, T002, T003, T017 | planned |
 | [T042](tasks/T042-implement-linux-enforcement.md) | Implement Linux application and website enforcement | T019, T020, T012, T022 | planned |
 | [T043](tasks/T043-research-linux-folders-notifications-packaging.md) | Research Linux folders notifications and packaging | T019 | planned |
@@ -132,7 +166,7 @@ Exit criteria:
 
 | Task | Title | Depends on | Status |
 | --- | --- | --- | --- |
-| [T028](tasks/T028-resolve-profile-composition.md) | Resolve simultaneous-profile rule composition | — | planned |
+| [T028](tasks/T028-resolve-profile-composition.md) | Resolve simultaneous-profile rule composition | — | ready |
 | [T021](tasks/T021-define-profile-data-model.md) | Define the profile data model and synchronization format | T005, T028 | planned |
 | [T029](tasks/T029-migrate-whitelists-to-profiles.md) | Migrate desktop whitelist data to the profile model | T002, T021 | planned |
 | [T032](tasks/T032-plan-profile-runtime-and-editors.md) | Plan profile runtime and platform editors | T021, T029 | planned |
@@ -164,6 +198,7 @@ Exit criteria:
 | Task | Title | Depends on | Status |
 | --- | --- | --- | --- |
 | [T034](tasks/T034-plan-protection-levels.md) | Plan protection levels and bypass handling | T021 | planned |
+| [T059](tasks/T059-research-optional-windows-account-switch-restriction.md) | Research an optional Windows account switching restriction | T034 | planned |
 
 ## M8 — Content and notification controls
 
@@ -200,12 +235,13 @@ Goal: Optional accounts provide free basic synchronization and backup while loca
 Exit criteria:
 
 1. The first-version/public-release boundary and account/conflict/merge semantics are explicitly approved.
-2. Firebase access isolation and T038 child tasks for sign-in, profiles/settings, platform-specific lists, statistics, backup and cross-device sessions are accepted.
+2. Firebase access isolation and T038 child tasks for sign-in, profiles/settings, platform-specific lists, statistics and backup are accepted; live blocking sessions remain independent per device (L2; SYNC-004 removed).
 3. T039 child tasks implement reviewed consent/withdrawal, crash reporting, technical analytics and data exclusions; cost assumptions and privacy-review blockers are recorded.
 
 | Task | Title | Depends on | Status |
 | --- | --- | --- | --- |
 | [T037](tasks/T037-resolve-account-and-sync-contract.md) | Resolve account and synchronization contracts | T021 | planned |
+| [T060](tasks/T060-estimate-cloud-costs-before-enabling-paid-services.md) | Estimate cloud costs before enabling paid services | — | ready |
 | [T039](tasks/T039-plan-privacy-and-telemetry.md) | Plan consent privacy and technical telemetry | — | ready |
 | [T023](tasks/T023-set-up-firebase-project.md) | Set up the Firebase project | T021, T037 | planned |
 | [T038](tasks/T038-plan-sync-implementation.md) | Plan account and synchronization implementation | T023, T037 | planned |

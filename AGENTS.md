@@ -35,13 +35,13 @@ Add project-specific source pointers as they become available. Do not invent req
 - Do not create source code, dependencies, or infrastructure as part of repository preparation alone. Implementation requires requirements and a separate development task. An explicit request to install or update agent infrastructure authorizes that infrastructure work.
 - A brief plan is enough for a small change; break complex work into verifiable results.
 - Choose checks based on the risk and substance of the changes. Use real project commands; if they do not exist yet, say so instead of inventing commands or successful results.
-- Completion is confirmed by meeting the task criteria and performing the checks. Distinguish between "verified," "not verified," and "check failed."
+- Implementation completion is confirmed by meeting the task criteria and performing the checks. Distinguish between "verified," "not verified," and "check failed." For tracked tasks, completion enters `review`; `done` also requires acceptance under the project's explicit authority rules.
 - Update related documents if facts change. In projects using `STATUS.md`, update it when the phase, a significant result, an obstacle, or the next step changes.
 - In the final report, state the result, changed files and reasons, checks performed, and limitations. Support significant decisions with verifiable grounds.
 
 ## Subagents
 
-Delegate when it noticeably helps with independent verification, context separation, or parallel work. Read the orchestration policy before starting; in Codex and Claude Code, use the project-local `model-routing` skill for substantial delegation. Choose model and effort by the policy's tier rule; every subagent, in any client, reads the policy before starting its task, and every brief states its tier and this requirement; request compact findings or direct file changes with verifiable checks. Do not create fixed role profiles in advance. The current tool and session limitations take precedence.
+For substantial work, use the project-local `model-routing` skill in Codex and Claude Code and follow `docs/engineering/AI_ORCHESTRATION.md`. Identify coherent results to delegate before deciding which can run in parallel; dependent stages can be delegated sequentially. Keep the orchestrator responsible for coordination, evidence, and integration while working-default executors perform most substantive engineering work. Reserve stronger models for a justified narrow reasoning gap, then return routine work to the working default. Every brief states its tier, boundaries, criteria/checks, and the requirement to read the common policy sections. Return compact evidence or direct assigned-file changes. Do not set agent quotas, artificial limits, or permanent role profiles. Active tool and session limits take precedence.
 
 ## Project Skills
 
@@ -61,14 +61,30 @@ applications, websites and folders, launch methods, and protection levels agains
 The main platforms are Android, Windows and Linux, with equivalent functionality; iOS comes later.
 Only the Windows implementation currently exists.
 
+Linux development is on an explicit owner hold from 2026-11-18: preserve existing code, research,
+tasks and architectural boundaries, but do not continue Linux research, implementation, prototypes,
+environment setup or Linux-host validation until the owner explicitly resumes it. This includes
+Linux-only portions of mixed-platform tasks. Windows and shared work verified on Windows may continue;
+keep pure Unix-style fixtures intact without claiming Linux support. Deferred Linux checks are not
+passed checks and do not authorize changing task acceptance criteria. See the dated hold in
+[owner decisions](docs/spec/decisions.md) and [STATUS.md](STATUS.md).
+
 | Platform | Target stack (ADR-0005, ADR-0007) |
 | --- | --- |
 | Windows, Linux | C#/.NET agent service; Tauri 2 + TypeScript + React UI; SQLite storage |
 | Android | Kotlin + Jetpack Compose; Room storage |
 | Cloud | Firebase (ADR-0006) |
 
-This is the target architecture. PostgreSQL and the WinUI 3 UI still exist pending T002 and T018.
+This is the target architecture. The WinUI 3 UI still exists pending T018.
 Product decisions belong to the owner: [decisions](docs/spec/decisions.md).
+The dated K1–K3 owner answers from 2026-11-18 supersede conflicting earlier snapshot-recovery,
+machine-wide strict-policy and cloud-free-first-version proposals. They are product decisions, not
+acceptance of ADR-0009 or permission to implement its pending tasks. T058 owns service-design reconciliation;
+preserve other agents' active T054/T055/T056 work and the J1 Linux hold.
+The subsequent L1–L5 owner answers remove seeded profiles and shared cross-device blocking sessions,
+set daily emergency defaults and the cloud budget, select store/Stripe payment channels, and place
+prices/free-paid choices and visible-text analysis on owner-controlled hold. Implement only in separately
+eligible tasks; do not restore superseded behavior or interpret account sync as remote session control.
 If the specification is silent, ask the owner or record `> ❓ Question:` in the relevant specification.
 Do not make product decisions on the owner's behalf.
 
@@ -94,7 +110,8 @@ Do not make product decisions on the owner's behalf.
 ### Task Execution
 
 1. Use the lifecycle and format in `docs/engineering/TASK_FORMAT.md`. For a request given in chat,
-   create a task first. Select a `ready` task whose dependencies are `done`, then set it to
+   create a task first. Select a `ready` task whose dependencies are accepted (`done`) or explicitly authorized for
+   continuation under the task format, then set it to
    `in_progress` and update its roadmap entry and `STATUS.md` in the same change.
 2. Read the specification requirements and ADRs linked by the task.
 3. For a behavior change, update `docs/spec/` before implementation. Specification and code belong
@@ -129,17 +146,6 @@ On Linux, `FocusManager.Platform.Windows` and its tests can build (`EnableWindow
 but Windows tests cannot run. `FocusManager.Agent` and `FocusManager.App` require Microsoft's
 WindowsDesktop SDK; the WinUI app builds only on Windows. Record any unverified Windows code
 in the task's Result.
-
-Known baseline: three `FocusManager.Core.Tests` tests fail on non-Windows hosts because of
-Windows paths; see T001. Do not treat this dated baseline as proof of a current test result.
-
-#### PostgreSQL (temporary until T002)
-
-Agent storage still uses PostgreSQL; ADR-0006 and T002 replace it with SQLite. Remove this
-subsection once that migration is complete. `FocusManager.Persistence.Postgres.Tests` are
-skipped when `FOCUSMANAGER_TEST_POSTGRES` is unset. To run them, use a disposable local test
-database and supply its connection string through that environment variable. Do not commit
-passwords or connection strings containing passwords. See `README.md` for configuration.
 
 ### Code Conventions
 

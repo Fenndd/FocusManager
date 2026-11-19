@@ -4,7 +4,8 @@ A profile is a named set of rules. Every session runs under a profile (decision 
 
 ### PRF-001 Multiple profiles
 The user can create multiple profiles (for example, “Study”, “Sleep”, “Work”), rename,
-edit, and delete them. A ready-made “Study” profile is available on first launch.
+edit, and delete them. Profiles are created by the user; no predefined or seeded profiles are provided
+([L1 owner answers, 2026-11-18](decisions.md#l1-profiles-default-exceptions-and-protection)). This supersedes the earlier first-launch “Study” profile.
 
 Platforms: Android — planned · Windows — planned (currently one implicit rule set) · Linux — planned · iOS — deferred
 
@@ -38,11 +39,25 @@ Platforms: Android — planned · Windows — partial (true for websites; applic
 Multiple profiles can be active simultaneously (for example, a “Sleep” schedule and a manual “Study” session).
 
 Platforms: Android — planned · Windows — n/a currently · Linux — planned · iOS — deferred
-> ❓ Question: how should rules be combined? Proposal: an item is blocked if **at least one**
-> active profile blocks it (the strictest rule wins).
+Owner decision ([L1 owner answers, 2026-11-18](decisions.md#l1-profiles-default-exceptions-and-protection)): restrictions from active profiles combine: an item is blocked
+if **any** active profile blocks it. For a category, nonempty allowlists intersect and blocklists
+combine by union; a block from any profile takes precedence. An empty category contributes no
+restriction, as required by PRF-004. Ending one session removes only its contribution (SM-004);
+permitted live edits recompute the combined restrictions (SM-005, PROT-004).
+
+[T028](../../tasks/T028-resolve-profile-composition.md) still owns the shared examples and model handoff;
+recording this decision does not implement multiple profiles.
 
 ### PRF-006 Profiles are synchronized
 A user's profiles are identical across all their devices when synchronization is enabled (`sync.md`).
 Platform-specific profile parts (desktop folders, applications for a particular OS) are stored separately by platform.
 
 Platforms: Android — planned · Windows — planned · Linux — planned · iOS — deferred
+
+### PRF-007 Profile selection for automatic blocking
+When the separate automatic-blocking setting starts a new session on application launch, it uses
+the last-used profile or profiles by default. The user may configure an explicit selection instead
+([L1 owner answers, 2026-11-18](decisions.md#l1-profiles-default-exceptions-and-protection)). The new-session automatic-blocking setting remains **off by default** (K1 Q7).
+This selection does not replace restoration of already-active sessions under SM-002.
+
+Platforms: Android — planned · Windows — planned · Linux — planned (on owner hold) · iOS — deferred

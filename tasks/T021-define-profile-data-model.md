@@ -38,6 +38,12 @@ Planning change (T026, 2026-11-17): Split the former combined schema/model/migra
 
 ## Acceptance Criteria
 
+Owner update (T061, 2026-11-18): L1/L2 settle combined restrictions, no seeded profiles, last-used/explicit
+startup selection (PRF-007), Google/email sign-in and latest-change-wins. Model user/account data separately
+from independent device-local active sessions; SYNC-004 is removed and no remote start/stop schema is required.
+Carry version/order/deletion metadata needed by T037 without choosing a hidden conflict policy. Linux-only
+implementation/validation remains on hold; format planning does not resume that platform.
+
 1. Versioned schemas and valid/invalid sample documents exist; compatibility rules are documented and schema validation passes.
 2. Documents express the owner-approved composition rule without inventing trigger, protection, account or cloud conflict semantics.
 3. The proposed cloud layout identifies decisions deferred to T037; no persisted-data migration occurs here.

@@ -34,6 +34,8 @@ In scope:
 
 Out of scope: Linux and Android delivery tasks are created through T035; T020 provides host/IPC only.
 
+Planning note (T027, 2026-11-18, from proposed ADR-0009; not accepted): the reserved event framing (`kind`, `requestId`) comes from T047 (through T017, which depends on it), and this task delivers the subscription and the `Blocked` event on top of it. In the service model the UI shows the notification, so whether notifications appear when the UI is not running is ADR-0009 Q6.
+
 ## Acceptance Criteria
 
 1. Application and folder blocking produce notifications; turning off the setting disables them.
@@ -48,7 +50,7 @@ Out of scope: Linux and Android delivery tasks are created through T035; T020 pr
 
 ## Open Questions
 
-None
+ADR-0009 Q6 (must blocking notifications appear when the Tauri UI is not running?) is an owner question that affects scope; this task does not decide it.
 
 ## Result
 

@@ -19,7 +19,12 @@ Produce a bounded, source-linked implementation backlog and identify the decisio
 
 ## Scope
 
-In scope: Create separate tasks for desktop system-browser authentication and Android sign-in, local-first profile/settings sync, platform-specific lists, statistics merge, account backup/restore, and cross-device sessions. Include user isolation, logout/account switch, conflicts, offline/reconnect, duplication and deletion tests; preserve account-free blocking and free basic sync. Use T037 contracts rather than inventing conflict policies.
+In scope: Create separate tasks for Google/email desktop system-browser authentication and Android sign-in,
+local-first profile/settings sync, platform-specific lists, statistics merge and account backup/restore.
+Sessions remain independent on each device; removed SYNC-004 is not a remote start/stop capability. Include
+user isolation, logout/account switch, latest-change-wins conflicts, offline/reconnect, duplication and
+deletion tests; preserve account-free offline local functions and free basic sync. Use T037 contracts for
+ordering/tie/deletion implementation rather than inventing a different visible conflict policy.
 Out of scope: production implementation, external resource changes, or deciding unspecified product behavior.
 
 Planning change (T026, owner milestone request on 2026-11-17): moved from M6 to M10 to give this feature area a separate acceptance milestone. Task ID and requirement meaning are unchanged.

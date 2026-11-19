@@ -37,11 +37,14 @@ Out of scope:
 - Profiles, triggers, and protection levels (new model T021, features M5–M9).
 - Changes to the IPC protocol.
 
+Planning note (T027, 2026-11-18, from proposed ADR-0009; the ADR is not accepted): the controller must not hold its state in statics or singletons, so that one instance can later exist per OS-user partition (ADR-0009 D1, D5), and site and folder ports must be keyed by their target rather than assumed to be unique. This requirement is cheap to meet now, does not change Windows behavior, and is harmless if the ADR changes. It is added as acceptance criterion 4.
+
 ## Acceptance Criteria
 
 1. `AgentHostedService` contains no session state, snapshot, or enable/disable sequencing logic.
 2. Controller tests cover SM-002, SM-003, SM-004, and SM-005 and pass on Linux.
 3. Manual checks on Windows confirm unchanged Windows behavior.
+4. A shared test builds two controller instances with independent fake ports and shows that session state, snapshots and events of one do not affect the other.
 
 ## Checks
 

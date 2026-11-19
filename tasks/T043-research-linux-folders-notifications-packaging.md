@@ -22,6 +22,8 @@ Produce evidence and bounded follow-up tasks for the capabilities split from the
 In scope: prototype folder enforcement via fanotify/file-manager integration, selective notification hiding on GNOME/KDE, and root-service-compatible packaging on owner-selected distributions/environments. Do not equate global Do Not Disturb with the specified selective CNT-003 behavior. Resolve distribution/format choices with the owner using evidence, then create separate production tasks for folder behavior, notification suppression and packaging.
 Out of scope: production code, accepting limitations or selecting product defaults for the owner.
 
+Scheduling hold (T053, 2026-11-18): [Owner decision J1](../docs/spec/decisions.md#j1-linux-development-hold) conserves this `planned` task. Do not continue Linux research or prototypes, implementation, environment/tool setup, platform tests, CI or packaging until the owner explicitly decides to resume Linux work and the task's other gates are met. Dependency completion or a general request to continue the backlog does not lift the hold. Existing scope, sources, findings and future Windows/Linux sharing remain preserved; Linux-only portions of mixed future tasks are also deferred.
+
 ## Acceptance Criteria
 
 1. Tested mechanisms, platform/browser versions, permissions, bypasses and remaining unknowns are recorded in a proposed ADR; untested hypotheses retain their status.
@@ -36,7 +38,7 @@ Out of scope: production code, accepting limitations or selecting product defaul
 
 ## Open Questions
 
-None to collect evidence/options. Research does not grant authority to change product requirements or external resources.
+When will the owner explicitly decide to resume Linux work? This scheduling gate remains unresolved independently of the listed dependencies; an agent may not resolve it on the owner's behalf. Research does not grant authority to change product requirements or external resources.
 
 ## Result
 

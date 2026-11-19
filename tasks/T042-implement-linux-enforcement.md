@@ -22,6 +22,8 @@ Add researched application/site enforcement to the working Linux host and verify
 In scope: selected process monitor/blocker, essential system exclusions, supported-browser policy apply/cleanup and unsupported-browser handling using shared session logic and vectors. Split browser and process implementation into child tasks before starting if T019 mechanisms require more than one session.
 Out of scope: Linux folder mechanisms (T043/T032), content (T035) and protection (T034), unvalidated mechanisms and profile-mode features assigned by T032.
 
+Scheduling hold (T053, 2026-11-18): [Owner decision J1](../docs/spec/decisions.md#j1-linux-development-hold) conserves this `planned` task. Do not continue Linux research or prototypes, implementation, environment/tool setup, platform tests, CI or packaging until the owner explicitly decides to resume Linux work and the task's other gates are met. Dependency completion or a general request to continue the backlog does not lift the hold. Existing scope, sources, findings and future Windows/Linux sharing remain preserved; Linux-only portions of mixed future tasks are also deferred.
+
 ## Acceptance Criteria
 
 1. Tests cover researched application identity (including supported packaging), exclusions, event-to-rule flow and browser apply/cleanup.
@@ -34,7 +36,7 @@ Out of scope: Linux folder mechanisms (T043/T032), content (T035) and protection
 
 ## Open Questions
 
-None
+When will the owner explicitly decide to resume Linux work? This scheduling gate remains unresolved independently of the listed dependencies; an agent may not resolve it on the owner's behalf.
 
 ## Result
 

@@ -1,0 +1,14 @@
+VSTest version 17.11.1 (x64)
+[xUnit.net 00:00:00.22]         candidate=C:\Study allowed=\Study full=C:\Study before=True after=False
+[xUnit.net 00:00:00.22]         candidate=D:\ allowed=D: full=D:\ before=True after=False
+[xUnit.net 00:00:00.22]         candidate=C:\Study allowed=C:\Study. full=C:\Study before=True after=False
+[xUnit.net 00:00:00.22]         candidate=C:\Apps\evil.exe:Code.exe fileName=evil.exe:Code.exe before=False after=True
+ candidate=D:\Study allowed=D: full=D:\ before=True after=True
+ candidate=C:\Study allowed=\Study full=C:\Study before=True after=False
+ candidate=D:\ allowed=D: full=D:\ before=True after=False
+ candidate=C:\Study allowed=C:\Study. full=C:\Study before=True after=False
+ candidate=C:\Apps\evil.exe:Code.exe fileName=evil.exe:Code.exe before=False after=True
+Test Run Failed.
+Total tests: 5
+     Passed: 1
+     Failed: 4

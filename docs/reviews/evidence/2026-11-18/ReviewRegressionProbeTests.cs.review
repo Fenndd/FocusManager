@@ -1,0 +1,31 @@
+using FocusManager.Core.Models;
+using FocusManager.Core.Rules;
+using Xunit;
+using Xunit.Abstractions;
+namespace FocusManager.Core.Tests;
+public sealed class ReviewRegressionProbeTests(ITestOutputHelper output)
+{
+    [Theory]
+    [InlineData("D:\\", "D:", false)]
+    [InlineData("D:\\Study", "D:", true)]
+    [InlineData("C:\\Study", "C:\\Study.", false)]
+    [InlineData("C:\\Study", "\\Study", false)]
+    public void Folder_MatchesBaseline(string candidate, string allowed, bool subfolders)
+    {
+        var config = new WhitelistConfig { AllowedFolders = [new AllowedFolder("Study", allowed, subfolders)] };
+        var before = new BaselineRuleEvaluator().EvaluateFolderOpen(candidate, config).IsAllowed;
+        var after = new RuleEvaluator(PathRules.Windows).EvaluateFolderOpen(candidate, config).IsAllowed;
+        output.WriteLine($"candidate={candidate} allowed={allowed} full={System.IO.Path.GetFullPath(allowed)} before={before} after={after}");
+        Assert.Equal(before, after);
+    }
+    [Fact]
+    public void AlternateDataStreamName_MatchesBaseline()
+    {
+        var config = new WhitelistConfig { AllowedApps = [new AllowedApp("Code", @"C:\Apps\Code.exe")] };
+        const string candidate = @"C:\Apps\evil.exe:Code.exe";
+        var before = new BaselineRuleEvaluator().EvaluateApplicationStart(candidate, config).IsAllowed;
+        var after = new RuleEvaluator(PathRules.Windows).EvaluateApplicationStart(candidate, config).IsAllowed;
+        output.WriteLine($"candidate={candidate} fileName={System.IO.Path.GetFileName(candidate)} before={before} after={after}");
+        Assert.Equal(before, after);
+    }
+}
